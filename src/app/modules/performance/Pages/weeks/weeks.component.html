@@ -1,0 +1,115 @@
+<app-page-template titleNavbar="Semaines">
+  <div *ngIf="!isLoading" class="font-Jakarta container mx-auto p-4 space-y-8">
+    <!-- Top Section: Prevision/Reel Table -->
+    <div class="flex items-center w-full justify-between flex-wrap space-y-4 sm:space-y-0">
+      <h2 class="text-xl text-dark-blue font-bold mb-4 w-full sm:w-auto">Objectifs de {{currentYear}} </h2>
+
+      <!-- Blue Button -->
+      <div class="flex gap-2 font-Jakarta justify-evenly w-full sm:w-auto">
+        <button (click)="OpenModalFilterDate()" nzType="primary" nz-popover nzPopoverTitle="Filtrer par date"
+          [(nzPopoverVisible)]="isFilterDateOpen" nzPopoverTrigger="click"
+          [nzPopoverContent]="contentTemplateModalFilter"
+          class="text-[11px] bg-white justify-center items-center cursor-pointer hover:bg-gray-50 duration-300 px-2.5 py-2 border flex border-[#E6E6E6] text-[#475569] rounded-3xl">
+          <div class="flex items-center">
+            <img class="h-8 w-8" src="assets/icons/calender.svg" alt="Calendar icon" class="mr-2" />
+            <p class="text-sm font-semibold">Filtrer par date</p>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <ng-template #contentTemplateModalFilter>
+      <main class="flex-grow bg-white flex items-center justify-center p-4">
+        <nz-date-picker nzMode="year" [(ngModel)]="date" (ngModelChange)="onChange($event)"></nz-date-picker>
+      </main>
+      <div class="flex justify-end space-x-4">
+        <button class="text-[#2C52F5] hover:text-[#2C52F5] hover:underline" nz-button nzType="link"
+          (click)="handleCloseDateModalFilter()">
+          Annuler
+        </button>
+        <button
+          class="bg-[#2C52F5] border rounded-full text-white hover:text-white hover:bg-[#2C52F5]/75 transition-colors"
+          nz-button nzType="text" (click)="ComfirmModalFiltrageFilter()" [nzLoading]="isLoading">
+          Filtre
+        </button>
+      </div>
+    </ng-template>
+
+    <div class="p-6 bg-[#ffffff] rounded-xl border">
+      <div class="text-center text-[#0D204E] border rounded-xl py-1 font-bold text-xl mb-6">Prévision/Réel sur l’année
+        {{currentYear}}</div>
+
+      <!-- Responsive Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full table-auto border-collapse">
+          <thead>
+            <tr class="text-center text-[#7B8594]">
+              <th class="px-3 py-2 border-b font-medium text-xs">Semaines/Month</th>
+              <th class="px-3 py-2 border-b font-medium text-xs">Janvier</th>
+              <th class="px-3 py-2 border-b font-medium text-xs">Février</th>
+              <th class="px-3 py-2 border-b font-medium text-xs">Mars</th>
+              <th class="px-3 py-2 border-b font-medium text-xs">Avril</th>
+              <th class="px-3 py-2 border-b font-medium text-xs">Mai</th>
+              <th class="px-3 py-2 border-b font-medium text-xs">Juin</th>
+              <th class="px-3 py-2 border-b font-medium text-xs">Juillet</th>
+              <th class="px-3 py-2 border-b font-medium text-xs">Août</th>
+              <th class="px-3 py-2 border-b font-medium text-xs">Septembre</th>
+              <th class="px-3 py-2 border-b font-medium text-xs">Octobre</th>
+              <th class="px-3 py-2 border-b font-medium text-xs">Novembre</th>
+              <th class="px-3 py-2 border-b font-medium text-xs">Décembre</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let week of weeks" class="text-center">
+              <td class="px-3 py-2 border-b font-medium text-[#2c3e50]">{{ week }}</td>
+              <td class="px-3 py-2 border-b bg-gray-100">{{ getBudgetTotal(1, week) }}</td>
+              <td class="px-3 py-2 border-b bg-gray-100">{{ getBudgetTotal(2, week) }}</td>
+              <td class="px-3 py-2 border-b bg-gray-100">{{ getBudgetTotal(3, week) }}</td>
+              <td class="px-3 py-2 border-b bg-gray-100">{{ getBudgetTotal(4, week) }}</td>
+              <td class="px-3 py-2 border-b bg-gray-100">{{ getBudgetTotal(5, week) }}</td>
+              <td class="px-3 py-2 border-b bg-gray-100">{{ getBudgetTotal(6, week) }}</td>
+              <td class="px-3 py-2 border-b bg-gray-100">{{ getBudgetTotal(7, week) }}</td>
+              <td class="px-3 py-2 border-b bg-gray-100">{{ getBudgetTotal(8, week) }}</td>
+              <td class="px-3 py-2 border-b bg-gray-100">{{ getBudgetTotal(9, week) }}</td>
+              <td class="px-3 py-2 border-b bg-gray-100">{{ getBudgetTotal(10, week) }}</td>
+              <td class="px-3 py-2 border-b bg-gray-100">{{ getBudgetTotal(11, week) }}</td>
+              <td class="px-3 py-2 border-b bg-gray-100">{{ getBudgetTotal(12, week) }}</td>
+            </tr>
+            <tr class="text-center">
+              <td class="px-3 py-2 border-b font-medium text-[#2c3e50]">Total</td>
+              <td class="px-3 py-2 border-b bg-[#f7f7f7]">{{ getMonthlyTotal(1) }}</td>
+              <td class="px-3 py-2 border-b bg-[#f7f7f7]">{{ getMonthlyTotal(2) }}</td>
+              <td class="px-3 py-2 border-b bg-[#f7f7f7]">{{ getMonthlyTotal(3) }}</td>
+              <td class="px-3 py-2 border-b bg-[#f7f7f7]">{{ getMonthlyTotal(4) }}</td>
+              <td class="px-3 py-2 border-b bg-[#f7f7f7]">{{ getMonthlyTotal(5) }}</td>
+              <td class="px-3 py-2 border-b bg-[#f7f7f7]">{{ getMonthlyTotal(6) }}</td>
+              <td class="px-3 py-2 border-b bg-[#f7f7f7]">{{ getMonthlyTotal(7) }}</td>
+              <td class="px-3 py-2 border-b bg-[#f7f7f7]">{{ getMonthlyTotal(8) }}</td>
+              <td class="px-3 py-2 border-b bg-[#f7f7f7]">{{ getMonthlyTotal(9) }}</td>
+              <td class="px-3 py-2 border-b bg-[#f7f7f7]">{{ getMonthlyTotal(10) }}</td>
+              <td class="px-3 py-2 border-b bg-[#f7f7f7]">{{ getMonthlyTotal(11) }}</td>
+              <td class="px-3 py-2 border-b bg-[#f7f7f7]">{{ getMonthlyTotal(12) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <div *ngIf="isLoading" class="font-Jakarta container mx-auto p-4 space-y-8">
+    <!-- Top Section Skeleton -->
+    <div class="flex items-center w-full justify-between animate-pulse mb-4">
+      <div class="h-6 bg-gray-300 w-40"></div>
+      <div class="flex gap-2">
+        <div class="h-8 w-28 bg-gray-300 rounded-full"></div>
+      </div>
+    </div>
+
+    <!-- Table Skeleton -->
+    <div class="p-6 bg-[#ffffff] rounded-xl border animate-pulse mx-2">
+      <div class="h-8 bg-gray-300 w-1/3 mb-6"></div>
+      <div class="w-full h-60 bg-gray-200"></div>
+    </div>
+  </div>
+</app-page-template>

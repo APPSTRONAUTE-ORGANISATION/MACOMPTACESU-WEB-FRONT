@@ -1,0 +1,371 @@
+<app-page-template titleNavbar="Utilisateurs"  (SearchValue)="search($event)"  sideIconPath="assets/icons/colored/users.svg">
+
+
+  <!-- Modals -->
+  <nz-modal [(nzVisible)]="isAddClientModalVisible" [nzTitle]="modalTitle" [nzContent]="modalContent"
+      [nzFooter]="modalFooter" (nzOnCancel)="handleCancel()">
+      <ng-template #modalTitle>
+          <div class="relative bg-[#2C52F5] flex flex-col py-2 px-1 items-center overflow-hidden">
+              <div class="w-9 h-9 bg-cover bg-center"
+                  style="background-image: url('assets/icons/users.svg');"></div>
+              <div class="mt-2 text-[11px] text-[white]">{{ !isEditMode ? 'Ajouter un utilisateur' : 'Modifier un utilisateur' }}</div>
+              <div class="absolute rotate-12 w-32 h-32 bg-cover bg-center opacity-30 -left-14 transform -rotate-30"
+                  style="background-image: url('assets/icons/users.svg');"></div>
+              <div class="absolute -rotate-12 w-32 h-32 bg-cover bg-center opacity-30 -right-14 transform rotate-30"
+                  style="background-image: url('assets/icons/users.svg');"></div>
+          </div>
+      </ng-template>
+
+      <ng-template #modalContent>
+          <main class="flex-grow bg-white flex items-center justify-center p-4">
+              <form [formGroup]="form">
+                  <div class="grid grid-cols-2 gap-4 mb-2">
+                      <div class="relative">
+                          <input formControlName="first_name" placeholder="Nom" required
+                              class="text-[12px] w-full py-2.5 border border-gray-300 rounded-full pl-5 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                          <div *ngIf="form.get('first_name')?.invalid && (form.get('first_name')?.dirty || form.get('first_name')?.touched)"
+                              class="text-red animate__animated animate__fadeInDown text-[9px] mt-1">
+                              <div *ngIf="form.get('first_name')?.errors?.['required']"> * Le nom est requis.</div>
+                          </div>
+                      </div>
+                      <div class="relative">
+                          <input formControlName="last_name" placeholder="Prénom" required
+                              class="text-[12px] w-full py-2.5 border border-gray-300 rounded-full pl-5 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                          <div *ngIf="form.get('last_name')?.invalid && (form.get('last_name')?.dirty || form.get('last_name')?.touched)"
+                              class="text-red animate__animated animate__fadeInDown text-[9px] mt-1">
+                              <div *ngIf="form.get('last_name')?.errors?.['required']"> * Prénom est requis.</div>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="relative mb-2">
+                      <img src="assets/icons/address.svg" alt="Adresse Icon" class="absolute left-3 top-2.5 w-4 h-4">
+                      <input formControlName="country" placeholder="Adresse" required
+                          class="text-[12px] w-full py-2.5 border border-gray-300 rounded-full pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+                  </div>
+                  <div class="relative mb-2">
+                      <img src="assets/icons/phone.svg" alt="Téléphone Icon" class="absolute left-3 top-2.5 w-4 h-4">
+                      <input formControlName="phone" placeholder="Téléphone" required
+                             [maxLength]="10"
+                          class="text-[12px] w-full py-2.5 border border-gray-300 rounded-full pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <div *ngIf="form.get('phone')?.errors?.['pattern']"
+                          class="text-red animate__animated animate__fadeInDown text-[9px] mt-1">
+                          <div > * Le téléphone doit contenir 10 chiffres.</div>
+                      </div>
+
+                  </div>
+                  <div class="relative mb-2">
+                      <img src="assets/icons/email.svg" alt="Email Icon" class="absolute left-3 top-2.5 w-4 h-4">
+                      <input formControlName="email" placeholder="Email" required
+                          class="text-[12px] w-full py-2.5 border border-gray-300 rounded-full pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <div *ngIf="form.get('email')?.invalid && (form.get('email')?.dirty || form.get('email')?.touched)"
+                          class="text-red animate__animated animate__fadeInDown text-[9px] mt-1">
+                          <div *ngIf="form.get('email')?.errors?.['required']"> * L'email est requis.</div>
+                          <div *ngIf="form.get('email')?.errors?.['email'] || form.get('email')?.hasError('pattern')">{{ 'users.*_LEMAIL_EST_INVALIDE' | translate }}</div>
+                      </div>
+                  </div>
+                <div *ngIf="!isEditMode" class="relative mb-2">
+                  <img src="assets/icons/lock.svg" alt="Email Icon" class="absolute left-3 top-2.5 w-4 h-4">
+                  <input formControlName="password" placeholder="Mot de passe"
+                         class="text-[12px] w-full py-2.5 border border-gray-300 rounded-full pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                         <div *ngIf="form.get('password')?.invalid && (form.get('password')?.dirty || form.get('password')?.touched)"
+                         class="text-red animate__animated animate__fadeInDown text-[9px] mt-1">
+                      <div *ngIf="form.get('password')?.errors?.['required']">* Le mot de passe est requis.</div>
+                      <div *ngIf="form.get('password')?.errors?.['minlength']">{{ 'users.*_LE_MOT_DE_PASSE_DOIT_COMPORTER_AU_MOINS_8_CARACTÈRES.' | translate }}</div>
+                      <div *ngIf="form.get('password')?.errors?.['pattern']">
+                        * Le mot de passe doit comporter au minimum 8 caractères,<br>
+                         mélangeant des majuscules, des minuscules, <br>
+                         des chiffres et des caractères spéciaux.
+                      </div>
+                    </div>
+
+
+                </div>
+
+              </form>
+
+          </main>
+      </ng-template>
+
+      <ng-template #modalFooter>
+          <div class="flex justify-end space-x-4">
+              <button class="text-[#2C52F5] hover:text-[#2C52F5] hover:underline" nz-button nzType="link"
+                  (click)="handleCancel()">
+                  Annuler
+              </button>
+              <button
+                  class="bg-[#2C52F5] border rounded-full text-white hover:text-white   hover:bg-[#2C52F5]/75 transition-colors"
+                  nz-button nzType="text" (click)="handleOk()" [nzLoading]="isAddingClient">
+                  {{ !isEditMode ? 'Ajouter' : 'Modifier' }}
+              </button>
+          </div>
+      </ng-template>
+
+  </nz-modal>
+
+ <nz-modal [(nzVisible)]="isOpenDeleteModal"  [nzTitle]="DeleteModalTitle" [nzFooter]="null" [nzContent]="DeleteModalContent"  (nzOnCancel)="handleCancel()">
+   <ng-template #DeleteModalTitle>
+     <div class="h-14 bg-[#F13759]">
+     </div>
+   </ng-template>
+
+    <ng-template #DeleteModalContent>
+
+      <div class="flex p-6 flex-col items-center">
+        <div class="bg-[#F13759] text-white p-3 rounded-full mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        </div>
+        <h2 class="text-xl font-bold text-[#F13759] mb-4">{{ 'users.ATTENTION' | translate }}</h2>
+        <p class="text-gray-700 text-center mb-6">{{ 'users.VOUS_VOULEZ_VRAIMENT_SUPPRIMER' | translate }}</p>
+        <div class="flex justify-center w-full space-x-4">
+          <button class="px-4 py-2 h-10 cursor-pointer border border-gray-300 rounded-full text-gray-600 hover:bg-gray-100 transition duration-200" (click)="handleCancel()">{{ 'users.ANNULER' | translate }}</button>
+          <button nz-button [nzLoading]="isDeletingUser" class="px-4 py-2 h-10 cursor-pointer bg-[#F13759] text-white rounded-full hover:bg-red transition duration-200" (click)="HandleComfirmDelete()">{{ 'users.SUPPRIMER' | translate }}</button>
+        </div>
+      </div>
+    </ng-template>
+ </nz-modal>
+
+  <!-- end Modals -->
+
+  <!-- Drawer -->
+  <nz-drawer
+  [nzSize]="'large'"
+  [nzVisible]="detailsUserDrawer"
+  nzPlacement="right"
+  [nzTitle]="'Détails d\'utilisateurs :' + ' ' + formData?.first_name + ' ' + formData?.last_name"
+  (nzOnClose)="detailsUserDrawer = false"
+>
+  <ng-container *nzDrawerContent>
+      <div class="container mx-auto p-6">
+          <div class="bg-white  text-gray-800">
+            <div class="flex items-center">
+              <img
+                *ngIf="formData?.profile_image"
+                [src]="formData?.profile_image"
+                alt="Profile Image"
+                class="w-32 h-32 rounded-full border-2 border-teal-500 shadow-md mr-6"
+              />
+              <div>
+                <h2 class="text-2xl font-bold text-gray-900">
+                  {{ formData?.first_name }} {{ formData?.last_name }}
+                </h2>
+                <p class="text-gray-700 text-md italic">{{ formData?.role }}</p>
+              </div>
+            </div>
+
+            <div class="mt-8">
+              <h3 class="text-xl font-semibold text-teal-600 border-b pb-2 mb-4">{{ 'users.CONTACT_INFORMATION' | translate }}</h3>
+              <p class="text-gray-600">
+                <strong>{{ 'users.EMAIL:' | translate }}</strong> {{ formData?.email }}
+              </p>
+              <p class="text-gray-600">
+                <strong>{{ 'users.PHONE:' | translate }}</strong> {{ formData?.phone }}
+              </p>
+              <p class="text-gray-600">
+                <strong>{{ 'users.COUNTRY:' | translate }}</strong> {{ formData?.country }}
+              </p>
+            </div>
+
+            <div class="mt-6">
+              <h3 class="text-xl font-semibold text-teal-600 border-b pb-2 mb-4">{{ 'users.ACCOUNT_STATUS' | translate }}</h3>
+              <p class="text-gray-600">
+                <strong>{{ 'users.STATUS:' | translate }}</strong>
+                <span
+                  [ngClass]="formData?.active ? 'text-green-500' : 'text-red-500'"
+                  class="font-semibold"
+                >
+                  {{ formData?.active ? 'Active' : 'Inactive' }}
+                </span>
+              </p>
+            </div>
+
+            <div class="mt-6">
+              <h3 class="text-xl font-semibold text-teal-600 border-b pb-2 mb-4">{{ 'users.ACCOUNT_DETAILS' | translate }}</h3>
+              <p class="text-gray-600">
+                <strong>{{ 'users.CREATED_AT:' | translate }}</strong> {{ formData?.created_at | date }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+  </ng-container>
+</nz-drawer>
+
+  <!-- end Drawer -->
+  <main>
+      <div class="flex items-center justify-between p-4 space-x-4">
+          <!-- Blue Button -->
+          <button (click)="showModal()"
+              class="flex items-center text-[12px] px-4 py-2 text-white bg-[#2C52F5] rounded-full hover:bg-blue-700 focus:outline-none ">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Ajouter un utilisateur
+          </button>
+          <div class="flex space-x-2 ">
+
+
+              <!-- <button
+                  (click)="export('PDF')"
+                  class="flex items-center justify-evenly hover:border-gray-200 hover:bg-gray-50 px-4 py-2 text-red-600 bg-white rounded-full hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-500">
+                  <img class="h-5 w-5 mr-2" src="assets/icons/pdf.svg" alt="" />
+                  <span class="text-[#D22B35]">{{ 'users.PDF' | translate }}</span>
+                  <svg class="h-5 w-5 ml-2" width="25" height="25" viewBox="0 0 25 25" fill="none"
+                      xmlns="http://www.w3.org/2000/svg">
+                      <path
+                          d="M13.0398 3.60938C13.0398 3.19516 12.704 2.85938 12.2898 2.85938C11.8756 2.85938 11.5398 3.19516 11.5398 3.60938V16.4199C11.2171 16.0924 10.8336 15.6104 10.2753 14.9064L8.87749 13.1434C8.62014 12.8188 8.1484 12.7643 7.82383 13.0217C7.49926 13.279 7.44477 13.7508 7.70212 14.0753L9.12836 15.8741C9.66155 16.5466 10.1015 17.1015 10.4953 17.4969C10.8994 17.9025 11.348 18.2388 11.9211 18.3301C12.0432 18.3496 12.1664 18.3594 12.2898 18.3594C12.4132 18.3594 12.5364 18.3496 12.6585 18.3301C13.2316 18.2388 13.6802 17.9025 14.0843 17.4969C14.4781 17.1015 14.9181 16.5466 15.4512 15.8741L16.8775 14.0753C17.1348 13.7508 17.0803 13.279 16.7558 13.0217C16.4312 12.7643 15.9595 12.8188 15.7021 13.1434L14.3043 14.9064C13.7461 15.6104 13.3625 16.0924 13.0398 16.4199V3.60938Z"
+                          fill="#D22B35" />
+                      <path
+                          d="M20.8898 11.1589C20.6411 10.8277 20.1709 10.7609 19.8397 11.0097C19.5085 11.2585 19.4417 11.7286 19.6905 12.0598C20.224 12.77 20.5398 13.6517 20.5398 14.6094V15.6094C20.5398 16.567 20.5375 16.9586 20.4875 17.2742C20.1994 19.0928 18.7732 20.519 16.9546 20.8071C16.639 20.857 16.2475 20.8594 15.2898 20.8594H9.2898C8.33214 20.8594 7.94063 20.857 7.62496 20.8071C5.80641 20.519 4.38016 19.0928 4.09213 17.2742C4.04213 16.9586 4.0398 16.567 4.0398 15.6094V14.6094C4.0398 13.6517 4.35563 12.77 4.88911 12.0598C5.13788 11.7286 5.07106 11.2585 4.73987 11.0097C4.40868 10.7609 3.93853 10.8278 3.68976 11.1589C2.96787 12.12 2.5398 13.3158 2.5398 14.6094L2.5398 15.6902C2.53973 16.5422 2.53969 17.0612 2.6106 17.5089C3.00028 19.9693 4.92992 21.8989 7.3903 22.2886C7.83799 22.3595 8.35697 22.3594 9.209 22.3594H15.3706C16.2226 22.3594 16.7416 22.3595 17.1893 22.2886C19.6497 21.8989 21.5793 19.9693 21.969 17.5089C22.0399 17.0612 22.0399 16.5422 22.0398 15.6902L22.0398 14.6094C22.0398 13.3158 21.6117 12.12 20.8898 11.1589Z"
+                          fill="#D22B35" />
+                  </svg>
+              </button>
+
+
+              <button
+                  (click)="export('XLX')"
+                  class="flex items-center justify-evenly hover:border-gray-200 hover:bg-gray-50 px-4 py-2 text-green-600 bg-white  rounded-full hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-green-500">
+                  <img class="h-5 w-5 mr-2" src="assets/icons/xlx.svg" alt="" />
+                  <span class="text-[#21A366]">{{ 'users.EXCEL' | translate }}</span>
+                  <svg class="h-5 w-5 ml-2" width="25" height="25" viewBox="0 0 25 25" fill="none"
+                      xmlns="http://www.w3.org/2000/svg">
+                      <path
+                          d="M13.0398 3.60938C13.0398 3.19516 12.704 2.85938 12.2898 2.85938C11.8756 2.85938 11.5398 3.19516 11.5398 3.60938V16.4199C11.2171 16.0924 10.8336 15.6104 10.2753 14.9064L8.87749 13.1434C8.62014 12.8188 8.1484 12.7643 7.82383 13.0217C7.49926 13.279 7.44477 13.7508 7.70212 14.0753L9.12836 15.8741C9.66155 16.5466 10.1015 17.1015 10.4953 17.4969C10.8994 17.9025 11.348 18.2388 11.9211 18.3301C12.0432 18.3496 12.1664 18.3594 12.2898 18.3594C12.4132 18.3594 12.5364 18.3496 12.6585 18.3301C13.2316 18.2388 13.6802 17.9025 14.0843 17.4969C14.4781 17.1015 14.9181 16.5466 15.4512 15.8741L16.8775 14.0753C17.1348 13.7508 17.0803 13.279 16.7558 13.0217C16.4312 12.7643 15.9595 12.8188 15.7021 13.1434L14.3043 14.9064C13.7461 15.6104 13.3625 16.0924 13.0398 16.4199V3.60938Z"
+                          fill="#21A366" />
+                      <path
+                          d="M20.8898 11.1589C20.6411 10.8277 20.1709 10.7609 19.8397 11.0097C19.5085 11.2585 19.4417 11.7286 19.6905 12.0598C20.224 12.77 20.5398 13.6517 20.5398 14.6094V15.6094C20.5398 16.567 20.5375 16.9586 20.4875 17.2742C20.1994 19.0928 18.7732 20.519 16.9546 20.8071C16.639 20.857 16.2475 20.8594 15.2898 20.8594H9.2898C8.33214 20.8594 7.94063 20.857 7.62496 20.8071C5.80641 20.519 4.38016 19.0928 4.09213 17.2742C4.04213 16.9586 4.0398 16.567 4.0398 15.6094V14.6094C4.0398 13.6517 4.35563 12.77 4.88911 12.0598C5.13788 11.7286 5.07106 11.2585 4.73987 11.0097C4.40868 10.7609 3.93853 10.8278 3.68976 11.1589C2.96787 12.12 2.5398 13.3158 2.5398 14.6094L2.5398 15.6902C2.53973 16.5422 2.53969 17.0612 2.6106 17.5089C3.00028 19.9693 4.92992 21.8989 7.3903 22.2886C7.83799 22.3595 8.35697 22.3594 9.209 22.3594H15.3706C16.2226 22.3594 16.7416 22.3595 17.1893 22.2886C19.6497 21.8989 21.5793 19.9693 21.969 17.5089C22.0399 17.0612 22.0399 16.5422 22.0398 15.6902L22.0398 14.6094C22.0398 13.3158 21.6117 12.12 20.8898 11.1589Z"
+                          fill="#21A366" />
+                  </svg>
+
+              </button> -->
+          </div>
+      </div>
+      <!-- table -->
+      <nz-table #nzTable [nzHideOnSinglePage]="true" [nzLoading]="isLoadingUsers" [nzData]="query.data()?.data"
+      [nzBordered]="false"
+      [nzNoResult]="EMPTY"
+      [nzScroll]="isMobileScreen ? { x: '1000px' } : { x: null }"
+      nzTableLayout="fixed"
+
+      >
+      <ng-template #EMPTY>
+
+      <nz-empty class=" flex justify-center items-center flex-col"
+      nzNotFoundImage="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
+      [nzNotFoundContent]="contentTpl"
+    >
+      <ng-template #contentTpl>
+        <span>{{ 'users.AUCUN_UTILISATEUR' | translate }}</span>
+      </ng-template>
+
+    </nz-empty>
+    </ng-template>
+    <thead>
+      <tr>
+          <th class="text-[11px] text-center  flex justify-center">{{ 'users.PHOTO' | translate }}</th>
+          <th class="text-[11px] text-center ">{{ 'users.NOM' | translate }}</th>
+          <th class="text-[11px] text-center ">{{ 'users.PRÉNOM' | translate }}</th>
+          <th class="text-[11px] text-center ">{{ 'users.TÉLÉPHONE' | translate }}</th>
+          <th class="text-[11px] text-center ">{{ 'users.EMAIL' | translate }}</th>
+          <th class="text-[11px] text-center ">{{ 'users.ROLE' | translate }}</th>
+          <th class="text-[11px] text-center ">{{ 'users.STATU' | translate }}</th>
+          <th class="text-[11px] text-center ">{{ 'users.ACTIONS' | translate }}</th>
+      </tr>
+  </thead>
+  
+          <tbody>
+              @for (data of nzTable.data; track data) {
+              <tr>
+                  <td class="text-[11px] truncate  flex justify-center">
+
+                    <div *ngIf="data?.profile_image" class="relative flex justify-center items-center w-13 h-13 ">
+                      <img
+                        [src]="data?.profile_image"
+                        alt="Profile"
+                        class="w-12 h-12 rounded-full object-contain bg-gray-100 border"
+                      />
+                    </div>
+                    <div *ngIf="!data?.profile_image" class="relative flex justify-center items-center w-13 h-13 ">
+                      <div class="flex-shrink-0">
+                        <div
+                          class="w-12 uppercase h-12 rounded-full bg-[#EEF1FF] text-[#2C52F5] flex items-center justify-center font-semibold text-[14px] ">
+                          {{data?.first_name[0]}}{{data?.last_name[0]}}
+                        </div>
+                      </div>
+                    </div>
+
+                  </td>
+                  <td class="text-[11px] capitalize truncate ">{{ data.first_name }}</td>
+                  <td class="text-[11px] capitalize truncate">{{ data.last_name }}</td>
+                  <td class="text-[11px] truncate">
+                    <nz-tag class="rounded-3xl" [nzColor]="'geekblue'" [nzBordered]="false">{{ data.phone }}</nz-tag>
+                  </td>
+                  <td class="text-[11px] ">
+                    <nz-tag class="rounded-3xl lowercase" [nzColor]="'volcano'" [nzBordered]="false">
+                      {{ data.email.length > 15 ? (data.email | slice:0:15) + '...' : data.email }}
+                    </nz-tag>
+                  </td>
+                  <td>
+                      <ng-container *ngIf="data.role === 'admin'; else otherRole">
+                        <nz-tag class="rounded-3xl" [nzColor]="'magenta'">{{ data.role}}</nz-tag>
+                      </ng-container>
+                      <ng-template #otherRole>
+                        <nz-tag class="rounded-3xl" [nzColor]="'geekblue'">{{ data.role}}</nz-tag>
+                      </ng-template>
+                    </td>
+                  <td class="text-[11px] truncate">
+                    <nz-tag class="rounded-3xl" [nzColor]=" data.active == true ? 'green' : 'red'" [nzBordered]="false">{{ data.active == true ? 'Active' : 'Inactif' }}</nz-tag>
+                  </td>
+
+                <td class="text-[11px] ">
+                      <button  nz-popover [nzPopoverContent]="PopOverActions" nzPopoverTrigger="click">
+                          <svg width="25" height="25" viewBox="-0.5 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M12 14.5C13.1046 14.5 14 13.6046 14 12.5C14 11.3954 13.1046 10.5 12 10.5C10.8954 10.5 10 11.3954 10 12.5C10 13.6046 10.8954 14.5 12 14.5Z" stroke="#7B8694" stroke-miterlimit="10"/>
+                              <path d="M19.5 14.5C20.6046 14.5 21.5 13.6046 21.5 12.5C21.5 11.3954 20.6046 10.5 19.5 10.5C18.3954 10.5 17.5 11.3954 17.5 12.5C17.5 13.6046 18.3954 14.5 19.5 14.5Z" stroke="#7B8694" stroke-miterlimit="10"/>
+                              <path d="M4.5 14.5C5.60457 14.5 6.5 13.6046 6.5 12.5C6.5 11.3954 5.60457 10.5 4.5 10.5C3.39543 10.5 2.5 11.3954 2.5 12.5C2.5 13.6046 3.39543 14.5 4.5 14.5Z" stroke="#7B8694" stroke-miterlimit="10"/>
+                              </svg>
+                        </button>
+                        <ng-template #PopOverActions>
+                          <div class="w-[120px]">
+                            <!-- Modify button with icon -->
+                            <div class="mb-1">
+                              <button (click)="showModalEdit(data)" class="flex text-[11px] hover:bg-gray-50 items-center w-full h-10 px-4 text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-lg transition duration-200 ease-in-out">{{ 'users.MODIFIER' | translate }}</button>
+                            </div>
+
+                            <!-- Delete button with icon -->
+                            <div class="mb-1">
+                              <button (click)="DeleteUser(data)" class="flex text-[11px] hover:bg-gray-50 items-center w-full h-10 px-4 text-red-700 bg-red-100 hover:bg-red-200 rounded-lg transition duration-200 ease-in-out">{{ 'users.SUPPRIMER' | translate }}</button>
+                            </div>
+                          <!-- Details button with icon -->
+                          <div class="mb-1">
+                              <button (click)="OpenDrawerDetails(data)" class="flex text-[11px] hover:bg-gray-50 items-center w-full h-10 px-4 text-red-700 bg-red-100 hover:bg-red-200 rounded-lg transition duration-200 ease-in-out">{{ 'users.DETAILS' | translate }}</button>
+                              </div>
+
+                            <!-- Status toggle with label -->
+                            <div class="flex items-center justify-between border-t pt-2 mt-2">
+                              <span class="text-gray-700 text-[10px] font-medium">{{ 'users.STATUS:' | translate }}</span>
+                              <nz-switch [(ngModel)]="data.active" [nzControl]="true" (click)="ChangeStatusUser(data)" [nzLoading]="isChangingStatusUser"></nz-switch>
+                            </div>
+                          </div>
+                        </ng-template>
+
+                  </td>
+
+              </tr>
+              }
+          </tbody>
+      </nz-table>
+      <div class="flex justify-end p-2">
+          <nz-pagination
+          (nzPageIndexChange)="changePage($event)"
+          [nzPageIndex]="query.data()?.current_page"
+          [nzTotal]="query.data()?.total">
+        </nz-pagination>
+      </div>
+      <!-- end table -->
+  </main>
+
+</app-page-template>

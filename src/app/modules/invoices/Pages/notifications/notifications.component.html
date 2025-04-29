@@ -1,0 +1,40 @@
+<app-page-template [titleNavbar]="'Notifications'">
+    <nz-table
+      #nzTable
+      [nzLoading]="isLoadingUsers"
+      [nzData]="invoices"
+      [nzBordered]="false"
+      [nzScroll]="isMobileScreen ? { x: '1000px' } : { x: null }"
+
+      nzTableLayout="fixed"
+      [nzShowPagination]="false"
+    >
+      <thead>
+        <tr>
+          <th class="text-[11px]">Nom du Client</th>
+          <th class="text-[11px]">Activité</th>
+          <th class="text-[11px]">Heures</th>
+          <th class="text-[11px]">Remorques</th>
+          <th class="text-[11px]">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let invoice of invoices">
+          <td class="text-[11px] truncate">{{ invoice.user.first_name + ' ' + invoice.user.last_name }}</td>
+          <td class="text-[11px] truncate">{{ invoice.activity.name }}</td>
+          <td class="text-[11px] truncate">{{ invoice.hours }}</td>
+          <td class="text-[11px] truncate">{{ invoice.trailers }}</td>
+          <td class="text-[11px] truncate">{{ invoice.total }}</td>
+        </tr>
+      </tbody>
+    </nz-table>
+  
+    <div class="flex justify-end p-2">
+        <nz-pagination
+          (nzPageIndexChange)="currentPage = $event; GetInvociesNotifications.mutate()"
+          [nzPageIndex]="currentPage"
+          [nzTotal]="invoices?.length"
+        ></nz-pagination>
+      </div>
+  </app-page-template>
+  

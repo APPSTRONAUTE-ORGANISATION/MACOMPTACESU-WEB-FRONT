@@ -1,0 +1,224 @@
+<app-page-template sideIconPath="assets/icons/colored/historique.svg" titleNavbar="Historique des paiements"
+  (SearchValue)="Onsearch($event)">
+  <ng-container *ngIf="currentUser?.role == 'admin'">
+
+    <div class="font-Jakarta flex items-center justify-end p-4 space-x-4">
+      <!-- Blue Button -->
+
+      <div class="flex space-x-2 ">
+
+        <button (click)="OpenModalFilterDate()" nzType="primary" nz-popover nzPopoverTitle="Filtrer par date"
+                [(nzPopoverVisible)]="isOpenModalFilterDate" nzPopoverTrigger="click"
+                [nzPopoverContent]="contentTemplateModalFilter"
+                class="text-[11px] bg-white  justify-center items-center cursor-pointer hover:bg-gray-50 duration-300 px-2.5 py-1 border flex border-[#E6E6E6] text-[#475569] rounded-3xl">
+          <p *ngIf="FilterDates.startDate && FilterDates.endDate; else noFilter" class="text-[11px] font-semibold mr-1">
+            {{FilterDates.startDate}}, {{FilterDates.endDate}}
+          </p>
+
+          <ng-template #noFilter>
+            <div class="flex items-center">
+              <img class="h-8 w-8" src="assets/icons/calender.svg" alt="Calendar icon" class="mr-2" />
+              <p class="text-sm font-semibold">{{ 'subscriptions.FILTRER_PAR_DATE' | translate }}</p>
+            </div>
+          </ng-template>
+
+        </button>
+        <ng-template #contentTemplateModalFilter>
+          <main class=" bg-white flex items-center justify-center p-4">
+            <div>
+              <div class="flex flex-col gap-2">
+                <nz-date-picker class="date-picker" [nzSize]="'large'" [nzFormat]="dateFormat" [nzInputReadOnly]="true"
+                                [(ngModel)]="dateStart" (ngModelChange)="onChangeStartDate($event)"
+                                [nzPlaceHolder]="'Date de début'"></nz-date-picker>
+
+                <nz-date-picker class="date-picker" [nzSize]="'large'" [nzFormat]="dateFormat" [nzInputReadOnly]="true"
+                                [(ngModel)]="dateEnd" (ngModelChange)="onChangeEndDate($event)"
+                                [nzPlaceHolder]="'Date de fin'"></nz-date-picker>
+              </div>
+
+            </div>
+          </main>
+
+          <div class="flex justify-end space-x-4">
+            <button class="text-[#2C52F5] hover:text-[#2C52F5] hover:underline" nz-button nzType="link"
+                    (click)="handleCloseDateModalFilter()">
+              Annuler
+            </button>
+            <button
+              class="bg-[#2C52F5] border rounded-full text-white hover:text-white   hover:bg-[#2C52F5]/75 transition-colors"
+              nz-button nzType="text" (click)="ComfirmModalFiltrageFilter()" [nzLoading]="isLoadingFilter">
+              Filtre
+            </button>
+          </div>
+        </ng-template>
+      </div>
+
+
+    </div>
+
+    <nz-table #nzTable class="font-Jakarta" [nzHideOnSinglePage]="true" [nzLoading]="isLoading" [nzData]="subscriptions"
+              [nzBordered]="false" [nzScroll]="isMobileScreen ? { x: '1000px' } : { x: null }" [nzNoResult]="EMPTY"
+              nzTableLayout="fixed">
+      <ng-template #EMPTY>
+        <nz-empty class=" flex justify-center items-center flex-col"
+                  nzNotFoundImage="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
+                  [nzNotFoundContent]="contentTpl">
+          <ng-template #contentTpl>
+            <span>{{ 'subscriptions.AUCUN_ABONNEMENT' | translate }}</span>
+          </ng-template>
+
+        </nz-empty>
+      </ng-template>
+      <thead>
+      <tr>
+        <th class="text-[11px]">{{ 'subscriptions.NOM' | translate }}</th>
+        <th class="text-[11px]">{{ 'subscriptions.PRÉNOM' | translate }}</th>
+        <th class="text-[11px]">{{ 'subscriptions.TYPE' | translate }}</th>
+        <th class="text-[11px]">{{ 'subscriptions.PRIX' | translate }}</th>
+        <th class="text-[11px]">{{ 'subscriptions.DATE_DE_CRÉATION' | translate }}</th>
+        <th class="text-[11px]">{{ 'subscriptions.DATE_DE_FIN' | translate }}</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let item of subscriptions" (click)="openDraw(item)">
+        <td class="text-[11px] capitalize truncate">{{ item.first_name }}</td>
+        <td class="text-[11px] capitalize truncate">{{ item.last_name }}</td>
+        <td class="text-[11px] capitalize truncate">
+          <nz-tag class="rounded-xl min-w-14 border" [nzColor]="item.type === 'Annuel' ? 'blue' :
+                      item.type === 'Essentiel' ? 'green' :
+                      item.type === 'Default' ? 'yellow' : 'yellow'" [nzBordered]="false">
+            {{ item?.type }}
+          </nz-tag>
+
+        </td>
+        <td class="text-[11px] truncate">{{ item.price }} €</td>
+        <td class="text-[11px] truncate">
+          {{ item.created_at | date: 'd MMMM y, HH:mm' }}
+        </td>
+        <td class="text-[11px] truncate">
+          {{ item.ends_at | date: 'd MMMM y, HH:mm' }}
+        </td>
+        <td class="text-[11px] truncate">
+          <button *ngIf="item?.type != 'default'" (click)="CanncelPlan(item)" class="text-red hover:underline underline-red">
+            Annuler
+          </button>
+        </td>
+
+      </tr>
+      </tbody>
+    </nz-table>
+
+    <div class="flex justify-end p-2">
+      <nz-pagination (nzPageIndexChange)="changePage($event)" [nzPageIndex]="currentPage" [nzTotal]="total">
+      </nz-pagination>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="currentUser?.role == 'client'">
+    <div class="font-Jakarta flex items-center justify-end p-4 space-x-4">
+      <!-- Blue Button -->
+
+      <div class="flex space-x-2 ">
+
+        <button (click)="OpenModalFilterDate()" nzType="primary" nz-popover nzPopoverTitle="Filtrer par date"
+                [(nzPopoverVisible)]="isOpenModalFilterDate" nzPopoverTrigger="click"
+                [nzPopoverContent]="contentTemplateModalFilter"
+                class="text-[11px] bg-white  justify-center items-center cursor-pointer hover:bg-gray-50 duration-300 px-2.5 py-1 border flex border-[#E6E6E6] text-[#475569] rounded-3xl">
+          <p *ngIf="FilterDates.startDate && FilterDates.endDate; else noFilter" class="text-[11px] font-semibold mr-1">
+            {{FilterDates.startDate}}, {{FilterDates.endDate}}
+          </p>
+
+          <ng-template #noFilter>
+            <div class="flex items-center">
+              <img class="h-8 w-8" src="assets/icons/calender.svg" alt="Calendar icon" class="mr-2" />
+              <p class="text-sm font-semibold">{{ 'subscriptions.FILTRER_PAR_DATE' | translate }}</p>
+            </div>
+          </ng-template>
+
+        </button>
+        <ng-template #contentTemplateModalFilter>
+          <main class=" bg-white flex items-center justify-center p-4">
+            <div>
+              <div class="flex flex-col gap-2">
+                <nz-date-picker class="date-picker" [nzSize]="'large'" [nzFormat]="dateFormat" [nzInputReadOnly]="true"
+                                [(ngModel)]="dateStart" (ngModelChange)="onChangeStartDate($event)"
+                                [nzPlaceHolder]="'Date de début'"></nz-date-picker>
+
+                <nz-date-picker class="date-picker" [nzSize]="'large'" [nzFormat]="dateFormat" [nzInputReadOnly]="true"
+                                [(ngModel)]="dateEnd" (ngModelChange)="onChangeEndDate($event)"
+                                [nzPlaceHolder]="'Date de fin'"></nz-date-picker>
+              </div>
+
+            </div>
+          </main>
+
+          <div class="flex justify-end space-x-4">
+            <button class="text-[#2C52F5] hover:text-[#2C52F5] hover:underline" nz-button nzType="link"
+                    (click)="handleCloseDateModalFilter()">
+              Annuler
+            </button>
+            <button
+              class="bg-[#2C52F5] border rounded-full text-white hover:text-white   hover:bg-[#2C52F5]/75 transition-colors"
+              nz-button nzType="text" (click)="ComfirmModalFiltrageFilter()" [nzLoading]="isLoadingFilter">
+              Filtre
+            </button>
+          </div>
+        </ng-template>
+      </div>
+
+
+    </div>
+
+    <nz-table #nzTableTwo class="font-Jakarta" [nzHideOnSinglePage]="true" [nzLoading]="isLoading" [nzData]="clientData"
+              [nzBordered]="false" [nzScroll]="isMobileScreen ? { x: '1000px' } : { x: null }" [nzNoResult]="EMPTY"
+              nzTableLayout="fixed">
+      <ng-template #EMPTY>
+        <nz-empty class=" flex justify-center items-center flex-col"
+                  nzNotFoundImage="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
+                  [nzNotFoundContent]="contentTpl">
+          <ng-template #contentTpl>
+            <span>{{ 'subscriptions.AUCUN_ABONNEMENT' | translate }}</span>
+          </ng-template>
+
+        </nz-empty>
+      </ng-template>
+      <thead>
+      <tr>
+        <th class="text-[11px]">{{ 'subscriptions.NOM_UTILISATEUR' | translate }}</th>
+        <th class="text-[11px]">{{ 'subscriptions.STATUT' | translate }}</th>
+        <th class="text-[11px]">{{ 'subscriptions.FORFAIT' | translate }}</th>
+        <th class="text-[11px]">{{ 'subscriptions.PRIX' | translate }}</th>
+        <th class="text-[11px]">{{ 'subscriptions.DATE_DE_DÉBUT' | translate }}</th>
+        <th class="text-[11px]">{{ 'subscriptions.FIN_PÉRIODE_ACTUELLE' | translate }}</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let item of clientData" (click)="openDraw(item)">
+        <td class="text-[11px] capitalize truncate">{{ item.user_name }}</td>
+        <td class="text-[11px] capitalize truncate">
+          <nz-tag class="rounded-xl min-w-14 border" [nzColor]="'default'" [nzBordered]="false">
+            {{ item?.status }}
+          </nz-tag>
+        </td>
+        <td class="text-[11px] capitalize truncate">
+          <nz-tag class="rounded-xl min-w-14 border" [nzColor]="item.plan === 'Annuel' ? 'blue' :
+                      item.plan === 'Essentiel' ? 'green' :
+                      item.plan === 'Default' ? 'yellow' : 'yellow'" [nzBordered]="false">
+            {{ item?.plan }}
+          </nz-tag>
+
+        </td>
+        <td class="text-[11px] truncate">{{ item.price }} €</td>
+        <td class="text-[11px] truncate">
+          {{ item.start_date | date: 'd MMMM y, HH:mm' }}
+        </td>
+        <td class="text-[11px] truncate">
+          {{ item.current_period_end | date: 'd MMMM y, HH:mm' }}
+        </td>
+
+      </tr>
+      </tbody>
+    </nz-table>
+
+  </ng-container>
+
+</app-page-template>

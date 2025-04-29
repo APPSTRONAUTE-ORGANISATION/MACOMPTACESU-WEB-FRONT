@@ -1,0 +1,337 @@
+/* You can add global styles to this file, and also import other style files */
+@import "animate.css";
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.ant-collapse > .ant-collapse-item > .ant-collapse-header .ant-collapse-arrow {
+  display: inline-block;
+  margin-right: 12px;
+  font-size: 21px;
+  vertical-align: -1px;
+  color: #248a88;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+}
+
+.font-Jakarta {
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector {
+  border-color: none;
+  box-shadow: none;
+  border-right-width: 1px;
+  outline: 0;
+}
+
+.ant-select:not(.ant-select-customize-input) .ant-select-selector {
+  position: relative;
+  background-color: none;
+  border: none;
+  border-radius: 2px;
+  transition: all .3s cubic-bezier(.645, .045, .355, 1);
+}
+
+
+.ant-select-selection-placeholder {
+  font-size: 14px;
+  @apply text-gray-400
+}
+
+.otp-input {
+  border-radius: 18px !important;
+  color: #5DBF96;
+  outline: #5DBF96;
+}
+
+
+/* Custom scrollbar styles for WebKit browsers */
+.scrollable::-webkit-scrollbar {
+  width: 8px; /* Width of the scrollbar */
+  background-color: transparent; /* Make the track transparent */
+}
+
+.scrollable::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1); /* Light gray track */
+  border-radius: 10px; /* Rounded corners */
+}
+
+.scrollable::-webkit-scrollbar-thumb {
+
+  border-radius: 10px; /* Rounded corners */
+}
+
+.scrollable::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.6); /* Darker on hover */
+  border-radius: 10px; /* Rounded corners */
+
+}
+
+/* Firefox scrollbar styles */
+.scrollable {
+  scrollbar-width: thin; /* Make it thin */
+  border-radius: 10px; /* Rounded corners */
+}
+
+/* Style for the scrollable container */
+.scrollable {
+  height: 300px; /* Height for scrolling */
+  overflow-y: scroll; /* Enable vertical scrolling */
+  padding: 10px;
+
+}
+
+/* Hide scrollbar arrows */
+.scrollable::-webkit-scrollbar-button {
+  display: none; /* Hide the arrows */
+}
+
+.ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #475569;
+  text-shadow: none;
+}
+.ant-tabs-tab:hover {
+  color: #2C52F5;
+}
+
+.ant-tabs-ink-bar {
+  background: #2C52F5;
+}
+
+.ant-switch-checked {
+  background-color: #248A88;
+}
+
+.ant-upload.ant-upload-drag .ant-upload-btn {
+  display: table;
+  height: 100%;
+  background: white;
+  border-radius: 20px;
+  border-color: #CBD5E1;
+}
+.ant-upload.ant-upload-drag {
+  border-radius: 15px;
+}
+
+.ant-modal-header {
+  padding: 0;
+  color: rgba(0, 0, 0, .85);
+  background: #fff;
+  border-bottom: 1px solid #f0f0f0;
+  border-radius: 2px 2px 0 0;
+}
+
+.ant-modal-content {
+  border-radius: 30px;
+  overflow: hidden;
+}
+
+.ant-segmented-item-selected, .ant-segmented-thumb {
+  background-color: #D8DDF4;
+  border-radius: 15px;
+  color: #2C52F5;
+  box-shadow:none;
+}
+
+.ant-message-notice-content {
+  border-radius : 15px;
+}
+.ant-modal-body {
+  padding: 0 !important;
+}
+
+
+.avatar-uploader > .ant-upload {
+  width: 30rem;
+  height: 10rem;
+}
+
+
+.ant-notification-notice {
+  border-radius: 25px;
+  box-shadow:1 1 0 0 #c1c1c1;
+}
+
+.ant-pagination-item-active a, .ant-pagination-item:focus-visible a, .ant-pagination-item:hover a {
+  /* color: #1890ff; */
+  background: #e5e7eb;
+  border: none;
+}
+
+.ant-picker {
+  box-sizing: border-box;
+  margin: 0;
+  border-radius: 15px;
+  color: rgba(0, 0, 0, .85);
+  font-variant: tabular-nums;
+  list-style: none;
+  font-feature-settings: "tnum";
+  padding: 10px 16px;
+  background: #fff;
+  /* border-radius: 2px; */
+  transition: border .3s, box-shadow .3s;
+}
+
+
+.ant-popover-inner {
+  background-color: #fff;
+  background-clip: padding-box;
+  border-radius: 15px;
+}
+
+.ant-pagination-item-active a, .ant-pagination-item:focus-visible a, .ant-pagination-item:hover a {
+  color: black;
+}
+
+.ant-pagination-item-active {
+  font-weight: 500;
+  background: #dfdfdf;
+  border-color: none;
+  border-radius: 11px;
+  overflow: hidden;
+}
+
+.ant-pagination-item {
+  min-width: 32px;
+  height: 32px;
+  text-align: center;
+  list-style: none;
+  background-color: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 11px;
+  outline: 0;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Hover effect to only change cursor to pointer */
+.ant-pagination-item:hover,
+.ant-pagination-item-active:hover {
+  cursor: pointer; /* Set the cursor to pointer on hover */
+}
+
+.ant-pagination-next .ant-pagination-item-link,
+.ant-pagination-prev .ant-pagination-item-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  text-align: center;
+  background-color: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 11px;
+  overflow: hidden;
+}
+
+/* Hover effect for next and prev links */
+.ant-pagination-next .ant-pagination-item-link:hover,
+.ant-pagination-prev .ant-pagination-item-link:hover {
+  cursor: pointer; /* Set the cursor to pointer on hover */
+}
+.ant-pagination-item:focus-visible, .ant-pagination-item:hover {
+  overflow: hidden;
+  border-color: #248A88;
+
+}
+
+
+
+.scroller {
+  overflow-x: hidden;
+  margin-right: 120px;
+  height: 200px;
+  overflow-y: auto; /* Allows for more responsive overflow behavior */
+  display: block; /* Ensures the element is displayed */
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 8px; /* Adjusted width for better visibility */
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 5px; /* Adds a rounded effect */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a3a3a3;
+}
+
+#floatingBarChart{
+  height: 300px;
+}
+
+.ng-otp-input-wrapper {
+  display: flex;
+  scale: 0.7;
+  margin-left: -30px;
+}
+
+@media (max-width: 768px) {
+  .ng-otp-input-wrapper {
+    scale: 0.8; /* Adjust for tablets and smaller screens */
+
+  }
+}
+
+@media (max-width: 480px) {
+  .ng-otp-input-wrapper {
+    scale: 0.9; /* Adjust for mobile screens */
+  }
+}
+.disabled\:cursor-not-allowed:disabled {
+  cursor: not-allowed;
+  border: 1px solid #bfbfbf;
+}
+
+/* Custom radio button container */
+.custom-radio {
+  display: flex;
+  color: #BBBBBB;
+  font-size: 15px;
+  align-items: center;
+  flex-direction: row-reverse; /* Reverse the order (text on right, radio on left) */
+  gap: 8px; /* Add space between radio and text */
+}
+
+/* Custom square radio button */
+.custom-radio .ant-radio-inner {
+  width: 30px; /* Adjust size as needed */
+  height: 30px; /* Adjust size as needed */
+  border-radius: 4px; /* Make it square */
+  border: 0 solid #ccc; /* Add border */
+  background-color: #F3F3F3;
+  position: relative; /* Ensure the checkmark is positioned relative to this container */
+}
+
+/* Change color when checked */
+.custom-radio .ant-radio-checked .ant-radio-inner {
+  border-color: #2C52F5; /* Change border color when checked */
+  background-color: #2C52F5; /* Change background color when checked */
+}
+
+
+.custom-radio .ant-radio-checked .ant-radio-inner::after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: scale(1.5);
+  background-color: #2C52F5; /* Change background color when checked */
+  background-image: url('assets/valid.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+
+}

@@ -1,0 +1,18 @@
+.code-box-demo {
+    overflow-x: auto;
+    
+}
+
+  .ant-segmented {
+    margin-bottom: 10px;
+    background : #F4F4F4;
+    border : solid 1px #E8E8E8;
+    border-radius: 20px;
+    padding : 5px;
+  }
+
+
+.ant-table-cell{
+  text-align: center;
+
+}

@@ -1,0 +1,498 @@
+<nz-modal [(nzVisible)]="isOpenDeleteModal" [nzTitle]="DeleteModalTitle" [nzFooter]="null"
+  [nzContent]="DeleteModalContent" (nzOnCancel)="handleDeleteModalCancel()">
+  <ng-template #DeleteModalTitle>
+    <div class="h-14 bg-[#F13759]">
+    </div>
+  </ng-template>
+
+  <ng-template #DeleteModalContent>
+
+    <div class="flex p-6 flex-col items-center">
+      <div class="bg-[#F13759] text-white p-3 rounded-full mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+      </div>
+      <h2 class="text-xl font-bold text-[#F13759] mb-4">Attention</h2>
+      <p class="text-gray-700 text-center mb-6">Vous voulez vraiment supprimer</p>
+      <div class="flex justify-center w-full space-x-4">
+        <button
+          class="px-4 py-2 h-10 cursor-pointer border border-gray-300 rounded-full text-gray-600 hover:bg-gray-100 transition duration-200"
+          (click)="handleDeleteModalCancel()">Annuler</button>
+        <button nzType="text" nz-button [nzLoading]="isDeletingCategory"
+          class="px-4 py-2 h-10 cursor-pointer bg-[#F13759] text-white rounded-full hover:bg-red transition duration-200"
+          (click)="deleteCategoryComfirm()">Supprimer</button>
+      </div>
+    </div>
+  </ng-template>
+</nz-modal>
+<nz-modal [(nzVisible)]="isDeleteModalExpensesOpen " [nzTitle]="DeleteModalTitle1" [nzFooter]="null"
+  [nzContent]="DeleteModalContent1" (nzOnCancel)="cancelDeleteModalExpense()">
+  <ng-template #DeleteModalTitle1>
+    <div class="h-14 bg-[#F13759]">
+    </div>
+  </ng-template>
+
+  <ng-template #DeleteModalContent1>
+
+    <div class="flex p-6 flex-col items-center">
+      <div class="bg-[#F13759] text-white p-3 rounded-full mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+      </div>
+      <h2 class="text-xl font-bold text-[#F13759] mb-4">Attention</h2>
+      <p class="text-gray-700 text-center mb-6">Vous voulez vraiment supprimer</p>
+      <div class="flex justify-center w-full space-x-4">
+        <button
+          class="px-4 py-2 h-10 cursor-pointer border border-gray-300 rounded-full text-gray-600 hover:bg-gray-100 transition duration-200"
+          (click)="handleDeleteModalCancelExpense()">Annuler</button>
+        <button nzType="text" nz-button [nzLoading]="isDeletingExpense"
+          class="px-4 py-2 h-10 cursor-pointer bg-[#F13759] text-white rounded-full hover:bg-red transition duration-200"
+          (click)="confirmDeleteExpense()">Supprimer</button>
+      </div>
+    </div>
+  </ng-template>
+</nz-modal>
+
+
+<nz-modal [(nzVisible)]="isModalVisible1" [nzFooter]="null" [nzContent]="contentcategoriesDep" [nzWidth]="'80%'"
+  (nzOnCancel)="handleCancel1()">
+  <ng-template #contentcategoriesDep>
+    <div class="flex flex-col  gap-4">
+      <!-- Left: Section for Adding Categories -->
+
+
+      <!-- Right: Section for Listing Categories -->
+
+
+      <div class="w-full h-full ">
+        <div class="w-full mx-auto bg-white rounded-2xl border py-2 px-4 flex flex-col h-full">
+          <div class="flex items-center border-b pb-2">
+            <h2 class="flex items-center text-md py-1 font-semibold">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path opacity="0.34" d="M5 10H7C9 10 10 9 10 7V5C10 3 9 2 7 2H5C3 2 2 3 2 5V7C2 9 3 10 5 10Z"
+                  stroke="#292D32" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"
+                  stroke-linejoin="round" />
+                <path d="M17 10H19C21 10 22 9 22 7V5C22 3 21 2 19 2H17C15 2 14 3 14 5V7C14 9 15 10 17 10Z"
+                  stroke="#292D32" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"
+                  stroke-linejoin="round" />
+                <path opacity="0.34"
+                  d="M17 22H19C21 22 22 21 22 19V17C22 15 21 14 19 14H17C15 14 14 15 14 17V19C14 21 15 22 17 22Z"
+                  stroke="#292D32" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"
+                  stroke-linejoin="round" />
+                <path d="M5 22H7C9 22 10 21 10 19V17C10 15 9 14 7 14H5C3 14 2 15 2 17V19C2 21 3 22 5 22Z"
+                  stroke="#292D32" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"
+                  stroke-linejoin="round" />
+              </svg>
+              <span class="ml-1">Catégories de Dépenses</span>
+            </h2>
+          </div>
+          <div class="mt-4 flex-grow flex flex-col overflow-y-auto">
+            <div *ngIf="isLoadingCategories; else contentTemplate" class="flex justify-center items-center">
+              <nz-spin nzSimple></nz-spin>
+            </div>
+            <ng-template #contentTemplate>
+              <div *ngIf="categoriesExpense?.data?.length > 0; else noDataTemplate">
+                <div *ngFor="let category of categoriesExpense?.data" class="flex justify-between items-center mb-2">
+                  <div class="flex items-center space-x-3">
+                    <p class="text-sm font-medium">{{ category?.name }}</p>
+                    <nz-tag class="px-2 ml-2 py-1 text-xs font-semibold rounded-full"
+                      [nzColor]="category?.type === 'INVEST' ? 'green' : 'red'">
+                      {{ category?.type === 'INVEST' ? 'Investissement' : 'Dépense' }}
+                    </nz-tag>
+                  </div>
+                  <p (click)="deleteCategory(category.id, 1)"
+                    class="text-red hover:underline text-[11px] font-semibold cursor-pointer">
+                    Supprimer
+                  </p>
+                </div>
+              </div>
+              <ng-template #noDataTemplate>
+                <div class="text-center p-4 text-gray-500">Aucun catégorie n'est disponible.</div>
+              </ng-template>
+            </ng-template>
+            <div class="flex justify-end">
+              <nz-pagination *ngIf="!isLoadingCategories" [nzPageIndex]="categoriesExpense?.current_page"
+                [nzTotal]="categoriesExpense?.total" (nzPageIndexChange)="changePage($event, 1)"></nz-pagination>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="w-full border p-4 bg-white ">
+        <form [formGroup]="formCategory" nz-form class="flex items-center gap-4">
+          <!-- Category Name -->
+          <div nz-form-item class="flex flex-col flex-1 min-w-[200px]">
+
+            <nz-form-control>
+              <input formControlName="name" class="border outline-none py-2.5 px-4 rounded-3xl w-full" id="categoryName"
+                placeholder="Nom de la catégorie" />
+            </nz-form-control>
+          </div>
+
+          <!-- Category Type -->
+          <div nz-form-item class="flex flex-col flex-1 min-w-[200px]">
+
+            <nz-form-control>
+              <nz-select formControlName="type" class="border outline-none py-1 px-4 rounded-3xl w-full"
+                id="categoryType" nzPlaceHolder="Type">
+                <nz-option nzValue="INVEST" nzLabel="Investissement"></nz-option>
+                <nz-option nzValue="EXPENSE" nzLabel="Dépense"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="flex items-end">
+            <button (click)="submitFormCategory()" nzType="text" [nzLoading]="isLoadingCategoryDepense" nz-button
+              class="py-2 h-10 px-6 bg-[#248a88] rounded-3xl text-white font-semibold">
+              Ajouter Catégorie
+            </button>
+          </div>
+        </form>
+      </div>
+
+
+
+
+
+    </div>
+  </ng-template>
+
+</nz-modal>
+
+<nz-modal [(nzVisible)]="isModalVisible2" [nzFooter]="null" [nzContent]="contentcategoriesDep2" [nzWidth]="'80%'"
+  (nzOnCancel)="handleCancel2()">
+  <ng-template #contentcategoriesDep2>
+    <div class="flex flex-col  gap-4">
+      <!-- Left: Section for Adding Categories -->
+
+
+      <!-- Right: Section for Listing Payments -->
+      <div class="w-full  h-full rounded-2xl">
+        <div class="w-full mx-auto bg-white  rounded-2xl border py-1 px-3 flex flex-col h-full">
+          <div class="flex items-center border-b ">
+            <svg class="mr-1" width="19" height="19" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M14.635 2.217a.74.74 0 0 0-1.048 0l-10.37 10.37a.74.74 0 0 0-.217.524v5.185a.741.741 0 0 0 .217.524l2.286 2.286c-.247.6-.513.881-.722.881-.429 0-.846-.58-.982-.86l-.086-.18-1.037.493.085.18c.029.063.728 1.518 2.02 1.518a1.853 1.853 0 0 0 1.608-1.215.732.732 0 0 0 .315.077h5.185a.741.741 0 0 0 .524-.217l10.37-10.37a.74.74 0 0 0 0-1.048zM11.782 21H6.81l-.043-.043a10.076 10.076 0 0 0 .258-1.005 2.533 2.533 0 1 0-1.056-.488c-.022.079-.05.152-.066.235-.023.115-.048.216-.072.322L4 18.189v-4.97L14.11 3.106l7.783 7.782zM6 17.5A1.5 1.5 0 1 1 7.5 19c-.021 0-.04-.005-.062-.006a2.873 2.873 0 0 1 .61-.647l.16-.114-.649-.946-.165.115A4.018 4.018 0 0 0 6.39 18.5a1.489 1.489 0 0 1-.39-1zm2.542-5.792l5.922-5.922.707.707-5.922 5.923zm2.021 2.022l5.922-5.922.707.707-5.922 5.922zm2.021 2.021l5.923-5.922.707.707-5.922 5.922z" />
+              <path fill="none" d="M0 0h24v24H0z" />
+            </svg>
+            <h2 class="ml-2text-md py-1 font-semibold">Libellés de dépenses</h2>
+          </div>
+
+          <div class="mt-4 flex-grow flex flex-col">
+            <!-- Scrollable Content Area -->
+            <div class=""> <!-- Adjust the max height here -->
+              <!-- Loading Spinner -->
+              <div *ngIf="isLoadingLabels" class="flex overflow-y-auto flex-grow mb-2 h-40 justify-center items-center">
+                <div class="animate-pulse space-y-4 w-full">
+                  <div class="h-4 bg-gray-200 rounded w-full"></div>
+                  <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+                  <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+                  <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+                </div>
+
+              </div>
+
+              <!-- Iterate over the categories and display them -->
+              <ng-container *ngIf="!isLoadingLabels">
+                <div class="overflow-y-auto flex-grow mb-2 h-40"
+                  *ngIf="labelsExpense?.data?.length > 0; else noDataTemplate1">
+                  <div *ngFor="let category of labelsExpense?.data" class="flex  mb-2 justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                      <div>
+                        <p class="text-sm font-medium">{{ category?.name }}</p>
+                        <p class="text-xs text-gray-500">{{ category.createdAt | date: 'yyyy-MM-dd' }}</p>
+                      </div>
+                    </div>
+                    <p (click)="deleteCategory(category.id , 2)"
+                      class="text-red  mr-2 text-[11px] hover:underline font-semibold cursor-pointer">Supprimer</p>
+                  </div>
+                </div>
+
+                <!-- No Data Handling -->
+                <ng-template #noDataTemplate1>
+                  <div class="text-center p-4 text-gray-500">
+                    Aucun Label n'est disponible.
+                  </div>
+                </ng-template>
+              </ng-container>
+            </div>
+
+            <!-- Fixed Pagination Section -->
+            <div *ngIf="!isLoadingCategories" class="border-t py-1 flex justify-end ">
+              <nz-pagination (nzPageIndexChange)="changePage($event , 2)" [nzPageIndex]="labelsExpense?.current_page"
+                [nzTotal]="labelsExpense?.total">
+                >
+              </nz-pagination>
+            </div>
+            <!-- Pagination Skeleton Loading -->
+            <div *ngIf="isLoadingCategories" class="border-t py-1 flex justify-end">
+              <div class="animate-pulse flex space-x-2 items-center">
+                <!-- Skeleton block for the pagination -->
+                <div class="h-8 w-8 bg-gray-300 rounded-xl"></div>
+                <div class="h-8 w-8 bg-gray-300 rounded-xl"></div>
+                <div class="h-8 w-8 bg-gray-300 rounded-xl"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="w-full border p-4 bg-white ">
+
+        <!-- Formulaire pour Ajouter une Nouvelle Catégorie -->
+        <form [formGroup]="formAddLabel" nz-form class="flex items-center gap-4 flex-wrap">
+          <!-- Nom de la dépense Field -->
+          <div nz-form-item class="flex flex-col flex-1 min-w-[200px]">
+            <nz-form-control>
+              <input formControlName="name" class="border outline-none py-2.5 px-4 rounded-3xl w-full" id="categoryName"
+                placeholder="Nom de la Libellés" />
+            </nz-form-control>
+          </div>
+
+          <!-- Catégorie Field -->
+          <div nz-form-item class="flex flex-col flex-1 min-w-[200px]">
+            <nz-form-control>
+              <nz-select formControlName="expense_category_id" class="border outline-none py-1 px-4 rounded-3xl w-full"
+                id="categoryType" nzPlaceHolder="Type" [nzDropdownRender]="renderTemplate1">
+                <nz-option *ngFor="let category of categoriesExpense?.data" [nzValue]="category.id"
+                  [nzLabel]="category.name"></nz-option>
+                <ng-template #renderTemplate1>
+                  <span (click)="showModal1()"
+                    class="flex justify-center  items-center px-4 py-2 cursor-pointer hover:text-white hover:bg-blue duration-500">
+                    <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Ajouter
+                  </span>
+                </ng-template>
+              </nz-select>
+            </nz-form-control>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="flex items-end">
+            <button (click)="submitFormLabel()" nzType="text" [nzLoading]="isAddingLabel" nz-button
+              class="py-2 h-10 px-6 bg-[#248a88] rounded-3xl text-white font-semibold">
+              Ajouter
+            </button>
+          </div>
+        </form>
+      </div>
+
+
+    </div>
+  </ng-template>
+
+</nz-modal>
+
+
+
+<nz-modal [(nzVisible)]="isModalVisible3" [nzFooter]="null" [nzContent]="contentcategoriesDep3" [nzWidth]="'40%'"
+  (nzOnCancel)="handleCancel3()">
+  <ng-template #contentcategoriesDep3>
+
+    <div class="bg-white font-Jakarta px-3 rounded-2xl py-2">
+      <h2 class="text-md border-b py-2 px-3 font-bold">{{ editMode ? 'Modifier une dépense' : 'Ajouter une dépense' }}
+      </h2>
+      <form nz-form [formGroup]="expenseForm" (ngSubmit)="AddExpense()" class="flex flex-col">
+        <!-- Expense Category -->
+        <nz-form-item class="flex flex-col">
+          <label nzFor="expense_category_id">Libellé de dépense</label>
+          <nz-form-control nzErrorTip="Veuillez sélectionner une libellé de dépense !">
+            <nz-select formControlName="expense_label_id" nzPlaceHolder="Sélectionnez une libellé"
+              class="border w-full outline-0 py-1 px-4 rounded-3xl" [nzDropdownRender]="renderTemplate2">
+              <nz-option *ngFor="let category of labelsExpense?.data" [nzValue]="category?.id"
+                [nzLabel]="category?.name"></nz-option>
+              <ng-template #renderTemplate2>
+                <span (click)="showModal2()"
+                  class="flex justify-center  items-center px-4 py-2 cursor-pointer hover:text-white hover:bg-blue duration-500">
+                  <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                  </svg>
+                  Ajouter
+                </span>
+              </ng-template>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <div class="">
+          <label class="text-sm font-medium text-gray-700 block mb-2">
+            Fichier de depense
+          </label>
+          <nz-upload class="" [(nzFileList)]="fileList" [nzBeforeUpload]="beforeUpload">
+            <button nz-button class="w-full rounded-xl ">
+              <span nz-icon nzType="upload"></span>
+              Sélectionner un fichier
+            </button>
+          </nz-upload>
+
+          <ng-container *ngIf="fileExpensesEdit && editMode && !fileList.length">
+            <a target="_blank" [href]="fileExpensesEdit">Consulter le fichier</a>
+          </ng-container>
+
+        </div>
+
+        <!-- Amount -->
+        <nz-form-item class="flex flex-col mt-3">
+          <label nzFor="amount">Montant</label>
+          <nz-form-control nzErrorTip="Veuillez entrer un montant valide !">
+            <input nz-input formControlName="amount" type="number" placeholder="Entrez le montant"
+              class="border w-full outline-0 py-2 px-4 rounded-3xl" />
+          </nz-form-control>
+        </nz-form-item>
+
+        <!-- Submit Button -->
+        <nz-form-item class="flex flex-end">
+          <nz-form-control nzOffset="0">
+            <button class="border bg-[#0D204E] text-white outline-0 py-1 px-4 rounded-3xl w-full" nz-button
+              nzType="text" [nzLoading]="isLoadingAddExpense" [disabled]="!expenseForm.valid && !fileList.length">
+              {{ editMode ? 'Modifier une dépense' : 'Ajouter une dépense' }}
+            </button>
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+    </div>
+
+  </ng-template>
+
+</nz-modal>
+
+<app-page-template titleNavbar="Dépenses">
+
+  <div class="flex justify-between items-center mb-4">
+    <button (click)="showModal3()"
+      class="bg-[#2C52F5] flex justify-center items-center text-white px-4 py-2 rounded-full">
+      <svg class="mr-1" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M2.82963 18.2951L3.27047 17.6883L2.82963 18.2951ZM1.72347 17.1889L2.33023 16.7481L1.72347 17.1889ZM17.8136 17.1889L17.2069 16.7481L17.8136 17.1889ZM16.7075 18.2951L16.2666 17.6883L16.7075 18.2951ZM16.7075 2.20491L16.2666 2.81168L16.7075 2.20491ZM17.8136 3.31107L17.2069 3.75191L17.8136 3.31107ZM2.82963 2.20491L3.27047 2.81168L2.82963 2.20491ZM1.72347 3.31107L2.33023 3.75191L1.72347 3.31107ZM6.76855 9.5C6.35434 9.5 6.01855 9.83579 6.01855 10.25C6.01855 10.6642 6.35434 11 6.76855 11V9.5ZM12.7686 11C13.1828 11 13.5186 10.6642 13.5186 10.25C13.5186 9.83579 13.1828 9.5 12.7686 9.5V11ZM9.01855 13.25C9.01855 13.6642 9.35434 14 9.76855 14C10.1828 14 10.5186 13.6642 10.5186 13.25H9.01855ZM10.5186 7.25C10.5186 6.83579 10.1828 6.5 9.76855 6.5C9.35434 6.5 9.01855 6.83579 9.01855 7.25H10.5186ZM9.76855 18.5C7.87698 18.5 6.51855 18.499 5.4666 18.385C4.42869 18.2725 3.77847 18.0574 3.27047 17.6883L2.38879 18.9018C3.19511 19.4877 4.13949 19.75 5.30503 19.8763C6.45653 20.001 7.91039 20 9.76855 20V18.5ZM0.0185547 10.25C0.0185547 12.1082 0.0175253 13.562 0.142283 14.7135C0.268561 15.8791 0.530878 16.8234 1.11671 17.6298L2.33023 16.7481C1.96115 16.2401 1.74601 15.5899 1.63356 14.552C1.51958 13.5 1.51855 12.1416 1.51855 10.25H0.0185547ZM3.27047 17.6883C2.90967 17.4262 2.59237 17.1089 2.33023 16.7481L1.11671 17.6298C1.47136 18.1179 1.90064 18.5472 2.38879 18.9018L3.27047 17.6883ZM18.0186 10.25C18.0186 12.1416 18.0175 13.5 17.9036 14.552C17.7911 15.5899 17.576 16.2401 17.2069 16.7481L18.4204 17.6298C19.0062 16.8234 19.2685 15.8791 19.3948 14.7135C19.5196 13.562 19.5186 12.1082 19.5186 10.25H18.0186ZM9.76855 20C11.6267 20 13.0806 20.001 14.2321 19.8763C15.3976 19.75 16.342 19.4877 17.1483 18.9018L16.2666 17.6883C15.7586 18.0574 15.1084 18.2725 14.0705 18.385C13.0186 18.499 11.6601 18.5 9.76855 18.5V20ZM17.2069 16.7481C16.9447 17.1089 16.6274 17.4262 16.2666 17.6883L17.1483 18.9018C17.6365 18.5472 18.0657 18.1179 18.4204 17.6298L17.2069 16.7481ZM9.76855 2C11.6601 2 13.0186 2.00103 14.0705 2.115C15.1084 2.22745 15.7586 2.44259 16.2666 2.81168L17.1483 1.59815C16.342 1.01232 15.3976 0.750006 14.2321 0.623728C13.0806 0.498971 11.6267 0.5 9.76855 0.5V2ZM19.5186 10.25C19.5186 8.39184 19.5196 6.93798 19.3948 5.78648C19.2685 4.62094 19.0062 3.67656 18.4204 2.87023L17.2069 3.75191C17.576 4.25992 17.7911 4.91013 17.9036 5.94804C18.0175 6.99999 18.0186 8.35843 18.0186 10.25H19.5186ZM16.2666 2.81168C16.6274 3.07382 16.9447 3.39111 17.2069 3.75191L18.4204 2.87023C18.0657 2.38209 17.6365 1.95281 17.1483 1.59815L16.2666 2.81168ZM9.76855 0.5C7.91039 0.5 6.45653 0.498971 5.30503 0.623728C4.13949 0.750006 3.19511 1.01232 2.38879 1.59815L3.27047 2.81168C3.77847 2.44259 4.42869 2.22745 5.4666 2.115C6.51855 2.00103 7.87698 2 9.76855 2V0.5ZM1.51855 10.25C1.51855 8.35843 1.51958 6.99999 1.63356 5.94804C1.74601 4.91013 1.96115 4.25992 2.33023 3.75191L1.11671 2.87023C0.530878 3.67656 0.268561 4.62094 0.142283 5.78648C0.0175253 6.93798 0.0185547 8.39184 0.0185547 10.25H1.51855ZM2.38879 1.59815C1.90065 1.95281 1.47136 2.38209 1.11671 2.87023L2.33023 3.75191C2.59237 3.39111 2.90966 3.07382 3.27047 2.81168L2.38879 1.59815ZM6.76855 11H12.7686V9.5H6.76855V11ZM10.5186 13.25V7.25H9.01855V13.25H10.5186Z"
+          fill="white" />
+      </svg>
+
+      Ajouter une dépense
+    </button>
+
+  </div>
+  <div *ngIf="!isLoadingExpense" class="bg-gray-50 animate__animated animate__fadeIn font-Jakarta p-6 rounded-2xl">
+    <nz-table #nzTable [nzHideOnSinglePage]="true" [nzLoading]="isLoadingExpense" [nzData]="Expenses.data"
+      [nzBordered]="false" nzTableLayout="fixed" [nzScroll]="isMobileScreen ? { x: '1000px' } : { x: null }">
+      <thead>
+        <tr>
+          <th class="text-[11px]">Label</th>
+          <th class="text-[11px]">Category</th>
+          <th class="text-[11px]">Type</th>
+          <th class="text-[11px]">Amount</th>
+          <th class="text-[11px]">File</th>
+          <th class="text-[11px]">Created At</th>
+          <th class="text-[11px]">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let expense of nzTable.data">
+          <td class="text-[11px] capitalize truncate">{{ expense.expense_label.name }}</td>
+          <td class="text-[11px] capitalize truncate">{{ expense.expense_label.expense_category.name }}</td>
+          <td class="text-[11px] capitalize truncate">{{ expense.expense_label.expense_category.type }}</td>
+          <td class="text-[11px] truncate">{{ expense.amount | currency }}</td>
+          <td class="text-[11px] truncate">
+            <a [href]="expense.expense_file" target="_blank" class="text-blue-500 underline">
+              Télécharger le fichier
+            </a>
+          </td>
+          <td class="text-[11px] truncate">{{ expense.created_at | date: 'medium' }}</td>
+          <td class="text-[11px] ">
+            <button nz-popover [nzPopoverContent]="PopOverActions" nzPopoverTrigger="click">
+              <svg width="25" height="25" viewBox="-0.5 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M12 14.5C13.1046 14.5 14 13.6046 14 12.5C14 11.3954 13.1046 10.5 12 10.5C10.8954 10.5 10 11.3954 10 12.5C10 13.6046 10.8954 14.5 12 14.5Z"
+                  stroke="#7B8694" stroke-miterlimit="10" />
+                <path
+                  d="M19.5 14.5C20.6046 14.5 21.5 13.6046 21.5 12.5C21.5 11.3954 20.6046 10.5 19.5 10.5C18.3954 10.5 17.5 11.3954 17.5 12.5C17.5 13.6046 18.3954 14.5 19.5 14.5Z"
+                  stroke="#7B8694" stroke-miterlimit="10" />
+                <path
+                  d="M4.5 14.5C5.60457 14.5 6.5 13.6046 6.5 12.5C6.5 11.3954 5.60457 10.5 4.5 10.5C3.39543 10.5 2.5 11.3954 2.5 12.5C2.5 13.6046 3.39543 14.5 4.5 14.5Z"
+                  stroke="#7B8694" stroke-miterlimit="10" />
+              </svg>
+            </button>
+            <ng-template #PopOverActions>
+              <div class="w-[120px]">
+                <div class="mb-1">
+                  <button (click)="openEditExpenses(expense)"
+                    class="flex text-[11px] hover:bg-gray-50 items-center w-full h-10 px-4 text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-lg">
+                    Modifier
+                  </button>
+                </div>
+                <div class="mb-1">
+                  <button (click)="openDeleteModalExpenses(expense.id)"
+                    class="flex text-[11px] hover:bg-gray-50 items-center w-full h-10 px-4 text-red-700 bg-red-100 hover:bg-red-200 rounded-lg">
+                    Supprimer
+                  </button>
+                </div>
+              </div>
+            </ng-template>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+
+    <div class="flex justify-end p-2">
+      <nz-pagination (nzPageIndexChange)="changePageExpenses($event)" [nzPageIndex]="Expenses.current_page"
+        [nzTotal]="Expenses.total">
+      </nz-pagination>
+    </div>
+
+  </div>
+
+
+  <div *ngIf="isLoadingExpense" class="bg-white font-Jakarta p-6 rounded-2xl animate-pulse">
+    <h2 class="text-xl font-bold mb-4 bg-gray-200 rounded h-6 w-1/4"></h2>
+
+    <!-- Loop for each month card -->
+    <div class="p-6 rounded-lg border bg-gray-50 mb-8 relative">
+      <div class="absolute top-0 right-0 h-8 w-20 m-2 rounded bg-blue-300"></div>
+      <div class="text-lg font-semibold mb-4 bg-gray-200 h-6 w-1/6 rounded"></div>
+
+      <!-- Expenses grid for the month -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Skeleton loaders for expenses -->
+        <div class="bg-white border p-4 rounded-lg relative">
+          <div class="flex justify-between items-center mb-2">
+            <div class="bg-gray-200 h-5 w-1/2 rounded"></div>
+            <span class="text-xs text-gray-500 bg-gray-200 h-4 w-12 rounded"></span>
+          </div>
+          <div class="bg-gray-200 h-6 w-1/3 rounded"></div>
+        </div>
+
+        <!-- Repeat this block as needed for more placeholder items -->
+      </div>
+
+    </div>
+    <div class="p-6 rounded-lg border bg-gray-50 mb-8 relative">
+      <div class="absolute top-0 right-0 h-8 w-20 m-2 rounded bg-blue-300"></div>
+      <div class="text-lg font-semibold mb-4 bg-gray-200 h-6 w-1/6 rounded"></div>
+
+      <!-- Expenses grid for the month -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Skeleton loaders for expenses -->
+        <div class="bg-white border p-4 rounded-lg relative">
+          <div class="flex justify-between items-center mb-2">
+            <div class="bg-gray-200 h-5 w-1/2 rounded"></div>
+            <span class="text-xs text-gray-500 bg-gray-200 h-4 w-12 rounded"></span>
+          </div>
+          <div class="bg-gray-200 h-6 w-1/3 rounded"></div>
+        </div>
+
+        <!-- Repeat this block as needed for more placeholder items -->
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+
+
+</app-page-template>

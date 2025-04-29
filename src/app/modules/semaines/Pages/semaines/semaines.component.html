@@ -1,0 +1,377 @@
+<nz-modal [(nzVisible)]="ShowDeleteModal" [nzTitle]="DeleteModalTitleInvoices" [nzFooter]="null"
+  [nzContent]="DeleteModalContentInvoices" (nzOnCancel)="handleCancelDeleteModal()">
+  <ng-template #DeleteModalTitleInvoices>
+    <div class="h-14 bg-blue">
+    </div>
+  </ng-template>
+
+  <ng-template #DeleteModalContentInvoices>
+
+    <div class="flex p-6 flex-col items-center">
+      <div class="bg-blue text-white p-3 rounded-full mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+      </div>
+      <h2 class="text-xl font-bold text-black mb-4">Attention</h2>
+      <p class="text-gray-700 text-center mb-6">Voulez-vous vraiment supprimer la semaine {{SelectedWeek}} de l'année
+        {{SelectedYear.getFullYear()}} ?</p>
+      <div class="flex justify-center w-full space-x-4">
+        <button
+          class="px-4 py-2 h-10 cursor-pointer border border-gray-300 rounded-full text-gray-600 hover:bg-gray-100 transition duration-200"
+          (click)="handleCancelDeleteModal()">Annuler</button>
+        <button nz-button nzType="text" [nzLoading]="IsAdding"
+          class="px-4 py-2 h-10 cursor-pointer bg-blue text-white rounded-full hover:bg-blue transition duration-200"
+          (click)="HandleComfirmDeleteModal()">Supprimer</button>
+      </div>
+    </div>
+  </ng-template>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="IsAddVacationModalOpen" (nzOnCancel)="HandleCancelVacationModal()" [nzTitle]="DeleteModalTitle"
+  [nzFooter]="null" [nzContent]="DeleteModalContent">
+  <ng-template #DeleteModalTitle>
+    <div class="h-14 bg-blue">
+    </div>
+  </ng-template>
+
+  <ng-template #DeleteModalContent>
+
+    <div class="flex p-6 flex-col items-center">
+      <div class="bg-blue text-white p-3 rounded-full mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+      </div>
+      <h2 class="text-xl font-bold  mb-4">Ajouter une semaine de vacances</h2>
+      <p class="text-gray-700 text-center mb-6">Voulez-vous mettre la semaine {{SelectedWeek}} de l'année
+        {{this.SelectedYear.getFullYear()}} en vacances ?</p>
+      <div class="flex justify-center w-full space-x-4">
+        <button (click)="HandleCancelVacationModal()"
+          class="px-4 py-2 h-10 cursor-pointer border border-gray-300 rounded-full text-gray-600 hover:bg-gray-100 transition duration-200">{{
+          'settings.ANNULER' | translate }}</button>
+        <button (click)="comfirmVacationAdd()" nz-button nzType="default" [nzLoading]="IsAdding"
+          class="px-4 py-2 h-10 cursor-pointer bg-blue text-white rounded-full  transition duration-200">Confimer</button>
+      </div>
+    </div>
+  </ng-template>
+</nz-modal>
+
+<app-page-template titleNavbar="Semaines" [sideIconPath]="'assets/icons/colored/semaines.svg'">
+  <nz-tabset>
+    <nz-tab (nzClick)="OpenPageWeek()" nzTitle="Semaines">
+
+      <!-- Header Section -->
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl max-md:hidden text-dark-blue font-bold">
+          Objectifs de {{ SelectedYear | date:'YYYY'}}
+        </h2>
+
+        <div class="flex flex-wrap items-center gap-4 mb-4">
+
+          <div class="flex  w-3/4 flex-wrap gap-2">
+
+            <div class="flex gap-4 items-center">
+              <!-- Filter Button -->
+              <nz-segmented class="rounded-3xl font-semibold uppercase bg-white " [nzOptions]="options"
+                [(ngModel)]="selectedValueSeg" (nzValueChange)="handleValueChange($event)"></nz-segmented>
+
+              <button nz-popover [nzPopoverContent]="filterContent" nzPopoverTitle="Filtres"
+                [(nzPopoverVisible)]="isPopoverVisible" (nzPopoverVisibleChange)="change($event)"
+                nzPopoverTrigger="click" nzPlacement="bottom" nzTrigger="hover"
+                class="bg-gray-100  text-white px-4 py-2 rounded-full flex items-center">
+                <svg width="18" height="19" viewBox="0 0 18 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M10.9836 1.91226L11.0737 1.96426C11.8518 2.41348 12.5007 2.78807 12.9758 3.15471C13.4773 3.5417 13.8753 3.9859 14.042 4.60808C14.2087 5.23027 14.0861 5.81396 13.8453 6.39985C13.6172 6.95493 13.2425 7.60376 12.7933 8.38185L8.91775 15.0946C8.62081 15.6099 8.38602 16.0173 8.02866 16.3243C7.6713 16.6314 7.23316 16.8022 6.67903 17.0181L6.52928 17.0766C5.50107 17.4783 4.65351 17.8095 3.95945 17.9716C3.23356 18.1412 2.5327 18.1623 1.87943 17.7852C1.22616 17.408 0.894001 16.7905 0.67793 16.0771C0.471331 15.3949 0.33435 14.4953 0.168165 13.404L0.143907 13.2451C0.053878 12.6572 -0.0173093 12.1924 0.0699254 11.7294C0.0808299 11.6715 0.0940504 11.6145 0.109419 11.558C0.217 11.1629 0.429845 10.795 0.690408 10.3445L4.56603 3.63185C5.01524 2.85373 5.38983 2.20488 5.75647 1.72976C6.14346 1.22828 6.58766 0.830252 7.20984 0.663538C7.83203 0.496824 8.41573 0.619429 9.00161 0.86023C9.55669 1.08837 10.2055 1.463 10.9836 1.91226ZM5.46406 5.0764L11.0932 8.3264L7.66979 14.256C7.29683 14.902 7.1902 15.0671 7.05111 15.1866C6.91202 15.3061 6.73267 15.3867 6.0379 15.6581C4.94143 16.0865 4.19466 16.3763 3.61819 16.511C3.06131 16.6411 2.80862 16.5896 2.62943 16.4861C2.45023 16.3827 2.2793 16.1896 2.11353 15.6423C1.94194 15.0757 1.8195 14.2841 1.64226 13.1203C1.52995 12.3829 1.51004 12.1873 1.54399 12.0071C1.57794 11.8269 1.66767 11.652 2.04063 11.006L5.46406 5.0764ZM12.4579 5.82963C12.3254 6.15207 12.1227 6.5312 11.8417 7.02646L6.21563 3.77827C6.50402 3.28724 6.73101 2.92215 6.94399 2.64617C7.22845 2.27755 7.42006 2.16013 7.59807 2.11243C7.77609 2.06473 8.00074 2.07062 8.4314 2.24762C8.88219 2.4329 9.44379 2.7553 10.2786 3.2373C11.1135 3.71931 11.6735 4.04447 12.0594 4.34223C12.428 4.62669 12.5454 4.8183 12.5931 4.99631C12.6408 5.17433 12.6349 5.39898 12.4579 5.82963Z"
+                    fill="#7B8594" />
+                  <path
+                    d="M9.62061 17.4406C9.62061 17.0263 9.95639 16.6906 10.3706 16.6906H16.3706C16.7848 16.6906 17.1206 17.0263 17.1206 17.4406C17.1206 17.8548 16.7848 18.1906 16.3706 18.1906H10.3706C9.95639 18.1906 9.62061 17.8548 9.62061 17.4406Z"
+                    fill="#7B8594" />
+                </svg>
+
+              </button>
+
+
+
+
+            </div>
+
+            <!-- Popover Content -->
+            <ng-template #filterContent>
+              <div class="flex items-center">
+                <nz-date-picker nzMode="year" [(ngModel)]="SelectedYear"
+                  (ngModelChange)="onChange1($event)"></nz-date-picker>
+
+              </div>
+              <form *ngIf="formData1.length" #form="ngForm">
+                <div class="p-4 w-[330px]">
+                  <div class="grid items-center grid-cols-2 gap-2">
+                    <div *ngFor="let item of formData1"
+                      class="col-span-2 flex rounded-xl gap-1 border-1 border-dark-blue items-center  justify-center">
+                      <!-- Name Input -->
+                      <div class="truncate w-1/2 text-center text-gray-600 overflow-hidden border  rounded-lg m-1 py-2">
+                        <span class="w-48 p-1 px-4 font-bold">
+                          {{ item.name }}
+                        </span>
+
+                      </div>
+
+                      <!-- Amount Input -->
+                      <div class="truncate w-1/2 text-center text-gray-600 overflow-hidden border  rounded-lg m-1 py-2"
+                        (dblclick)="editField(item, 'amount')">
+                        <span class="w-48 p-1 px-4" *ngIf="!isEditing[item.name]">
+                          {{ item.amount }}
+                        </span>
+                        <input *ngIf="isEditing[item.name]" type="number" [(ngModel)]="editingData[item.name].amount"
+                          name="{{item.name}}Amount" class="w-48 m-0 p-0 outline-none border-none"
+                          (blur)="saveField(item, 'amount')" (keyup.enter)="saveField(item, 'amount')" />
+                      </div>
+                    </div>
+
+
+
+                  </div>
+                </div>
+              </form>
+              <form *ngIf="!formData1.length" (ngSubmit)="onSubmitNewBudgets()" #form="ngForm">
+                <div class="p-4">
+                  <div class=" grid items-center grid-cols-2 gap-4">
+                    <!-- First Row -->
+                    <div class="col-span-2 flex rounded-xl gap-2 items-center">
+                      <!-- Name Input -->
+                      <div class="truncate w-1/2 text-center text-gray-600 overflow-hidden border rounded-lg mb-1 py-2">
+                        <input type="text" [(ngModel)]="formDataAdd[0].name" name="name1" disabled
+                          class="w-28 text-center m-0 p-0" placeholder="Name 1" required />
+                      </div>
+                      <!-- Amount Input -->
+                      <div class="truncate w-1/2 text-center text-gray-600 overflow-hidden border rounded-lg mb-1 py-2">
+                        <input type="number" [(ngModel)]="formDataAdd[0].amount" name="amount1"
+                          class="w-28 text-center m-0 p-0" placeholder="Amount 1" required />
+                      </div>
+                    </div>
+
+                    <!-- Second Row -->
+                    <div class="col-span-2 flex rounded-xl gap-2 items-center">
+                      <div class="truncate w-1/2 text-center text-gray-600 overflow-hidden border rounded-lg mb-1 py-2">
+                        <input disabled type="text" [(ngModel)]="formDataAdd[1].name" name="name2"
+                          class="w-28 text-center m-0 p-0" placeholder="Name 2" required />
+                      </div>
+                      <div class="truncate w-1/2 text-center text-gray-600 overflow-hidden border rounded-lg mb-1 py-2">
+                        <input type="number" [(ngModel)]="formDataAdd[1].amount" name="amount2"
+                          class="w-28 text-center m-0 p-0" placeholder="Amount 2" required />
+                      </div>
+                    </div>
+
+                    <!-- Third Row -->
+                    <div class="col-span-2 flex rounded-xl gap-2 items-center">
+                      <div class="truncate w-1/2 text-center text-gray-600 overflow-hidden border rounded-lg mb-1 py-2">
+                        <input disabled type="text" [(ngModel)]="formDataAdd[2].name" name="name3"
+                          class="w-28 text-center m-0 p-0" placeholder="Name 3" required />
+                      </div>
+                      <div class="truncate w-1/2 text-center text-gray-600 overflow-hidden border rounded-lg mb-1 py-2">
+                        <input type="number" [(ngModel)]="formDataAdd[2].amount" name="amount3"
+                          class="w-28 text-center m-0 p-0" placeholder="Amount 3" required />
+                      </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="flex justify-end mt-2">
+                      <button type="submit"
+                        class="bg-blue text-white py-2 px-6 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                        Soumettre
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+
+
+
+
+
+            </ng-template>
+
+
+
+
+          </div>
+
+
+
+
+        </div>
+      </div>
+
+      <div *ngIf="!isLoading" class="font-Jakarta container mx-auto p-4">
+        <!-- Monthly Data Section -->
+        <div *ngIf="budgets.data.length" class="flex f flex-wrap gap-4 py-4">
+
+
+          <div *ngFor="let semaine of semaines" class="border border-gray-300 rounded-lg shadow-md mb-4">
+            <div
+              class="bg-[#FF3B30] text-white animate__animated animate__fadeIn font-medium text-lg py-2 rounded-t-lg text-center">
+              {{ getMonthNameInFrench(semaine.month) }}
+            </div>
+
+            <!-- Table for each field with dynamic column count based on weeks -->
+            <div [ngClass]="'grid bg-white grid-cols-' + semaine.weeks.length + ' w-full'">
+
+              <div *ngFor="let week of semaine.weeks" nz-popover [nzPopoverContent]="PopOverActions"
+                nzPopoverTrigger="click"
+                class="px-4 hover:text-white hover:bg-dark-blue cursor-pointer py-2 border text-center border-gray-300"
+                [ngClass]="week.data.is_vacation ? 'bg-[#1d37a1] text-white' : ''">
+                S <span class="text-[10px]">{{ week.week }}</span>
+                <ng-template #PopOverActions>
+                  <div class="mb-1" *ngIf="!week.data.is_vacation">
+                    <button (click)="OpenAddvacationModal(week.week)"
+                      class="flex text-[11px] hover:bg-gray-50 items-center w-full h-10 px-4 text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-lg transition duration-200 ease-in-out">
+                      {{ 'users.AJOUTER_METTRE_EN_VACANCES' | translate }}
+                    </button>
+                  </div>
+
+                  <!-- Delete button with icon -->
+                  <div class="mb-1" *ngIf="week.data.is_vacation">
+                    <button (click)="OpenDeletevacationModal(week.week)"
+                      class="flex text-[11px] hover:bg-gray-50 items-center w-full h-10 px-4 text-red-700 bg-red-100 hover:bg-red-200 rounded-lg transition duration-200 ease-in-out">
+                      {{ 'users.SUPPRIMER' | translate }}
+                    </button>
+                  </div>
+                </ng-template>
+              </div>
+
+              <!-- INvoices -->
+              <div *ngFor="let week of semaine.weeks" class="px-4 py-2 border text-center border-gray-300" [ngClass]="{
+                'bg-[#1d37a1] text-white': week.data.is_vacation,
+                'bg-white text-black': !week.data.is_vacation && getInvoiceTotalForWeek(semaine.month, week.week) == 0,
+                'bg-[#4ffe42ad] text-black': !week.data.is_vacation && (SelectedBudgetData.amount - Recapitulatif?.totalInvoices) / semaineRest < getInvoiceTotalForWeek(semaine.month, week.week)
+              }" nz-tooltip [nzTooltipMouseLeaveDelay]="0" [nzTooltipColor]="week.data.is_vacation ? '#1d37a1' : ''"
+                [nzTooltipTitle]="week.data.is_vacation ? 'Semaine de vacance' : getInvoiceTotalForWeek(semaine.month , week.week) | currency: 'EUR':'symbol':'1.2-2':'fr-FR'"
+                nzTooltipPlacement="top">
+                {{ week.data.is_vacation ? '✗' : getInvoiceTotalForWeek(semaine.month , week.week) | shortenNumber}}
+
+
+              </div>
+              <!-- budgets -->
+              <div *ngFor="let week of semaine.weeks" class="px-4 py-2 border text-center border-gray-300" [ngClass]="
+              week.data.is_vacation ? 'bg-[#1d37a1] text-white' :
+              (SelectedBudgetData.amount) / semaineRest < 0 ? 'bg-red text-white' :
+              (SelectedBudgetData.amount) / semaineRest > getInvoiceTotalForWeek(semaine.month , week.week) ? 'bg-[#f4b084] text-black' :
+              'bg-[#e2efda] text-black'
+            " nz-tooltip [nzTooltipMouseLeaveDelay]="0" [nzTooltipColor]="week.data.is_vacation ? '#1d37a1' : ''"
+                [nzTooltipTitle]="week.data.is_vacation ? 'Semaine de vacance' : (SelectedBudgetData.amount)/semaineRest | currency: 'EUR':'symbol':'1.2-2':'fr-FR'"
+                nzTooltipPlacement="top">
+                {{ week.data.is_vacation ? '✗' : (SelectedBudgetData.amount)/semaineRest
+                | shortenNumber }}
+              </div>
+
+              <div [ngClass]="[
+                'text-center px-4 py-2 border border-gray-300 w-full',
+                semaine.weeks.length === 4 ? 'col-span-4' : 'col-span-5'
+              ]">
+                {{ calculateTotal(semaine.month, 'Budgets') | currency: 'EUR':'symbol':'1.2-2':'fr-FR' }}
+              </div>
+
+              <div [ngClass]="[
+                'text-center px-4 py-2 border border-gray-300 w-full',
+                semaine.weeks.length === 4 ? 'col-span-4' : 'col-span-5'
+              ]">
+                {{ calculateTotal(semaine.month, 'TotalInvoices') | currency: 'EUR':'symbol':'1.2-2':'fr-FR' }}
+              </div>
+            </div>
+          </div>
+
+
+
+        </div>
+        <div *ngIf="budgets.data.length" class=" flex flex-wrap gap-4 py-4">
+
+
+          <div class="">
+            <h2 class="mb-4 text-lg font-semibold text-gray-800">{{ 'week.RÉCAPITULATIF' | translate }}</h2>
+            <table class="w-full border-collapse border-spacing-0 overflow-hidden rounded-xl border text-left">
+              <thead>
+                <tr class="bg-dark-blue text-white">
+                  <th class="border border-blue-900 px-4 py-2">{{ 'week.OBJECTIF' | translate }}</th>
+                  <th class="border border-blue-900 px-4 py-2">{{ 'week.MONTANT_RESTANT' | translate }}</th>
+                  <th class="border border-blue-900 px-4 py-2">{{ 'week.SEMAINE_RESTANT' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="bg-white text-gray-800">
+                  <td class="border border-gray-200 px-4 py-2 text-center">{{SelectedBudgetData.amount |
+                    currency:'EUR':'symbol':'1.2-2':'fr-FR'}}</td>
+                  <td class="border border-gray-200 px-4 py-2 text-center">{{SelectedBudgetData.amount -
+                    Recapitulatif?.totalInvoices |
+                    currency:'EUR':'symbol':'1.2-2':'fr-FR'}}</td>
+                  <td class="border border-gray-200 px-4 py-2 text-center">{{semaineRest }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+        <div *ngIf="!budgets.data.length">
+          <nz-empty [nzNotFoundContent]="'Aucun Objectifs trouvé pour ' + (SelectedYear | date: 'yyyy')"></nz-empty>
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      </div>
+
+
+
+      <div *ngIf="isLoading" class="font-Jakarta container mx-auto p-4">
+
+
+        <!-- Skeleton Monthly Data Section -->
+        <div class="flex flex-wrap gap-4 py-4">
+          <div *ngFor="let i of [1, 2, 3, 4 , 5 , 6 , 7 , 8 , 9 ,10 ,11 ,12]"
+            class="w-64 rounded-lg border bg-gray-100">
+            <!-- Skeleton Header -->
+            <div class="h-10 bg-gray-300 rounded-t-lg"></div>
+            <!-- Skeleton Content -->
+            <div class="grid grid-cols-4 gap-2 p-4">
+              <div *ngFor="let j of [1, 2, 3, 4]" class="h-6 bg-gray-200 rounded"></div>
+            </div>
+            <!-- Skeleton Footer -->
+            <div class="h-8 bg-gray-200 rounded-b-lg"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Template -->
+      <ng-template #contentTemplateModalFilter>
+        <main class="flex-grow bg-white flex items-center justify-center p-4">
+          <nz-date-picker nzMode="year" [(ngModel)]="date" (ngModelChange)="onChange($event)">
+          </nz-date-picker>
+        </main>
+        <div class="flex justify-end space-x-4">
+          <button class="text-[#2C52F5]" nz-button nzType="link" (click)="handleCloseDateModalFilter()">{{
+            'week.ANNULER' | translate }}</button>
+          <button class="bg-[#2C52F5] text-white rounded-full px-4 py-2" nz-button nzType="text"
+            (click)="ComfirmModalFiltrageFilter()" [nzLoading]="isLoading">
+            Filtre
+          </button>
+        </div>
+      </ng-template>
+    </nz-tab>
+  </nz-tabset>
+
+
+
+
+
+</app-page-template>

@@ -1,0 +1,309 @@
+
+<nz-modal [(nzVisible)]="isAddModalOpen" [nzTitle]="modalTitle" [nzContent]="modalContent"
+          [nzFooter]="modalFooter" (nzOnCancel)="HandleCancelDelete()">
+  <ng-template #modalTitle>
+    <div class="relative bg-[#2C52F5] flex flex-col py-2 px-1 items-center overflow-hidden">
+      <div class="w-9 h-9 bg-cover bg-center"
+           style="background-image: url('assets/icons/users.svg');"></div>
+      <div class="mt-2 text-[11px] text-[white]">{{ !isEditMode ? 'Ajouter une facture' : 'Modifier' }}</div>
+      <div class="absolute rotate-12 w-32 h-32 bg-cover bg-center opacity-30 -left-14 transform -rotate-30"
+           style="background-image: url('assets/icons/users.svg');"></div>
+      <div class="absolute -rotate-12 w-32 h-32 bg-cover bg-center opacity-30 -right-14 transform rotate-30"
+           style="background-image: url('assets/icons/users.svg');"></div>
+    </div>
+  </ng-template>
+
+  <ng-template #modalContent>
+    <main class="flex-grow bg-white flex items-center justify-center p-4">
+      <form [formGroup]="form">
+        <div class="grid grid-cols-2 gap-4 mb-2">
+          <div class="relative col-span-2">
+            <label class="text-[12px] mb-1 block">Client</label>
+            <div class="text-[12px] w-full py-0.5 border border-gray-300 rounded-full pl-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <nz-select formControlName="client_id" nzShowSearch nzAllowClear nzPlaceHolder="Sélectionnez un client" class="custom-select w-11/12">
+                <nz-option *ngFor="let option of GetClientMutation?.data()?.data || []" [nzLabel]="option.first_name + ' ' + option.last_name" [nzValue]="option.id"></nz-option>
+              </nz-select>
+            </div>
+            <div *ngIf="form.get('client_id')?.invalid && (form.get('client_id')?.dirty || form.get('client_id')?.touched)"
+                 class="text-red animate__animated animate__fadeInDown text-[9px] mt-1">
+              <div *ngIf="form.get('client_id')?.errors?.['required']">* Client est requis.</div>
+            </div>
+          </div>
+          <div class="relative col-span-2">
+            <label class="text-[12px] mb-1 block">Date</label>
+            <div class="text-[12px] w-full focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <nz-date-picker 
+                formControlName="due_date" 
+                nzPlaceHolder="Sélectionnez une date" 
+                [nzDisabledDate]="disablePastDates"
+                class=" w-full rounded-full">
+              </nz-date-picker>
+            </div>
+            <div *ngIf="form.get('due_date')?.invalid && (form.get('due_date')?.dirty || form.get('due_date')?.touched)"
+                 class="text-red animate__animated animate__fadeInDown text-[9px] mt-1">
+              <div *ngIf="form.get('due_date')?.errors?.['required']">* Date est requise.</div>
+            </div>
+          </div>
+        </div>
+
+          <div class="relative col-span-2">
+            <div class="relative mb-2">
+              <label class="text-[12px] mb-1 block">Activité</label>
+              <div class="text-[12px] w-full py-0.5 border border-gray-300 rounded-full pl-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <nz-select [nzDropdownRender]="renderTemplate" formControlName="activity_id" nzShowSearch nzAllowClear nzPlaceHolder="Sélectionnez une activité" class="custom-select w-11/12">
+                  <nz-option *ngFor="let option of GetActivityMutation?.data()?.data || []" [nzLabel]="option.name" [nzValue]="option.id"></nz-option>
+
+
+                </nz-select>
+                <ng-template #renderTemplate>
+                      <span (click)="OpenModalActivities()" class="flex justify-center  items-center px-4 py-2 cursor-pointer hover:text-white hover:bg-blue duration-500">
+                        <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Ajouter
+                      </span>
+                </ng-template>
+              </div>
+              <div *ngIf="form.get('activity_id')?.invalid && (form.get('activity_id')?.dirty)"
+                   class="text-red animate__animated animate__fadeInDown text-[9px] mt-1">
+                <div *ngIf="form.get('activity_id')?.errors?.['required']">* Activité est requise.</div>
+              </div>
+            </div>
+
+            <div class="relative mb-2">
+              <label for="hourlyRate" class="text-[12px] mb-1 block">Heures de travail</label>
+              <input id="hourlyRate" formControlName="hours" placeholder="Heures de travail" required
+                     class="text-[12px] w-full py-2 border border-gray-300 rounded-full pl-5 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <div *ngIf="form.get('hours')?.invalid && (form.get('hours')?.dirty || form.get('hours')?.touched)"
+                   class="text-red animate__animated animate__fadeInDown text-[9px] mt-1">
+                <div *ngIf="form.get('hours')?.errors?.['required']">* Heures de travail est requis.</div>
+              </div>
+            </div>
+          </div>
+      
+
+        <div class="grid grid-cols-2 gap-4 mb-2">
+          <div class="relative mb-2">
+            <label for="trailer" class="text-[12px] mb-1 block">Remorque</label>
+            <input id="trailer" formControlName="trailers" placeholder="Remorque"
+                   class="text-[12px] w-full py-2.5 border border-gray-300 rounded-full pl-5 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <div *ngIf="form.get('trailers')?.invalid && (form.get('trailers')?.dirty || form.get('trailers')?.touched)"
+                 class="text-red animate__animated animate__fadeInDown text-[9px] mt-1">
+              <div *ngIf="form.get('trailers')?.errors?.['required']">* Remorque est requis.</div>
+            </div>
+          </div>
+
+          <div class="relative mb-2">
+            <label for="tariff" class="text-[12px] mb-1 block">Tarif</label>
+            <input id="tariff" formControlName="total" placeholder="Tarif"
+                   class="text-[12px] w-full py-2.5 border border-gray-300 rounded-full pl-5 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <div *ngIf="form.get('total')?.invalid && (form.get('total')?.dirty || form.get('total')?.touched)"
+                 class="text-red animate__animated animate__fadeInDown text-[9px] mt-1">
+              <div *ngIf="form.get('total')?.errors?.['required']">* Tarif est requis.</div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </main>
+  </ng-template>
+
+  <ng-template #modalFooter>
+    <div class="flex justify-end space-x-4">
+      <button class="text-[#2C52F5] hover:text-[#2C52F5] hover:underline" nz-button nzType="link"
+              (click)="HandleCancelDelete()">
+        Annuler
+      </button>
+      <button
+        class="bg-[#2C52F5] border rounded-full text-white hover:text-white   hover:bg-[#2C52F5]/75 transition-colors"
+        nz-button nzType="text" (click)="ComfirmModal()" [nzLoading]="isAddingItem">
+        {{ !isEditMode ? 'Ajouter' : 'Modifier' }}
+      </button>
+    </div>
+  </ng-template>
+
+</nz-modal>
+<nz-modal class="z-50" [nzDraggable]="true" [nzVisible]="isModalActivitiesOpen" [nzTitle]="modalTitleActivities" [nzContent]="modalContentActivities"
+          [nzFooter]="null" (nzOnCancel)="HandleCloseActivitiesModal()">
+
+  <ng-template #modalTitleActivities>
+    <div class="relative bg-[#2C52F5] flex flex-col py-2 px-1 items-center overflow-hidden">
+      <div class="mt-2 text-[11px] font-Jakarta text-[white]">Gestion des activités</div>
+    </div>
+  </ng-template>
+
+  <ng-template #modalContentActivities>
+    <main class="flex-grow bg-white w-full flex items-center  p-2">
+      <div *ngIf="isAddingActivity" class="flex w-full justify-center items-center">
+        <div class="animate-pulse space-y-4 w-3/4">
+          <div class="h-4 bg-gray-200 rounded w-full"></div>
+          <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+          <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+          <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+          <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+        </div>
+      </div>
+      <ng-container *ngIf="!isAddingActivity">
+        <div class="w-full" *ngIf="GetActivityMutation?.data()?.data?.length > 0; else noDataTemplate">
+          <div *ngFor="let item of GetActivityMutation?.data()?.data" class="flex w-[100%] mb-2 justify-between items-center">
+            <div class="flex items-center space-x-3">
+              <div>
+                <p class="text-sm ml-3.5 border rounded-2xl py-1 px-3 font-medium">{{ item?.name }}</p>
+                <p class="text-xs text-gray-500">{{ item?.createdAt | date: 'yyyy-MM-dd' }}</p>
+              </div>
+            </div>
+            <p (click)="OpenDelete(item?.id)" class="text-red text-[11px] hover:underline font-semibold mr-4 cursor-pointer">Supprimer</p>
+          </div>
+
+          <!-- Ajout de la dernière ligne -->
+          <div class="flex w-[100%] mb-2 justify-between items-center border-t">
+            <div class="flex items-center space-x-3 mt-2">
+
+                <input placeholder="Saisir le nom de l'activité" class="border rounded-2xl px-4 py-1 outline-0" type="text" [(ngModel)]="Activity">
+
+            </div>
+            <button (click)="AddNewActivity()" class=" bg-[#0D204E] pl-4 text-white outline-0 py-1  px-4 border rounded-3xl" nz-button nzType="text" [nzLoading]="isAddingActivity" [disabled]="Activity.length < 5">Ajouter</button>
+          </div>
+        </div>
+
+        <!-- Gestion de l'absence de données -->
+        <ng-template #noDataTemplate>
+        <div class="flex flex-col">
+          <div class="text-center p-4 text-gray-500">
+            Aucune activité n'est disponible.
+          </div>
+          <!-- Ajout de la dernière ligne -->
+          <div class="flex w-[100%] mb-2 justify-between items-center border-t">
+            <div class="flex items-center space-x-3 mt-2">
+
+                <input placeholder="Saisir le nom de l'activité" class="border rounded-2xl px-4 py-1 outline-0" type="text" [(ngModel)]="Activity">
+
+            </div>
+            <button (click)="AddNewActivity()" class=" bg-[#0D204E] pl-4 text-white outline-0 py-1  px-4 border rounded-3xl" nz-button nzType="text" [nzLoading]="isAddingActivity" [disabled]="Activity.length < 5">Ajouter</button>
+          </div>
+        </div>
+        </ng-template>
+      </ng-container>
+    </main>
+  </ng-template>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="isOpenDeleteModal"  [nzTitle]="DeleteModalTitle" [nzFooter]="null" [nzContent]="DeleteModalContent"  (nzOnCancel)="handleCancelDeleteModal()">
+  <ng-template #DeleteModalTitle>
+    <div class="h-14 bg-[#F13759]">
+    </div>
+  </ng-template>
+
+   <ng-template #DeleteModalContent>
+
+     <div class="flex p-6 flex-col items-center">
+       <div class="bg-[#F13759] text-white p-3 rounded-full mb-4">
+         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+         </svg>
+       </div>
+       <h2 class="text-xl font-bold text-[#F13759] mb-4">Attention</h2>
+       <p class="text-gray-700 text-center mb-6">Vous voulez vraiment supprimer</p>
+       <div class="flex justify-center w-full space-x-4">
+         <button class="px-4 py-2 h-10 cursor-pointer border border-gray-300 rounded-full text-gray-600 hover:bg-gray-100 transition duration-200" (click)="handleCancelDeleteModal()">Annuler</button>
+         <button nz-button nzType="text" [nzLoading]="isDeletingActivity" class="px-4 py-2 h-10 cursor-pointer bg-[#F13759] text-white rounded-full hover:bg-red transition duration-200" (click)="HandleComfirmDeleteModal()">Supprimer</button>
+       </div>
+     </div>
+   </ng-template>
+</nz-modal>
+
+<app-page-template [titleNavbar]="'Factures'">
+  <button (click)="openModal('ADD')" class="bg-[#2C52F5] text-xs text-white px-4 py-2 rounded-full">Ajouter +</button>
+  
+  <nz-table
+    #nzTable
+    [nzHideOnSinglePage]="true"
+    [nzLoading]="loading"
+    [nzData]="invoices?.data || []"
+    nzTableLayout="fixed"
+    [nzBordered]="false"
+    [nzScroll]="isMobileScreen ? { x: '1000px' } : { x: null }"
+
+  >
+    <thead>
+      <tr>
+        <th class="text-[11px]">Nom du Client</th>
+        <th class="text-[11px]">Activité</th>
+        <th class="text-[11px]">Heures</th>
+        <th class="text-[11px]">Remorques</th>
+        <th class="text-[11px]">Total</th>
+        <th class="text-[11px]">Date de Création</th>
+        <th class="text-[11px] flex justify-center">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let data of nzTable.data">
+        <td class="text-[11px] truncate">
+          {{ data?.client?.first_name || '--' }} {{ data?.client?.last_name || '--' }}
+        </td>
+        <td class="text-[11px] truncate">
+          {{ data?.activity?.name || '--' }}
+        </td>
+        <td class="text-[11px] truncate">
+          {{ data?.hours || '--' }}
+        </td>
+        <td class="text-[11px] truncate">
+          {{ data?.trailers || '--' }}
+        </td>
+        <td class="text-[11px] truncate">
+          {{ data?.total | currency:'EUR':'symbol':'1.2-2' }}
+        </td>
+        <td class="text-[11px] truncate">
+          {{ data?.created_at | date:'dd/MM/yyyy HH:mm' }}
+        </td>
+        <td class="text-[11px]">
+          <button
+            nz-popover
+            [nzPopoverContent]="PopOverActions"
+            nzPopoverTrigger="click"
+          >
+          <svg width="25" height="25" viewBox="-0.5 0 25 25" fill="none"
+          xmlns="http://www.w3.org/2000/svg">
+          <path
+              d="M12 14.5C13.1046 14.5 14 13.6046 14 12.5C14 11.3954 13.1046 10.5 12 10.5C10.8954 10.5 10 11.3954 10 12.5C10 13.6046 10.8954 14.5 12 14.5Z"
+              stroke="#7B8694" stroke-miterlimit="10" />
+          <path
+              d="M19.5 14.5C20.6046 14.5 21.5 13.6046 21.5 12.5C21.5 11.3954 20.6046 10.5 19.5 10.5C18.3954 10.5 17.5 11.3954 17.5 12.5C17.5 13.6046 18.3954 14.5 19.5 14.5Z"
+              stroke="#7B8694" stroke-miterlimit="10" />
+          <path
+              d="M4.5 14.5C5.60457 14.5 6.5 13.6046 6.5 12.5C6.5 11.3954 5.60457 10.5 4.5 10.5C3.39543 10.5 2.5 11.3954 2.5 12.5C2.5 13.6046 3.39543 14.5 4.5 14.5Z"
+              stroke="#7B8694" stroke-miterlimit="10" />
+      </svg>
+          
+          </button>
+          <ng-template #PopOverActions>
+            <div class="w-[120px]">
+              <button
+                class="flex text-[11px] hover:bg-gray-50 items-center w-full h-10 px-4 text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-lg"
+                (click)="OpenEditModal(data)"
+                >
+                Modifier
+              </button>
+              <button
+                class="flex text-[11px] hover:bg-gray-50 items-center w-full h-10 px-4 text-red-700 bg-red-100 hover:bg-red-200 rounded-lg"
+                (click)="OpenDelete(data)"
+              >
+                Supprimer  
+              </button>
+            </div>
+          </ng-template>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+  
+  
+    <div class="flex justify-end p-2">
+      <nz-pagination
+        (nzPageIndexChange)="onChange($event)"
+        [nzPageIndex]="invoices?.current_page"
+        [nzTotal]="invoices?.total"
+      >
+      </nz-pagination>
+    </div>
+  </app-page-template>
+  

@@ -1,0 +1,592 @@
+<app-page-template titleNavbar="Performance" sideIconPath="assets/icons/colored/performance.svg">
+  <nz-breadcrumb class="flex items-center">
+    <nz-breadcrumb-item>
+      <a [routerLink]="['/']">
+        <img class="h-4 -mt-1 px-1  inline" src="assets/icons/sidebarIcons/dashboard.svg" alt="" srcset="">
+        <span>Tableau de bord</span>
+      </a>
+    </nz-breadcrumb-item>
+    <nz-breadcrumb-item>
+      <a class="" [routerLink]="['/performance']">
+        <img class="h-4 -mt-1 px-1  inline" src="assets/icons/colored/performance.svg" alt="" srcset="">
+        <span>Performance</span>
+      </a>
+    </nz-breadcrumb-item>
+
+  </nz-breadcrumb>
+
+  <div *ngIf="!budgets?.data.length && !isLoadingBudgets" class="flex flex-col items-center justify-center space-y-4">
+    <nz-empty [nzNotFoundContent]="'Aucun objectif trouvé pour ' + (currentDate | date: 'yyyy')" 
+              class="text-center text-gray-600">
+    </nz-empty>
+    <button [routerLink]="'/weeks'" class="px-6 py-3 font-Jakarta bg-dark-blue text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">
+      Cliquez ici pour ajouter un nouveau budget
+    </button>
+  </div>
+  
+  
+  <div *ngIf="isLoadingBudgets" class="flex items-center justify-center  font-Jakarta">
+    <div class="text-center">
+      <nz-spin nzSimple class="text-blue"></nz-spin>
+      <p class="mt-4 text-xl font-semibold text-gray-800">Chargement des budgets de l'année {{(currentDate | date: 'yyyy')}}...</p>
+    </div>
+  </div>
+  
+  <ng-container *ngIf="isLoadingGraph">
+    <div class="font-Jakarta container mx-auto p-4 space-y-8 animate-pulse">
+      <!-- Top Section: Prevision/Reel Skeleton -->
+      <div class="p-6 bg-gray-50 rounded-xl border">
+        <div class="h-6 bg-gray-100 rounded w-1/4 mx-auto mb-6"></div>
+
+        <div class="grid grid-cols-12 gap-3 mb-4">
+          <!-- Month Headers Skeleton -->
+          <div class="h-4 bg-gray-100 rounded w-16 mx-auto"></div>
+          <div class="h-4 bg-gray-100 rounded w-16 mx-auto"></div>
+          <div class="h-4 bg-gray-100 rounded w-16 mx-auto"></div>
+          <div class="h-4 bg-gray-100 rounded w-16 mx-auto"></div>
+          <div class="h-4 bg-gray-100 rounded w-16 mx-auto"></div>
+          <div class="h-4 bg-gray-100 rounded w-16 mx-auto"></div>
+          <div class="h-4 bg-gray-100 rounded w-16 mx-auto"></div>
+          <div class="h-4 bg-gray-100 rounded w-16 mx-auto"></div>
+          <div class="h-4 bg-gray-100 rounded w-16 mx-auto"></div>
+          <div class="h-4 bg-gray-100 rounded w-16 mx-auto"></div>
+          <div class="h-4 bg-gray-100 rounded w-16 mx-auto"></div>
+          <div class="h-4 bg-gray-100 rounded w-16 mx-auto"></div>
+        </div>
+
+        <div class="grid grid-cols-12 gap-3 mb-3">
+          <!-- Row Skeleton -->
+          <div class="h-6 bg-gray-100 rounded"></div>
+          <div class="h-6 bg-gray-100 rounded"></div>
+          <div class="h-6 bg-gray-100 rounded"></div>
+          <div class="h-6 bg-gray-100 rounded"></div>
+          <div class="h-6 bg-gray-100 rounded"></div>
+          <div class="h-6 bg-gray-100 rounded"></div>
+          <div class="h-6 bg-gray-100 rounded"></div>
+          <div class="h-6 bg-gray-100 rounded"></div>
+          <div class="h-6 bg-gray-100 rounded"></div>
+          <div class="h-6 bg-gray-100 rounded"></div>
+          <div class="h-6 bg-gray-100 rounded"></div>
+          <div class="h-6 bg-gray-100 rounded"></div>
+        </div>
+
+        <div class="flex justify-end mt-4">
+          <!-- Total and Reste Skeleton -->
+          <div class="grid grid-cols-2 gap-4 w-64">
+            <div class="h-4 bg-gray-100 rounded w-20 mx-auto"></div>
+            <div class="h-4 bg-gray-100 rounded w-20 mx-auto"></div>
+            <div class="h-6 bg-gray-100 rounded"></div>
+            <div class="h-6 bg-gray-100 rounded"></div>
+          </div>
+        </div>
+
+        <!-- Link Skeleton -->
+        <div class="text-center mt-6">
+          <div class="h-4 bg-gray-100 rounded w-1/3 mx-auto"></div>
+        </div>
+      </div>
+
+      <!-- Chart Section Skeleton -->
+      <div class="bg-gray-50 border rounded-lg p-6">
+        <div class="flex justify-between items-center mb-4">
+          <div class="h-6 bg-gray-100 rounded w-32"></div>
+          <div class="h-6 bg-gray-100 rounded w-20"></div>
+        </div>
+        <div class="w-full h-64 bg-gray-100 rounded"></div>
+      </div>
+
+      <!-- Table Section Skeleton -->
+      <div class="grid grid-cols-2 gap-4">
+        <!-- First Table Skeleton -->
+        <div class="bg-gray-50 border rounded-lg overflow-x-auto">
+          <div class="h-6 bg-gray-100 rounded w-1/4 mx-auto my-4"></div>
+          <table class="w-full min-w-max table-auto">
+            <thead>
+              <tr>
+                <th class="px-2 py-2">
+                  <div class="h-6 bg-gray-100 rounded"></div>
+                </th>
+                <th class="px-2 py-2">
+                  <div class="h-6 bg-gray-100 rounded"></div>
+                </th>
+                <th class="px-2 py-2">
+                  <div class="h-6 bg-gray-100 rounded"></div>
+                </th>
+                <th class="px-2 py-2">
+                  <div class="h-6 bg-gray-100 rounded"></div>
+                </th>
+                <th class="px-2 py-2">
+                  <div class="h-6 bg-gray-100 rounded"></div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="px-2 py-2">
+                  <div class="h-6 bg-gray-100 rounded"></div>
+                </td>
+                <td class="px-2 py-2">
+                  <div class="h-6 bg-gray-100 rounded"></div>
+                </td>
+                <td class="px-2 py-2">
+                  <div class="h-6 bg-gray-100 rounded"></div>
+                </td>
+                <td class="px-2 py-2">
+                  <div class="h-6 bg-gray-100 rounded"></div>
+                </td>
+                <td class="px-2 py-2">
+                  <div class="h-6 bg-gray-100 rounded"></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+  <ng-container *ngIf="!isLoadingGraph">
+    <div class="font-Jakarta aniamte__animated anmimate_fadeIn container mx-auto p-4 space-y-8">
+      <!-- Top Section: Prevision/Reel Table -->
+
+
+  
+      <div class="p-6 bg-[#ffffff] flex items-center justify-between gap-2 rounded-xl border mb-2 overflow-x-auto">
+        <!-- Inner container with fixed width -->
+        <div class="min-w-[800px]">
+          <!-- Header Section -->
+          <div
+            class="flex flex-col sm:flex-row justify-between items-center text-[#0D204E] border rounded-xl py-1 px-4 font-bold text-xl mb-6">
+            <span class="order-1 sm:order-none">PREVISION/REEL {{ currentYear }}</span>
+            <nz-segmented class="order-2 sm:order-none rounded-3xl bg-white uppercase"    [ngModel]="selectedoptionBudget"            [nzOptions]="options"
+              (nzValueChange)="handleValueChange($event)"></nz-segmented>
+          </div>
+      
+          <!-- Month Headers -->
+          <div class="grid grid-cols-12 gap-3 mb-4">
+            <div *ngFor="let month of months"
+              class="text-center truncate  font-medium text-[#7B8594] col-span-1 ">
+              {{ month }}
+            </div>
+          </div>
+      
+          <!-- Total Invoices Row -->
+          <div *ngIf="!isLoadingGraph" class="grid grid-cols-12 gap-1 mb-3">
+            <div *ngFor="let month of MonthDataInvoices" [ngClass]="{
+                  'bg-[#d5f5e3] text-[#388e3c] font-semibold': month.total,
+                  'bg-[#d5d8dc2d] text-[#3e4247] font-semibold': !month.total
+                }"
+                  
+              class="px-3 py-2   text-center text-xs font-medium rounded-lg col-span-1  text-ellipsis overflow-hidden whitespace-nowrap"
+              nz-tooltip
+              [nzTooltipMouseLeaveDelay]="0" [nzTooltipTitle]=" month.total | currency:'EUR':'symbol':'1.2-2':'fr-FR' | replace:',':' '"
+              nzTooltipPlacement="top"
+              >
+              {{ month.total | shortenNumber }}
+            </div>
+          </div>
+      
+          
+          <!-- Budget Row -->
+          <div *ngIf="!isLoadingGraph" class="grid grid-cols-12 gap-1 mb-3">
+            <div *ngFor="let month of MonthDataInvoices" [ngClass]="{
+                  'bg-[#fff3e0] text-[#ff9800] font-semibold': month.budget,
+                  'bg-[#d5d8dc2d] text-[#3e4247] font-semibold': !month.budget
+                }" class="px-3 py-2 text-center text-xs rounded-lg col-span-1 ">
+              <span class="font-semibold"
+              
+              
+              nz-tooltip
+              [nzTooltipMouseLeaveDelay]="0" [nzTooltipTitle]=" month.budget | currency:'EUR':'symbol':'1.2-2':'fr-FR' | replace:',':' '"
+              nzTooltipPlacement="top"
+              >
+                {{ month.budget | shortenNumber }}
+              </span>
+            </div>
+          </div>
+      
+          <!-- Difference Row -->
+          <div *ngIf="!isLoadingGraph" class="grid grid-cols-12 gap-1 mb-3">
+            <div
+              *ngFor="let month of MonthDataInvoices"
+              [ngClass]="{
+                'bg-[#FEEDF0] text-[#F13759] font-semibold': month.diffrence < 0,          
+                'bg-[#d5f5e3] text-[#388e3c] font-semibold': month.diffrence > 0,
+                'bg-gray-50 text-gray-600 font-semibold': month.diffrence == 0
+              }"
+              class="px-3 py-2 font-semibold text-center text-xs rounded-lg col-span-1"
+            >
+              <span
+              nz-tooltip
+              [nzTooltipMouseLeaveDelay]="0" [nzTooltipTitle]=" month.diffrence | currency:'EUR':'symbol':'1.2-2':'fr-FR' | replace:',':' '"
+              nzTooltipPlacement="top"
+              >
+                {{ month.diffrence | shortenNumber }}
+              </span>
+            </div>
+            
+          </div>
+          
+      
+          <!-- Loading Skeletons -->
+          <div *ngIf="isLoadingGraph" class="grid grid-cols-12 gap-1 mb-3 animate-pulse">
+            <div *ngFor="let _ of [].constructor(12)"
+              class="px-3 py-2.5 text-center text-xs rounded-lg bg-gray-200 col-span-1 sm:col-span-2 md:col-span-1">
+              <div class="h-4 w-8 bg-gray-300 rounded mx-auto"></div>
+            </div>
+            <div *ngFor="let _ of [].constructor(12)"
+            class="px-3 py-2.5 text-center text-xs rounded-lg bg-gray-200 col-span-1 sm:col-span-2 md:col-span-1">
+            <div class="h-4 w-8 bg-gray-300 rounded mx-auto"></div>
+          </div>
+                        <div *ngFor="let _ of [].constructor(12)"
+              class="px-3 py-2.5 text-center text-xs rounded-lg bg-gray-200 col-span-1 sm:col-span-2 md:col-span-1">
+              <div class="h-4 w-8 bg-gray-300 rounded mx-auto"></div>
+            </div>
+          </div>
+      
+          <!-- Link Section -->
+          <div class="text-center mt-6">
+            <a [routerLink]="'/performance/compratif'" class="text-[#2c3e50] underline font-medium">
+              Voir le comparatif
+            </a>
+          </div>
+        </div>
+        <div class="border-[#F3F3F3] min-w-[180px] shadow mt-2 col-span-1 w-60 border-3 rounded-2xl border overflow-hidden">
+          <table class="min-w-full border table-auto border-collapse">
+            <thead>
+              <tr>
+                <th class="border text-[#0D204E] text-center px-4 py-2">Total</th>
+                <th class="border text-[#0D204E] text-center px-4 py-2">Reste</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="px-4 py-1 border">
+                  <div 
+                    class=" py-1 px-1 rounded-xl text-center"
+                    [ngClass]="{
+                      'bg-[#d5f5e3] text-[#388e3c]': monthDataTotals.total > 0,
+                      'bg-[#FEEDF0] text-[#F13759]': monthDataTotals.total <= 0
+                    }"
+                    nz-tooltip
+                    [nzTooltipMouseLeaveDelay]="0"
+                    [nzTooltipTitle]="monthDataTotals.total | currency:'EUR':'symbol':'1.2-2':'fr-FR' | replace:',':' '"
+                    nzTooltipPlacement="top">
+                    {{monthDataTotals.total | shortenNumber}}
+                  </div>
+                </td>
+                <td class="px-4 py-1 border">
+                  <div 
+                    class="border py-1 px-1 rounded-xl text-center"
+                    [ngClass]="{
+                      'bg-[#d5f5e3] text-[#388e3c]': (SelectedBudget.amount - monthDataTotals.total) > 0,
+                      'bg-[#FEEDF0] text-[#F13759]': (SelectedBudget.amount - monthDataTotals.total) <= 0
+                    }"
+                    nz-tooltip
+                    [nzTooltipMouseLeaveDelay]="0"
+                    [nzTooltipTitle]="SelectedBudget.amount - monthDataTotals.total | currency:'EUR':'symbol':'1.2-2':'fr-FR' | replace:',':' '"
+                    nzTooltipPlacement="top">
+                    {{SelectedBudget.amount - monthDataTotals.total | shortenNumber}}
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="px-4 py-1 border mt-2">
+                  <div 
+                    class="py-1 px-1 rounded-xl text-center bg-[#fff3e0] text-[#ff9800]"
+        
+                    nz-tooltip
+                    [nzTooltipMouseLeaveDelay]="0"
+                    [nzTooltipTitle]="SelectedBudget.amount | currency:'EUR':'symbol':'1.2-2':'fr-FR' | replace:',':' '"
+                    nzTooltipPlacement="top">
+                    {{SelectedBudget.amount | shortenNumber}}
+                  </div>
+                </td>
+                <td class="px-4 py-1 border">
+                </td>
+              </tr>
+              <tr>
+                <td class="px-4 py-1 border">
+                  <div 
+                    class="border py-1 px-1 rounded-xl text-center"
+                    [ngClass]="{
+                      'bg-[#d5f5e3] text-[#388e3c]': monthDataTotals.diffrence > 0,
+                      'bg-[#FEEDF0] text-[#F13759]': monthDataTotals.diffrence <= 0
+                    }"
+                    nz-tooltip
+                    [nzTooltipMouseLeaveDelay]="0"
+                    [nzTooltipTitle]="monthDataTotals.diffrence | currency:'EUR':'symbol':'1.2-2':'fr-FR' | replace:',':' '"
+                    nzTooltipPlacement="top">
+                    {{monthDataTotals.diffrence | shortenNumber}}
+                  </div>
+                </td>
+                <td class="px-4 py-1 border">
+                </td>
+              </tr>
+            </tbody>
+            
+          </table>
+          
+        
+        </div>
+      </div>
+      
+      
+
+      
+      
+      
+      
+
+        <!-- Chart Section -->
+        <div *ngIf="!isLoadingGraph" class="bg-white flex justify-between border rounded-lg px-1 py-3  overflow-x-auto">
+          <div class="w-full  min-w-[600px]">
+            <!-- Placeholder for Chart -->
+            <div id="chart">
+ 
+
+                <ng-container *ngIf="GraphData?.budget_realisation_comparison.length">
+                  <apx-chart [series]="chartOptions.series" [chart]="chartOptions.chart"
+                  [dataLabels]="chartOptions.dataLabels" [plotOptions]="chartOptions.plotOptions"
+                  [yaxis]="chartOptions.yaxis" [legend]="chartOptions.legend" [fill]="chartOptions.fill"
+                  [stroke]="chartOptions.stroke" [tooltip]="chartOptions.tooltip" [xaxis]="chartOptions.xaxis"
+                  [yaxis]="chartOptions.yaxis"></apx-chart>
+                </ng-container>
+                <ng-container *ngIf="!GraphData?.budget_realisation_comparison.length">
+                  <nz-empty nzNotFoundImage="simple" nzNotFoundContent="Aucune donnée disponible pour la comparaison des réalisations budgétaires."></nz-empty>
+  
+                </ng-container>
+            </div>
+          </div>
+          <div class="flex flex-col p-4 h-20 w-32 rounded-xl shadow border items-center mb-4">
+            <h2 class="font-semibold text-[9px]">Moyenne 12 mois</h2>
+            <span class="bg-[#F9FCFB] truncate font-semibold text-[#475569] px-3 py-1 rounded-xl border">
+              {{ monthDataTotals.total/12 |
+              currency:'EUR':'symbol':'1.2-2':'fr-FR' | replace:',':' ' }}
+            </span>
+          </div>
+        </div>
+
+<!-- Table Section -->
+<div class="grid grid-cols-1 sm:grid-cols-6 gap-1">
+  <!-- First table -->
+  <div class="bg-white sm:col-span-4  border rounded-lg overflow-x-auto">
+
+    <div class="bg-white p-1 rounded-3xl">
+      <div class="overflow-x-auto">
+        <table class="min-w-full table-auto border-collapse">
+          <thead>
+            <tr>
+              <th class="px-2 py-2 sm:px-4">
+                <p class="bg-[#878E98] text-white border rounded-md text-center px-2 py-3 sm:px-4">Nombres</p>
+              </th>
+              <th class="px-2 py-2 sm:px-4">
+                <p class=""></p>
+              </th>
+              <th class="px-2 py-2 sm:px-4">
+                <p class="bg-[#878E98] text-white border rounded-md text-center px-2 py-3 sm:px-4">Total/Hl</p>
+              </th>
+              <th class="px-2 py-2 sm:px-4">
+                <p class="bg-[#0D204E] text-white border rounded-md text-center px-2 py-3 sm:px-4">Total Euros</p>
+              </th>
+              <th class="px-2 py-2 sm:px-4">
+                <p class="bg-[#5DBF96] text-white border rounded-md text-center px-2 py-3 sm:px-4">Ratio H/E</p>
+              </th>
+            </tr>
+          </thead>
+          <tbody *ngIf="!isLoadingGraph; else loading">
+            <ng-container *ngIf="GraphData.activities_data?.length > 0; else empty">
+              <tr *ngFor="let activity of GraphData.activities_data" class="hover:bg-gray-50">
+                <td class="px-2 py-1 text-sm sm:text-base">
+                  <p class="border rounded-md text-center px-2 py-1 truncate">{{ activity.count_invoices }}</p>
+                </td>
+                <td class="px-2 py-1 text-sm sm:text-base">
+                  <nz-tag
+                  class="text-md py-1.5 px-3 rounded w-full text-center border border-gray-200  text-black"
+                  [nzColor]="'white'"
+    
+                >
+                {{ activity.name }}
+    
+                </nz-tag>  
+                
+                </td>
+                <td class="px-2 py-1 text-sm sm:text-base">
+                  <p class="border rounded-md text-center px-2 py-1 truncate">{{ activity.total_hours_invoices }}</p>
+                </td>
+                <td class="px-2 py-1 text-sm sm:text-base">
+                  <p class="border rounded-md text-center px-2 py-1">{{ activity.total_invoices | currency:'EUR':'symbol':'1.2-2':'fr-FR' | replace:',':' ' }}</p>
+                </td>
+                <td class="px-2 py-1 text-sm sm:text-base">
+                  <p class="border rounded-md text-center px-2 py-1 truncate">{{ activity.ratio | number:'1.0-2' }}</p>
+                </td>
+              </tr>
+              <tr class="bg-gray-100 rounded-xl font-semibold">
+                <td class="px-2 py-1 text-sm sm:text-base">
+                  
+                  <p class="border rounded-md text-center px-2 py-1 truncate">{{totalsTable.totalCountInvoices}}</p>
+                </td>
+                <td class="px-2 py-1 text-sm sm:text-base">
+                  <nz-tag
+                  class="text-md py-1.5 px-3 rounded w-full text-center border border-gray-100 text-gray-600 "
+                  [nzColor]="'#e6e5e5'" 
+
+                >
+                Total
+
+                </nz-tag>
+                </td>
+                <td class="px-2 py-1 text-sm sm:text-base">
+                  <p class="border rounded-md text-center px-2 py-1 truncate">{{totalsTable.totalHoursInvoices}}</p>
+                </td>
+                <td class="px-2 py-1 text-sm sm:text-base">
+                  <p class="border rounded-md text-center px-2 py-1">{{totalsTable.totalInvoices | currency:'EUR':'symbol':'1.2-2':'fr-FR' | replace:',':' '}}</p>
+                </td>
+                <td class="px-2 py-1 text-sm sm:text-base">
+                  <p class="border rounded-md text-center px-2 py-1 truncate">{{totalsTable.avgRatio | number:'1.0-2'}}</p>
+                </td>
+              </tr>
+            </ng-container>
+    
+            <ng-template #empty>
+              <tr>
+                <td colspan="5" class="px-4 py-2 text-center">
+                  <p class="text-gray-500">Aucune activité trouvée.</p>
+                </td>
+              </tr>
+            </ng-template>
+          </tbody>
+    
+          <!-- Loading State -->
+          <ng-template #loading>
+            <tr>
+              <td colspan="5" class="px-4 py-2">
+                <div class="animate-pulse space-y-2">
+                  <div class="border rounded-md h-6 bg-gray-50"></div>
+                  <div class="border rounded-md h-6 bg-gray-50"></div>
+                  <div class="border rounded-md h-6 bg-gray-50"></div>
+                  <div class="border rounded-md h-6 bg-gray-50"></div>
+                  <div class="border rounded-md h-6 bg-gray-50"></div>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </table>
+      </div>
+    </div>
+  </div>
+
+<!-- Second Content Block -->
+<div class="p-6 bg-white  sm:col-span-2 rounded-lg border w-full mx-auto">
+  <!-- First Row -->
+  <div class="grid grid-cols-2 gap-4">
+    <!-- Column 1 -->
+    <div>
+      <div class="text-center text-gray-600 font-medium border px-4 py-2 rounded-lg mb-1">
+        Reste/mois pour 30K
+      </div>
+      <div 
+        class="text-center bg-[#E7F7F7] font-bold text-xl py-2 rounded-lg" 
+        [ngClass]="{
+          'text-[#00796B]': (30000 - getTotalsInvoices(GraphData.budget_realisation_comparison).totalBudget) / 4 >= 0,
+          'bg-[#FEEDF0]/10#F13759text-red': (30000 - getTotalsInvoices(GraphData.budget_realisation_comparison).totalBudget) / 4 < 0
+        }"
+      >
+        {{ (30000 - getTotalsInvoices(GraphData.budget_realisation_comparison).totalBudget) / 4 | number:'1.0-2' }}
+      </div>
+    </div>
+    <!-- Column 2 -->
+    <div>
+      <div class="text-center text-gray-600 font-medium border px-4 py-2 rounded-lg mb-1">
+        Reste/mois pour 40K
+      </div>
+      <div 
+        class="text-center bg-[#E7F7F7] font-bold text-xl py-2 rounded-lg" 
+        [ngClass]="{
+          'text-[#00796B]': (40000 - getTotalsInvoices(GraphData.budget_realisation_comparison).totalBudget) / 4 >= 0,
+          'bg-[#FEEDF0]/10#F13759text-red': (40000 - getTotalsInvoices(GraphData.budget_realisation_comparison).totalBudget) / 4 < 0
+        }"
+      >
+        {{ (40000 - getTotalsInvoices(GraphData.budget_realisation_comparison).totalBudget) / 4 | number:'1.0-2' }}
+      </div>
+    </div>
+  </div>
+  <!-- Second Row -->
+  <div class="grid grid-cols-2 gap-4 mt-4">
+    <!-- Column 1 -->
+    <div>
+      <div class="text-center text-gray-600 font-medium border px-4 py-2 rounded-lg mb-1">
+        Reste/mois pour 45K
+      </div>
+      <div 
+        class="text-center bg-[#E7F7F7] font-bold text-xl py-2 rounded-lg" 
+        [ngClass]="{
+          'text-[#00796B]': (45000 - getTotalsInvoices(GraphData.budget_realisation_comparison).totalBudget) / 4 >= 0,
+          'bg-[#FEEDF0]/10#F13759text-red': (45000 - getTotalsInvoices(GraphData.budget_realisation_comparison).totalBudget) / 4 < 0
+        }"
+      >
+        {{ (45000 - getTotalsInvoices(GraphData.budget_realisation_comparison).totalBudget) / 4 | number:'1.0-2' }}
+      </div>
+    </div>
+    <!-- Column 2 -->
+    <div>
+      <div class="text-center text-gray-600 font-medium border px-4 py-2 rounded-lg mb-1">
+        Reste/mois pour 60K
+      </div>
+      <div 
+        class="text-center bg-[#E7F7F7] font-bold text-xl py-2 rounded-lg" 
+        [ngClass]="{
+          'text-[#00796B]': (50000 - getTotalsInvoices(GraphData.budget_realisation_comparison).totalBudget) / 4 >= 0,
+          'bg-[#FEEDF0]/10#F13759text-red': (50000 - getTotalsInvoices(GraphData.budget_realisation_comparison).totalBudget) / 4 < 0
+        }"
+      >
+        {{ (60000 - getTotalsInvoices(GraphData.budget_realisation_comparison).totalBudget) / 4 | number:'1.0-2' }}
+      </div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+
+
+
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+  <!-- First table -->
+  <div class="bg-white border rounded-lg overflow-x-auto">
+    <div class="max-w-lg p-6 bg-white rounded-lg shadow-sm">
+      <h2 class="text-lg font-medium text-[#334155] mb-4">
+        Moyenne Heure/euro
+      </h2>
+
+      <div class="space-y-2">
+        <div *ngFor="let item of groupByMonthAndCalculateTotals(GraphData?.month_ratio)" class="flex justify-between items-center">
+          <span class="text-[#64748B]">{{ getMonthName(item.month)}} </span>
+          <span class="bg-[#F8FAFC] px-4 py-2 rounded text-[#10B981]">
+            {{ item.rate.toFixed(4) | currency:'EUR':'symbol':'1.2-2':'fr-FR' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="mt-6 bg-[#F8FAFC] rounded p-4">
+        <div class="flex justify-between items-center">
+          <span class="font-medium text-[#334155]">Moyenne</span>
+          <span class="text-[#F59E0B] text-2xl font-semibold">
+            {{ average.toFixed(4)| currency:'EUR':'symbol':'1.2-2':'fr-FR' }}
+          </span>
+        </div>
+        <div class="flex justify-between items-center mt-2">
+          <span></span>
+          <span class="text-[#334155] text-xl">{{ count | number:'1.0-2' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    </div>
+
+  </ng-container>
+
+</app-page-template>

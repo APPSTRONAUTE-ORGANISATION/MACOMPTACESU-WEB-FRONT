@@ -1,0 +1,1064 @@
+<nz-modal [(nzVisible)]="PayModalOpen" (nzOnCancel)="HandleCancelPaymentModal()" [nzTitle]="DeleteModalTitle"
+  [nzFooter]="null" [nzContent]="DeleteModalContent">
+  <ng-template #DeleteModalTitle>
+    <div class="h-14 bg-[#5DBF96]">
+    </div>
+  </ng-template>
+
+  <ng-template #DeleteModalContent>
+
+    <div class="flex p-6 flex-col items-center">
+      <div class="bg-[#5DBF96] text-white p-3 rounded-full mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+      </div>
+      <h2 class="text-xl font-bold text-[#5DBF96] mb-4"> Statut : payé </h2>
+      <p class="text-gray-700 text-center mb-6">Êtes-vous sûr de vouloir marquer ce paiement comme payé ?</p>
+      <div class="flex justify-center w-full space-x-4">
+        <button (click)="HandleCancelPaymentModal()"
+          class="px-4 py-2 h-10 cursor-pointer border border-gray-300 rounded-full text-gray-600 hover:bg-gray-100 transition duration-200">{{
+          'settings.ANNULER' | translate }}</button>
+        <button (click)="comfirmPayment()" nz-button nzType="default" [nzLoading]="PayLoading"
+          class="px-4 py-2 h-10 cursor-pointer bg-[#5DBF96] text-white rounded-full  transition duration-200">Confimer</button>
+      </div>
+    </div>
+  </ng-template>
+</nz-modal>
+
+
+<app-page-template>
+  <div *ngIf="!budgets?.data.length && !isLoadingBudgets" class="flex flex-col items-center justify-center space-y-4">
+    <nz-empty [nzNotFoundContent]="'Aucun objectif trouvé pour ' + (SelectedYear | date: 'yyyy')"
+      class="text-center text-gray-600">
+    </nz-empty>
+    <button [routerLink]="'/weeks'"
+      class="px-6 py-3 font-Jakarta bg-dark-blue text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">
+      {{ 'index.ADD_NEW_BUDGET' | translate }}
+    </button>
+    <button
+      *ngIf="currentDateG != SelectedYear.getFullYear()"
+      (click)="resetpage()"
+            class="flex items-center gap-2 px-4 py-2  bg-green rounded-lg shadow-md transition-all duration-300  hover:shadow-lg active:scale-95">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+           xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path>
+      </svg>
+      Retour
+    </button>
+
+  </div>
+
+
+
+  <div *ngIf="isLoadingBudgets" class="flex items-center justify-center font-Jakarta">
+    <div class="text-center">
+      <nz-spin nzSimple class="text-blue"></nz-spin>
+      <p class="mt-4 text-xl font-semibold text-gray-800">
+        {{ 'index.LOADING_BUDGETS' | translate: { year: SelectedYear | date: 'yyyy' } }}...
+      </p>
+    </div>
+  </div>
+
+
+
+
+  <main *ngIf="budgets?.data?.length > 0 && !isLoadingBudgets"
+    class="animate__animated animate__fadeIn flex max-md:mb-14 font-Jakarta flex-col md:flex-row gap-2 w-full">
+    <div class="flex flex-col  gap-2 w-full md:w-9/12 overflow-hidden">
+
+
+      <!-- Chart Section -->
+      <div *ngIf="!isLoadingBudgetbyID"
+        class="bg-white min-h-[410px] animate__animated animate__fadeIn  flex justify-between border rounded-lg px-1 py-2 overflow-x-auto">
+        <div class="w-full flex gap-2">
+          <!-- Placeholder for Chart -->
+          <div id="chart mt-8 ">
+
+            <div class="flex justify-between items-center text-[#0D204E]  rounded-xl py-1 px-1 font-bold text-xl mb-6">
+              <span class="font-Jakarta text-[17px] ml-2 font-semibold text-[#475569]">{{ 'index.PREVISION_REEL' |
+                translate }} {{ currentYear }}</span>
+              <nz-date-picker class="w-[100px]  bg-red" nzMode="year" [(ngModel)]="SelectedYear"
+                (ngModelChange)="onChange1($event)"></nz-date-picker>
+
+
+            </div>
+            <ng-container *ngIf="GraphData?.budget_realisation_comparison.length">
+              <div class="min-w-[130vh]">
+                <apx-chart [series]="chartOptions4.series" [chart]="chartOptions4.chart"
+                  [dataLabels]="chartOptions4.dataLabels" [plotOptions]="chartOptions4.plotOptions"
+                  [yaxis]="chartOptions4.yaxis" [legend]="chartOptions4.legend" [fill]="chartOptions4.fill"
+                  [stroke]="chartOptions4.stroke" [tooltip]="chartOptions4.tooltip" [xaxis]="chartOptions4.xaxis">
+                </apx-chart>
+              </div>
+            </ng-container>
+            <ng-container *ngIf="!GraphData?.budget_realisation_comparison.length">
+              <div class="min-w-[130vh]">
+
+                <nz-empty nzNotFoundImage="simple"
+                  nzNotFoundContent="Aucune donnée disponible pour la comparaison des réalisations budgétaires."></nz-empty>
+              </div>
+            </ng-container>
+          </div>
+          <div *ngIf="GraphData?.budget_realisation_comparison.length"
+            class="flex flex-col items-center justify-start p-4 h-max  w-32 bg-white rounded-xl shadow-md border border-gray-200 mb-4">
+            <h2 class="font-semibold text-xs text-gray-700 text-center">
+              {{ 'index.Moyenne_12_mois' | translate }}
+            </h2>
+            <span
+              class="bg-[#F9FCFB] mt-1 font-semibold text-sm text-[#475569] px-3 py-1 rounded-xl border border-gray-300 text-center truncate">
+              {{ monthDataTotals?.total/12 | currency:'EUR':'symbol':'1.2-2':'fr-FR'}}
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      <div *ngIf="isLoadingBudgetbyID" class="bg-white min-h-[410px] border rounded-lg p-6 animate-pulse">
+        <!-- Header Skeleton -->
+        <div class="flex justify-between items-center mb-4">
+          <div class="h-5 w-32 bg-gray-200 rounded"></div>
+          <div class="h-6 w-20 bg-gray-200 rounded"></div>
+        </div>
+        <!-- Chart Placeholder -->
+        <div class="w-full h-64 bg-gray-200 rounded"></div>
+      </div>
+
+
+
+
+      <div>
+        <div class="p-6 bg-[#ffffff] rounded-xl flex items-center gap-2 border mb-2 overflow-x-auto">
+          <!-- Inner container with fixed width -->
+          <div class="min-w-[800px] ">
+            <!-- Header Section -->
+            <div
+              class="flex justify-between items-center text-[#0D204E] border rounded-xl py-1 px-4 font-bold text-xl mb-6">
+              <span class="font-Jakarta text-[17px] ml-2 font-semibold text-[#475569] order-none">{{
+                'index.PREVISION_REEL' | translate }} {{ currentYear }}</span>
+              <div class="flex justify-between gap-2 items-center">
+                <nz-segmented class="order-2 sm:order-none rounded-3xl bg-white uppercase" [nzOptions]="options"
+                  (nzValueChange)="handleValueChange($event)"></nz-segmented>
+                <button nz-popover [nzPopoverContent]="filterContent" nzPopoverTitle="Filtres"
+                  [(nzPopoverVisible)]="isPopoverVisible" (nzPopoverVisibleChange)="change($event)"
+                  nzPopoverTrigger="click" nzPlacement="bottom" nzTrigger="hover"
+                  class="bg-gray-100  text-white px-4 py-2 rounded-full flex items-center">
+                  <svg width="18" height="19" viewBox="0 0 18 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd"
+                      d="M10.9836 1.91226L11.0737 1.96426C11.8518 2.41348 12.5007 2.78807 12.9758 3.15471C13.4773 3.5417 13.8753 3.9859 14.042 4.60808C14.2087 5.23027 14.0861 5.81396 13.8453 6.39985C13.6172 6.95493 13.2425 7.60376 12.7933 8.38185L8.91775 15.0946C8.62081 15.6099 8.38602 16.0173 8.02866 16.3243C7.6713 16.6314 7.23316 16.8022 6.67903 17.0181L6.52928 17.0766C5.50107 17.4783 4.65351 17.8095 3.95945 17.9716C3.23356 18.1412 2.5327 18.1623 1.87943 17.7852C1.22616 17.408 0.894001 16.7905 0.67793 16.0771C0.471331 15.3949 0.33435 14.4953 0.168165 13.404L0.143907 13.2451C0.053878 12.6572 -0.0173093 12.1924 0.0699254 11.7294C0.0808299 11.6715 0.0940504 11.6145 0.109419 11.558C0.217 11.1629 0.429845 10.795 0.690408 10.3445L4.56603 3.63185C5.01524 2.85373 5.38983 2.20488 5.75647 1.72976C6.14346 1.22828 6.58766 0.830252 7.20984 0.663538C7.83203 0.496824 8.41573 0.619429 9.00161 0.86023C9.55669 1.08837 10.2055 1.463 10.9836 1.91226ZM5.46406 5.0764L11.0932 8.3264L7.66979 14.256C7.29683 14.902 7.1902 15.0671 7.05111 15.1866C6.91202 15.3061 6.73267 15.3867 6.0379 15.6581C4.94143 16.0865 4.19466 16.3763 3.61819 16.511C3.06131 16.6411 2.80862 16.5896 2.62943 16.4861C2.45023 16.3827 2.2793 16.1896 2.11353 15.6423C1.94194 15.0757 1.8195 14.2841 1.64226 13.1203C1.52995 12.3829 1.51004 12.1873 1.54399 12.0071C1.57794 11.8269 1.66767 11.652 2.04063 11.006L5.46406 5.0764ZM12.4579 5.82963C12.3254 6.15207 12.1227 6.5312 11.8417 7.02646L6.21563 3.77827C6.50402 3.28724 6.73101 2.92215 6.94399 2.64617C7.22845 2.27755 7.42006 2.16013 7.59807 2.11243C7.77609 2.06473 8.00074 2.07062 8.4314 2.24762C8.88219 2.4329 9.44379 2.7553 10.2786 3.2373C11.1135 3.71931 11.6735 4.04447 12.0594 4.34223C12.428 4.62669 12.5454 4.8183 12.5931 4.99631C12.6408 5.17433 12.6349 5.39898 12.4579 5.82963Z"
+                      fill="#7B8594" />
+                    <path
+                      d="M9.62061 17.4406C9.62061 17.0263 9.95639 16.6906 10.3706 16.6906H16.3706C16.7848 16.6906 17.1206 17.0263 17.1206 17.4406C17.1206 17.8548 16.7848 18.1906 16.3706 18.1906H10.3706C9.95639 18.1906 9.62061 17.8548 9.62061 17.4406Z"
+                      fill="#7B8594" />
+                  </svg>
+
+                </button>
+
+              </div>
+
+            </div>
+            <!-- Popover Content -->
+            <ng-template #filterContent>
+              <div class="flex items-center">
+                <nz-date-picker nzMode="year" [(ngModel)]="SelectedYear"
+                  (ngModelChange)="onChange1($event)"></nz-date-picker>
+
+              </div>
+              <form *ngIf="formData1.length">
+                <div class="p-4 w-[330px]">
+                  <div class="grid items-center grid-cols-2 gap-2">
+                    <div *ngFor="let item of formData1"
+                      class="col-span-2 flex rounded-xl gap-1 border-1 border-dark-blue items-center  justify-center">
+                      <!-- Name Input -->
+                      <div class="truncate w-1/2 text-center text-gray-600 overflow-hidden border  rounded-lg m-1 py-2">
+                        <span class="w-48 p-1 px-4 font-bold">
+                          {{ item.name }}
+                        </span>
+
+                      </div>
+
+                      <!-- Amount Input -->
+                      <div class="truncate w-1/2 text-center text-gray-600 overflow-hidden border  rounded-lg m-1 py-2"
+                        (dblclick)="editField(item, 'amount')">
+                        <span class="w-48 p-1 px-4" *ngIf="!isEditing[item.name]">
+                          {{ item.amount }}
+                        </span>
+                        <input *ngIf="isEditing[item.name]" type="number" [(ngModel)]="editingData[item.name].amount"
+                          name="{{item.name}}Amount" class="w-48 m-0 p-0 outline-none border-none"
+                          (blur)="saveField(item, 'amount')" (keyup.enter)="saveField(item, 'amount')" />
+                      </div>
+                    </div>
+
+
+
+                  </div>
+                </div>
+              </form>
+              <form *ngIf="!formData1.length" (ngSubmit)="onSubmitNewBudgets()">
+                <div class="p-4">
+                  <div class="grid items-center grid-cols-2 gap-4">
+                    <!-- First Row -->
+                    <div class="col-span-2 flex rounded-xl gap-2 items-center">
+                      <!-- Name Input -->
+                      <div class="truncate w-1/2 text-center text-gray-600 overflow-hidden border rounded-lg mb-1 py-2">
+                        <input type="text" disabled [(ngModel)]="formDataAdd[0].name" name="name1"
+                          class="w-28 text-center m-0 p-0" placeholder="Name 1" required />
+                      </div>
+                      <!-- Amount Input -->
+                      <div class="truncate w-1/2 text-center text-gray-600 overflow-hidden border rounded-lg mb-1 py-2">
+                        <input type="number" [(ngModel)]="formDataAdd[0].amount" name="amount1"
+                          class="w-28 text-center m-0 p-0" placeholder="Amount 1" required />
+                      </div>
+                    </div>
+
+                    <!-- Second Row -->
+                    <div class="col-span-2 flex rounded-xl gap-2 items-center">
+                      <div class="truncate w-1/2 text-center text-gray-600 overflow-hidden border rounded-lg mb-1 py-2">
+                        <input disabled type="text" [(ngModel)]="formDataAdd[1].name" name="name2"
+                          class="w-28 text-center m-0 p-0" placeholder="Name 2" required />
+                      </div>
+                      <div class="truncate w-1/2 text-center text-gray-600 overflow-hidden border rounded-lg mb-1 py-2">
+                        <input type="number" [(ngModel)]="formDataAdd[1].amount" name="amount2"
+                          class="w-28 text-center m-0 p-0" placeholder="Amount 2" required />
+                      </div>
+                    </div>
+
+                    <!-- Third Row -->
+                    <div class="col-span-2 flex rounded-xl gap-2 items-center">
+                      <div class="truncate w-1/2 text-center text-gray-600 overflow-hidden border rounded-lg mb-1 py-2">
+                        <input disabled type="text" [(ngModel)]="formDataAdd[2].name" name="name3"
+                          class="w-28 text-center m-0 p-0" placeholder="Name 3" required />
+                      </div>
+                      <div class="truncate w-1/2 text-center text-gray-600 overflow-hidden border rounded-lg mb-1 py-2">
+                        <input type="number" [(ngModel)]="formDataAdd[2].amount" name="amount3"
+                          class="w-28 text-center m-0 p-0" placeholder="Amount 3" required />
+                      </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="flex justify-end mt-2">
+                      <button type="submit"
+                        class="bg-blue text-white py-2 px-6 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                        Soumettre
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+
+
+
+
+
+            </ng-template>
+
+            <!-- Month Headers -->
+            <div class="grid grid-cols-[repeat(13,minmax(0,1fr))] gap-3 mb-4">
+              <div *ngFor="let month of months" class="text-center truncate  font-medium text-[#7B8594] col-span-1 ">
+                {{ month }}
+              </div>
+              <div class="text-center font-semibold">TOTAL</div>
+            </div>
+
+            <!-- Total Invoices Row -->
+            <div *ngIf="!isLoadingBudgetbyID" class="grid grid-cols-[repeat(13,minmax(0,1fr))] gap-1 mb-3">
+              <div *ngFor="let month of FullMonthsInvocies" [ngClass]="{
+                    'bg-[#d5f5e3] text-[#388e3c] font-semibold': month.total,
+                    'bg-[#d5d8dc2d] text-[#3e4247] font-semibold': !month.total
+                  }"
+                class="px-3 py-2   text-center text-xs font-medium rounded-lg col-span-1  text-ellipsis overflow-hidden whitespace-nowrap"
+                nz-tooltip [nzTooltipMouseLeaveDelay]="0"
+                [nzTooltipTitle]=" month.total | currency:'EUR':'symbol':'1.2-2':'fr-FR'" nzTooltipPlacement="top">
+                {{ month.total | shortenNumber }}
+              </div>
+              <div class=" py-1 px-1 rounded-lg text-center" [ngClass]="{
+                        'bg-[#d5f5e3] text-[#388e3c]': getTotalsInvoices().totalInvoices > 0,
+                        'bg-[#FEEDF0] text-[#F13759]': getTotalsInvoices().totalInvoices <= 0
+                      }" nz-tooltip [nzTooltipMouseLeaveDelay]="0"
+                [nzTooltipTitle]="getTotalsInvoices().totalInvoices | currency:'EUR':'symbol':'1.2-2':'en-US' | replace:',':' '"
+                nzTooltipPlacement="top">
+                {{getTotalsInvoices().totalInvoices | shortenNumber}}
+              </div>
+            </div>
+
+
+            <!-- Budget Row -->
+            <div *ngIf="!isLoadingBudgetbyID" class="grid grid-cols-[repeat(13,minmax(0,1fr))] gap-1 mb-3">
+              <div *ngFor="let month of databudgets" [ngClass]="{
+                    'bg-[#fff3e0] text-[#ff9800] font-semibold': month.budget,
+                    'bg-[#d5d8dc2d] text-[#3e4247] font-semibold': !month.budget
+                  }" class="px-3 py-2 text-center text-xs rounded-lg col-span-1 ">
+                <span class="font-semibold" nz-tooltip [nzTooltipMouseLeaveDelay]="0"
+                  [nzTooltipTitle]=" month.budget | currency:'EUR':'symbol':'1.2-2':'fr-FR'" nzTooltipPlacement="top">
+                  {{ month.budget | shortenNumber }}
+                </span>
+              </div>
+              <div class="py-1 px-1 rounded-lg text-center bg-[#fff3e0] text-[#ff9800]" nz-tooltip
+                [nzTooltipMouseLeaveDelay]="0"
+                [nzTooltipTitle]="SelectedBudget.amount | currency:'EUR':'symbol':'1.2-2':'en-US' | replace:',':' '"
+                nzTooltipPlacement="top">
+                {{SelectedBudget.amount | shortenNumber}}
+              </div>
+            </div>
+
+            <!-- Difference Row -->
+            <div *ngIf="!isLoadingBudgetbyID" class="grid grid-cols-[repeat(13,minmax(0,1fr))] gap-1 mb-3">
+              <div *ngFor="let month of Difference" [ngClass]="{
+                  'bg-[#FEEDF0] text-[#F13759] font-semibold': month?.diffrence < 0,
+                  'bg-[#d5f5e3] text-[#388e3c] font-semibold': month?.diffrence > 0,
+                  'bg-gray-50 text-gray-600 font-semibold': month?.diffrence == 0
+                }" class="px-3 py-2 font-semibold text-center text-xs rounded-lg col-span-1">
+                <span nz-tooltip [nzTooltipMouseLeaveDelay]="0"
+                  [nzTooltipTitle]=" month?.diffrence | currency:'EUR':'symbol':'1.2-2':'fr-FR'"
+                  nzTooltipPlacement="top">
+                  {{ month?.diffrence | shortenNumber }}
+                </span>
+              </div>
+              <div class=" py-1 px-1 rounded-lg text-center" [ngClass]="{
+                        'bg-[#d5f5e3] text-[#388e3c]': ( monthDataTotals?.total - SelectedBudget.amount) > 0,
+                        'bg-[#FEEDF0] text-[#F13759]': (monthDataTotals?.total - SelectedBudget.amount) <= 0
+                      }" nz-tooltip [nzTooltipMouseLeaveDelay]="0"
+                [nzTooltipTitle]="getTotalsInvoices().totalInvoices - SelectedBudget.amount | currency:'EUR':'symbol':'1.2-2':'en-US' | replace:',':' '"
+                nzTooltipPlacement="top">
+                {{getTotalsInvoices().totalInvoices - SelectedBudget.amount | shortenNumber}}
+              </div>
+
+            </div>
+
+
+            <!-- Loading Skeletons -->
+            <div *ngIf="isLoadingGraph" class="grid grid-cols-[repeat(13,minmax(0,1fr))] gap-1 mb-3 animate-pulse">
+              <div *ngFor="let _ of [].constructor(12)"
+                class="px-3 py-2.5 text-center text-xs rounded-lg bg-gray-200 col-span-1 sm:col-span-2 md:col-span-1">
+                <div class="h-4 w-8 bg-gray-300 rounded mx-auto"></div>
+              </div>
+              <div *ngFor="let _ of [].constructor(12)"
+                class="px-3 py-2.5 text-center text-xs rounded-lg bg-gray-200 col-span-1 sm:col-span-2 md:col-span-1">
+                <div class="h-4 w-8 bg-gray-300 rounded mx-auto"></div>
+              </div>
+              <div *ngFor="let _ of [].constructor(12)"
+                class="px-3 py-2.5 text-center text-xs rounded-lg bg-gray-200 col-span-1 sm:col-span-2 md:col-span-1">
+                <div class="h-4 w-8 bg-gray-300 rounded mx-auto"></div>
+              </div>
+            </div>
+
+            <!-- Link Section -->
+            <div class="text-center mt-6">
+              <a [routerLink]="'/performance/compratif'" class="text-[#2c3e50] underline font-medium">
+
+                {{ 'index.Voir_le_comparatif' | translate }}
+              </a>
+            </div>
+
+          </div>
+        </div>
+
+        <div class=" min-w-[500px] overflow-x-auto  font-Jakarta h-50 rounded-3xl w-full bg-white head">
+          <nz-spin [nzSpinning]="isLoadingGetWorkHoursStats && isLoadingGraph" nzTip="Loading...">
+            <div class="flex  max-md:px-8 px-4 py-4 justify-between items-center">
+              <h1 class="font-Jakarta text-[17px] font-semibold text-[#475569]">{{ 'index.Heures_travaillées' |
+                translate }}
+              </h1>
+              <button (click)="OpenModalFilterDate()" nzType="primary"
+                class="cursor-pointer hover:bg-gray-50 duration-300 px-2.5 py-1 border  justify-between flex border-[#E6E6E6] text-[#475569] rounded-3xl">
+                <p class="font-semibold">
+                  {{ SelectedYear | date: 'yyyy'}}
+                </p>
+              </button>
+              <ng-template #contentTemplateModalFilter>
+                <main class="flex-grow bg-white flex items-center justify-center p-4">
+
+                  <nz-date-picker [nzFormat]="dateFormat" [nzMode]="'year'"
+                    [nzPlaceHolder]="('index.SÉLECTIONNEZ_L’_ANNEÉ' | translate)" [(ngModel)]="date"
+                    (ngModelChange)="onChangeDateFilter($event)"></nz-date-picker>
+
+                </main>
+                <div class="flex justify-end space-x-4">
+                  <button class="text-[#2C52F5] hover:text-[#2C52F5] hover:underline" nz-button nzType="link"
+                    (click)="handleCloseDateModal()">
+                    {{ 'index.Annuler' | translate }}
+                  </button>
+                  <button
+                    class="bg-[#2C52F5] border rounded-full text-white hover:text-white   hover:bg-[#2C52F5]/75 transition-colors"
+                    nz-button nzType="text" (click)="ComfirmModalFiltrage()" [nzLoading]="isSearchingWithDate">
+                    {{ 'index.Filtre' | translate }}
+                  </button>
+                </div>
+              </ng-template>
+            </div>
+            <div *ngIf="isLoadingGetWorkHoursStats"
+              class="relative bg-white rounded-3xl h-[400px] p-4 mt-4 animate-pulse" id="chart-skeleton">
+              <!-- Top Loader -->
+              <div class="absolute top-0 left-0 w-full h-1 bg-blue-500"></div>
+
+              <!-- Chart Title Placeholder -->
+
+
+            </div>
+
+            <div *ngIf="!isLoadingGetWorkHoursStats" class="bg-white rounded-3xl p-2 mt-4 h-[400px] overflow-auto">
+              <ng-container *ngIf="workedHoursData.length">
+                <div class="min-w-[120vh]">
+
+                  <apx-chart [series]="chartOptionsWorkdedHours.series" [chart]="chartOptionsWorkdedHours.chart"
+                    [colors]="chartOptionsWorkdedHours.colors" [plotOptions]="chartOptionsWorkdedHours.plotOptions"
+                    [dataLabels]="chartOptionsWorkdedHours.dataLabels" [legend]="chartOptionsWorkdedHours.legend"
+                    [grid]="chartOptionsWorkdedHours.grid" [xaxis]="chartOptionsWorkdedHours.xaxis"
+                    [yaxis]="chartOptionsWorkdedHours.yaxis" [tooltip]="chartOptionsWorkdedHours.tooltip">
+                  </apx-chart>
+                </div>
+              </ng-container>
+              <ng-container class="flex justify-center items-center h-full" *ngIf="!workedHoursData.length">
+                <nz-empty nzNotFoundImage="simple"
+                  [nzNotFoundContent]="'index.empty_worked_hours' | translate "></nz-empty>
+              </ng-container>
+            </div>
+          </nz-spin>
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+      </div>
+      <div class="flex flex-col lg:flex-row gap-4">
+        <!-- Clients non payeurs -->
+        <div class="font-Jakarta h-auto  px-5 py-3 rounded-3xl w-full bg-white relative">
+          <div class="flex justify-between items-center">
+            <h2 class="font-Jakarta text-[17px] font-semibold text-[#475569]">{{ 'index.HEURES_NON_PAYÉES' | translate
+              }}</h2>
+
+            <td class="px-4 py-2 flex justify-end text-sm">
+              <div class="text-md py-1 text-xs bg-gray-50 px-3 border rounded-xl">
+                Montant
+              </div>
+            </td>
+          </div>
+
+          <!-- Table for clients -->
+          <div class="max-h-[300px] overflow-y-auto">
+            <table class="w-full divide-y divide-gray-200">
+              <tbody>
+
+                <ng-container *ngIf="!isLoadingGetLastUnpaidClientsStats">
+                  <ng-container *ngIf="LastUnpaidClientsData?.length">
+                    <tr (click)="PayClient(client)" *ngFor="let client of LastUnpaidClientsData"
+                      class="hover:bg-gray-100 cursor-pointer">
+                      <td class="px-4 py-2 text-sm">
+                        <div class="flex items-center">
+                          <div
+                            class="w-8 h-8 rounded-full bg-[#EEF1FF] text-[#2C52F5] flex items-center justify-center font-semibold text-xs mr-4">
+                            {{ client.client_name[0] }}{{ client.client_name.split(' ')[1][0] }}
+                          </div>
+                          <div class="text-black font-semibold text-xs">
+                            {{ client.client_name }}
+                          </div>
+                        </div>
+                      </td>
+                      <td class="px-4 py-2 text-sm">
+                        <nz-tag class="text-md py-1 px-3 rounded-xl" [nzColor]="getColor(client.activity)">
+                          {{ client.activity }}
+                        </nz-tag>
+                      </td>
+                      <td class="px-4 py-2 text-sm">
+                        <nz-tag class="text-md py-1 px-3 rounded-xl" nzColor="#d3d3d3">
+                          {{ client?.date | date: 'yyyy-MM-dd'}}
+
+                        </nz-tag>
+
+                      </td>
+                      <td class="px-4 py-2 text-sm">
+                        <nz-tag class="text-md py-1 px-3 rounded-xl" nzColor="#2C52F5">
+                          {{ client.hours }}h
+                        </nz-tag>
+                      </td>
+                      <td class="px-4 py-2 flex justify-end text-sm">
+                        <nz-tag nzColor="red" class="text-md py-1 px-3 rounded-xl">
+                          {{ ( -1 * client?.unpaid_amount) | currency:'EUR':'symbol':'1.2-2':'fr-FR'}}
+                        </nz-tag>
+                      </td>
+                    </tr>
+                  </ng-container>
+                  <ng-container *ngIf="LastUnpaidClientsData?.length === 0">
+                    <tr>
+                      <td colspan="4" class="px-4 py-6 text-sm text-center text-gray-500">{{
+                        'index.AUCUN_CLIENT_NON_PAYEUR' | translate }}</td>
+                    </tr>
+                  </ng-container>
+                </ng-container>
+
+                <!-- Loading state skeleton -->
+                <ng-container *ngIf="isLoadingGetLastUnpaidClientsStats">
+                  <tr *ngFor="let loader of [1, 2, 3]">
+                    <td class="px-4 py-2 text-sm">
+                      <div class="w-8 h-8 rounded-full bg-gray-300 animate-pulse mx-auto"></div>
+                    </td>
+                    <td class="px-4 py-2 text-sm">
+                      <div class="w-24 h-4 bg-gray-300 rounded animate-pulse mx-auto"></div>
+                    </td>
+                    <td class="px-4 py-2 text-sm">
+                      <div class="w-12 h-4 bg-gray-300 rounded animate-pulse mx-auto"></div>
+                    </td>
+                    <td class="px-4 py-2 text-sm">
+                      <div class="w-16 h-4 bg-gray-300 rounded animate-pulse mx-auto"></div>
+                    </td>
+                  </tr>
+                </ng-container>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+
+
+      <div class="bg-white p-3 rounded-3xl">
+        <div class="overflow-x-auto">
+          <table class="min-w-full table-auto border-collapse">
+            <thead>
+              <tr>
+                <th class="px-2 py-2 sm:px-4">
+                  <p class="bg-[#878E98] text-white border rounded-md text-center px-2 py-3 sm:px-4">{{ 'index.NOMBRES'
+                    | translate }}</p>
+                </th>
+                <th class="px-2 py-2 sm:px-4">
+                  <p class=""></p>
+                </th>
+                <th class="px-2 py-2 sm:px-4">
+                  <p class="bg-[#878E98] text-white border rounded-md text-center px-2 py-3 sm:px-4">{{ 'index.TOTAL/HL'
+                    | translate }}</p>
+                </th>
+                <th class="px-2 py-2 sm:px-4">
+                  <p class="bg-[#0D204E] text-white border rounded-md text-center px-2 py-3 sm:px-4">{{
+                    'index.TOTAL_EUROS' | translate }}</p>
+                </th>
+                <th class="px-2 py-2 sm:px-4">
+                  <p class="bg-[#5DBF96] text-white border rounded-md text-center px-2 py-3 sm:px-4">{{
+                    'index.RATIO_H/E' | translate }}</p>
+                </th>
+              </tr>
+            </thead>
+            <tbody *ngIf="!isLoadingGraph; else loading">
+              <ng-container *ngIf="GraphData.activities_data?.length > 0; else empty">
+                <tr *ngFor="let activity of GraphData.activities_data" class="hover:bg-gray-50">
+                  <td class="px-2 py-1 text-sm sm:text-base">
+                    <p class="border rounded-md text-center px-2 py-1">{{ activity.count_invoices }}</p>
+                  </td>
+                  <td class="px-2 py-1 text-sm sm:text-base">
+                    <nz-tag class="text-md py-1.5 px-3 rounded w-full text-center border border-gray-100  "
+                      [nzColor]="getColor(activity.name)">
+                      {{ activity.name }}
+
+                    </nz-tag>
+
+                  </td>
+                  <td class="px-2 py-1 text-sm sm:text-base">
+                    <p class="border rounded-md text-center px-2 py-1">{{ activity.total_hours_invoices }}</p>
+                  </td>
+                  <td class="px-2 py-1 text-sm sm:text-base">
+                    <p class="border rounded-md text-center px-2 py-1">{{ activity.total_invoices |
+                      currency:'EUR':'symbol':'1.2-2':'fr-FR'}}</p>
+                  </td>
+                  <td class="px-2 py-1 text-sm sm:text-base">
+                    <p class="border rounded-md text-center px-2 py-1">{{ activity.ratio | number:'1.0-2' }}</p>
+                  </td>
+                </tr>
+                <tr class="bg-gray-100 rounded-xl font-semibold">
+                  <td class="px-2 py-1 text-sm sm:text-base">
+
+                    <p class="border rounded-md text-center px-2 py-1">{{totalsTable.totalCountInvoices}}</p>
+                  </td>
+                  <td class="rounded px-2 py-1 text-sm sm:text-base">
+                    <nz-tag class="text-md py-1.5 px-3 rounded w-full text-center border border-gray-100  "
+                      [nzColor]="'gray'">
+                      Total
+
+                    </nz-tag>
+                  </td>
+                  <td class="px-2 py-1 text-sm sm:text-base">
+                    <p class="border rounded-md text-center px-2 py-1">{{totalsTable.totalHoursInvoices}}</p>
+                  </td>
+                  <td class="px-2 py-1 text-sm sm:text-base">
+                    <p class="border rounded-md text-center px-2 py-1">{{totalsTable.totalInvoices |
+                      currency:'EUR':'symbol':'1.2-2':'fr-FR'}}</p>
+                  </td>
+                  <td class="px-2 py-1 text-sm sm:text-base">
+                    <p class="border rounded-md text-center px-2 py-1">{{totalsTable.avgRatio | number:'1.0-2'}}</p>
+                  </td>
+                </tr>
+              </ng-container>
+
+              <ng-template #empty>
+                <tr>
+                  <td colspan="5" class="px-4 py-2 text-center">
+                    <p class="text-gray-500">{{ 'index.AUCUNE_ACTIVITÉ_TROUVÉE.' | translate }}</p>
+                  </td>
+                </tr>
+              </ng-template>
+            </tbody>
+
+            <!-- Loading State -->
+            <ng-template #loading>
+              <tr>
+                <td colspan="5" class="px-4 py-2">
+                  <div class="animate-pulse space-y-2">
+                    <div class="border rounded-md h-6 bg-gray-50"></div>
+                    <div class="border rounded-md h-6 bg-gray-50"></div>
+                    <div class="border rounded-md h-6 bg-gray-50"></div>
+                    <div class="border rounded-md h-6 bg-gray-50"></div>
+                    <div class="border rounded-md h-6 bg-gray-50"></div>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </table>
+        </div>
+      </div>
+
+
+    </div>
+    <div class="flex flex-col gap-2 w-full md:w-3/12">
+      <div *ngIf="!isLoadingGetInvoicesStats"
+        class="animate__fadeIn animate__animated  font-Jakarta px-4 py-2 rounded-xl border w-full bg-white topRight">
+        <ng-container>
+
+          <div class="flex justify-between items-center">
+            <h2 class=" font-Jakarta text-[17px] font-semibold text-[#475569]">{{ 'index.TOTAL_REVENU' | translate }}
+            </h2>
+            <!-- Changed from text-xl to text-lg -->
+            <div class="flex justify-between items-center gap-2">
+              <div nz-popover [nzPopoverContent]="filterContentTotalRevenu" nzPopoverTitle="Filtres"
+                [(nzPopoverVisible)]="isPopoverFilterTotalRevenuVisible"
+                (nzPopoverVisibleChange)="changePopoverFilterTotalRevenu($event)" nzPopoverTrigger="click"
+                nzPlacement="bottomLeft" nzTrigger="hover" class="rounded-full bg-[#EEF2FF] p-2">
+
+                <svg fill="#248a88" width="19" height="19" viewBox="0 0 36 36" version="1.1"
+                  preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"
+                  xmlns:xlink="http://www.w3.org/1999/xlink">
+                  <title>filter-line</title>
+                  <path class="clr-i-outline clr-i-outline-path-1"
+                    d="M33,4H3A1,1,0,0,0,2,5V6.67a1.79,1.79,0,0,0,.53,1.27L14,19.58v10.2l2,.76V19a1,1,0,0,0-.29-.71L4,6.59V6H32v.61L20.33,18.29A1,1,0,0,0,20,19l0,13.21L22,33V19.5L33.47,8A1.81,1.81,0,0,0,34,6.7V5A1,1,0,0,0,33,4Z">
+                  </path>
+                  <rect x="0" y="0" width="36" height="36" fill-opacity="0" />
+                </svg>
+
+              </div>
+
+              <!-- Popover Content -->
+              <ng-template #filterContentTotalRevenu>
+                <div class="p-4 space-y-4">
+                  <!-- Date Range Picker -->
+
+                  <!-- Start Date Picker -->
+                  <nz-date-picker [(ngModel)]="startDateTotalRevenu" [nzPlaceHolder]="'Date Début'"
+                    class="w-full"></nz-date-picker>
+
+                  <!-- End Date Picker -->
+                  <nz-date-picker [(ngModel)]="endDateTotalRevenu" [nzPlaceHolder]="'Date Fin'"
+                    class="w-full"></nz-date-picker>
+
+                  <div class="flex space-x-2 mt-4">
+                    <!-- Filter Button -->
+                    <button class="px-4 py-2 bg-blue text-white rounded hover:bg-blue"
+                      (click)="applyFilterTotalRevenu()">
+                      Filtrer
+                    </button>
+
+                    <!-- Reset Button -->
+                    <button (click)="resetFilterTotalRevenu()"
+                      class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
+                      Réinitialiser
+                    </button>
+                  </div>
+                </div>
+              </ng-template>
+
+
+              <div *ngIf="InvoicesStatsData.percentage > 0" class="bg-[#EEF2FF] rounded-full p-2">
+                <svg class="h-5 w-5 text-[#1E293B]" width="19" height="19" viewBox="0 0 19 19" fill="none"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M1.00557 2.94889C0.0506592 4.26322 0.0506592 6.13809 0.0506592 9.88782C0.0506592 13.6375 0.0506592 15.5124 1.00557 16.8267C1.31397 17.2512 1.68726 17.6245 2.11173 17.9329C3.42606 18.8878 5.30093 18.8878 9.05066 18.8878C12.8004 18.8878 14.6753 18.8878 15.9896 17.9329C16.4141 17.6245 16.7873 17.2512 17.0957 16.8267C18.0507 15.5124 18.0507 13.6375 18.0507 9.88782C18.0507 6.13809 18.0507 4.26322 17.0957 2.94889C16.7873 2.52442 16.4141 2.15113 15.9896 1.84273C14.6753 0.887817 12.8004 0.887817 9.05066 0.887817C5.30093 0.887817 3.42606 0.887817 2.11173 1.84273C1.68726 2.15113 1.31397 2.52442 1.00557 2.94889ZM7.3179 5.81651C7.73433 5.48208 8.17197 5.22771 8.70516 5.15975C8.81987 5.14513 8.93526 5.13782 9.05066 5.13782C9.16606 5.13782 9.28145 5.14513 9.39616 5.15975C9.92935 5.22771 10.367 5.48208 10.7834 5.81651C11.1804 6.13535 11.6236 6.58253 12.155 7.1187L13.5834 8.55986C13.8749 8.85406 13.8728 9.32893 13.5786 9.62051C13.2844 9.91209 12.8096 9.90997 12.518 9.61578L11.1201 8.2054C10.5503 7.6305 10.1668 7.24515 9.84417 6.98605C9.82938 6.97416 9.81488 6.96269 9.80066 6.95161V13.8878C9.80066 14.302 9.46487 14.6378 9.05066 14.6378C8.63645 14.6378 8.30066 14.302 8.30066 13.8878V6.95161C8.28644 6.96269 8.27194 6.97416 8.25715 6.98605C7.93452 7.24514 7.55099 7.6305 6.9812 8.2054L5.58335 9.61578C5.29177 9.90997 4.8169 9.91209 4.5227 9.62051C4.2285 9.32892 4.22638 8.85406 4.51797 8.55986L5.94631 7.11872C6.47769 6.58254 6.92088 6.13535 7.3179 5.81651Z"
+                    fill="#5DBF96" />
+                </svg>
+              </div>
+              <div *ngIf="InvoicesStatsData.percentage < 0" class="bg-[#EEF2FF] rounded-full p-2">
+                <svg class="h-5 w-5" width="19" height="19" viewBox="0 0 19 19" fill="none"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M1.05623 2.60734C0.101318 3.92167 0.101318 5.79653 0.101318 9.54626C0.101318 13.296 0.101318 15.1709 1.05623 16.4852C1.36463 16.9097 1.73792 17.283 2.16239 17.5914C3.47672 18.5463 5.35159 18.5463 9.10132 18.5463C12.8511 18.5463 14.7259 18.5463 16.0402 17.5914C16.4647 17.283 16.838 16.9097 17.1464 16.4852C18.1013 15.1709 18.1013 13.296 18.1013 9.54626C18.1013 5.79653 18.1013 3.92167 17.1464 2.60734C16.838 2.18286 16.4647 1.80958 16.0402 1.50118C14.7259 0.546265 12.8511 0.546265 9.10132 0.546265C5.35159 0.546265 3.47672 0.546265 2.16239 1.50118C1.73792 1.80958 1.36463 2.18286 1.05623 2.60734ZM9.85132 5.54626C9.85132 5.13205 9.51553 4.79626 9.10132 4.79626C8.68711 4.79626 8.35132 5.13205 8.35132 5.54626V12.4825C8.3371 12.4714 8.3226 12.4599 8.30781 12.448C7.98518 12.1889 7.60165 11.8036 7.03186 11.2287L5.63401 9.81831C5.34243 9.52411 4.86756 9.52199 4.57336 9.81357C4.27916 10.1052 4.27704 10.58 4.56863 10.8742L5.99696 12.3154C6.52835 12.8515 6.97154 13.2987 7.36856 13.6176C7.78498 13.952 8.22263 14.2064 8.75582 14.2743C8.87053 14.289 8.98592 14.2963 9.10132 14.2963C9.21671 14.2963 9.33211 14.289 9.44681 14.2743C9.98001 14.2064 10.4177 13.952 10.8341 13.6176C11.2311 13.2987 11.6743 12.8516 12.2057 12.3154L13.634 10.8742C13.9256 10.58 13.9235 10.1052 13.6293 9.81357C13.3351 9.52199 12.8602 9.52411 12.5686 9.81831L11.1708 11.2287C10.601 11.8036 10.2175 12.1889 9.89483 12.448C9.88003 12.4599 9.86553 12.4714 9.85132 12.4825V5.54626Z"
+                    fill="#FF534A" />
+                </svg>
+              </div>
+              <div *ngIf="InvoicesStatsData.percentage == 0" class="bg-[#EEF2FF] rounded-full p-2">
+                <svg class="h-5 w-5" width="19" height="19" viewBox="0 0 19 19" fill="none"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M1.00557 2.94889C0.0506592 4.26322 0.0506592 6.13809 0.0506592 9.88782C0.0506592 13.6375 0.0506592 15.5124 1.00557 16.8267C1.31397 17.2512 1.68726 17.6245 2.11173 17.9329C3.42606 18.8878 5.30093 18.8878 9.05066 18.8878C12.8004 18.8878 14.6753 18.8878 15.9896 17.9329C16.4141 17.6245 16.7873 17.2512 17.0957 16.8267C18.0507 15.5124 18.0507 13.6375 18.0507 9.88782C18.0507 6.13809 18.0507 4.26322 17.0957 2.94889C16.7873 2.52442 16.4141 2.15113 15.9896 1.84273C14.6753 0.887817 12.8004 0.887817 9.05066 0.887817C5.30093 0.887817 3.42606 0.887817 2.11173 1.84273C1.68726 2.15113 1.31397 2.52442 1.00557 2.94889ZM7.3179 5.81651C7.73433 5.48208 8.17197 5.22771 8.70516 5.15975C8.81987 5.14513 8.93526 5.13782 9.05066 5.13782C9.16606 5.13782 9.28145 5.14513 9.39616 5.15975C9.92935 5.22771 10.367 5.48208 10.7834 5.81651C11.1804 6.13535 11.6236 6.58253 12.155 7.1187L13.5834 8.55986C13.8749 8.85406 13.8728 9.32893 13.5786 9.62051C13.2844 9.91209 12.8096 9.90997 12.518 9.61578L11.1201 8.2054C10.5503 7.6305 10.1668 7.24515 9.84417 6.98605C9.82938 6.97416 9.81488 6.96269 9.80066 6.95161V13.8878C9.80066 14.302 9.46487 14.6378 9.05066 14.6378C8.63645 14.6378 8.30066 14.302 8.30066 13.8878V6.95161C8.28644 6.96269 8.27194 6.97416 8.25715 6.98605C7.93452 7.24514 7.55099 7.6305 6.9812 8.2054L5.58335 9.61578C5.29177 9.90997 4.8169 9.91209 4.5227 9.62051C4.2285 9.32892 4.22638 8.85406 4.51797 8.55986L5.94631 7.11872C6.47769 6.58254 6.92088 6.13535 7.3179 5.81651Z"
+                    fill="#D3D3D3" />
+                </svg>
+              </div>
+
+            </div>
+          </div>
+          <div class="flex max-lg:flex-col items-baseline">
+            <span class="text-xl font-bold text-[#1E293B]">{{InvoicesStatsData.total |
+              currency:'EUR':'symbol':'1.2-2':'fr-FR' }}</span>
+            <!-- Changed from text-4xl to text-3xl -->
+
+            <span nz-tooltip [nzTooltipMouseLeaveDelay]="0" [nzTooltipTitle]="'Évolution des revenus pour ce mois'"
+              nzTooltipPlacement="top" class="ml-2 text-xs font-semibold text-green-500">
+              <!-- Changed from text-sm to text-xs -->
+              <img *ngIf="InvoicesStatsData.percentage > 0" class="h-4 w-4 inline" src="assets/icons/increment.svg" />
+              <img *ngIf="InvoicesStatsData.percentage < 0" class="h-4 w-4 inline" src="assets/icons/decrease.svg" />
+              <img *ngIf="InvoicesStatsData.percentage == 0" class="h-4 w-4 inline" src="assets/icons/stable.svg" />
+
+              <span class=" pl-1" [ngClass]="{
+                  'text-[#22C55E]': InvoicesStatsData.percentage > 0,
+                  'text-[#F43F5E]': InvoicesStatsData.percentage < 0,
+                  'text-gray-500': InvoicesStatsData.percentage == 0
+                }">{{InvoicesStatsData.percentage}}%
+              </span>
+            </span>
+
+          </div>
+          <div class=" flex justify-center items-center bg-white border border-gray-50 rounded-2xl ">
+            <div>
+              <apx-chart [series]="chartOptions1.series" [chart]="chartOptions1.chart" [xaxis]="chartOptions1.xaxis"
+                [stroke]="chartOptions1.stroke" [dataLabels]="chartOptions1.dataLabels" [yaxis]="chartOptions1.yaxis"
+                [labels]="chartOptions1.labels" [legend]="chartOptions1.legend" [fill]="chartOptions1.fill"></apx-chart>
+            </div>
+          </div>
+
+        </ng-container>
+
+      </div>
+      <div *ngIf="isLoadingGetInvoicesStats" class="font-Jakarta px-4 py-2 rounded-3xl w-full  bg-white topRight">
+        <!-- Skeleton for the header -->
+        <div class="flex justify-between items-center">
+          <div class="h-4 bg-gray-200 rounded w-20"></div>
+          <div class="bg-gray-200 rounded-full p-2 h-7 w-7"></div>
+        </div>
+
+        <!-- Skeleton for the amount and percentage -->
+        <div class="flex items-baseline mt-4">
+          <div class="h-6 bg-gray-200 rounded w-24"></div>
+          <div class="h-4 bg-gray-200 rounded ml-2 w-10"></div>
+        </div>
+
+        <!-- Skeleton for the chart -->
+        <div class="mt-6 flex justify-center items-center bg-gray-50 border border-gray-100 rounded-2xl h-32">
+          <div class="h-full w-full bg-gray-200 rounded"></div>
+        </div>
+      </div>
+
+      <div *ngIf="!isLoadingGraph" class="p-3 bg-white rounded-lg border w-full mx-auto">
+        <h2 class="font-Jakarta text-[17px] font-semibold text-[#475569] mb-2">{{ 'index.OBJECTIFS' | translate }}</h2>
+
+        <div class="grid grid-cols-2 gap-4">
+          <!-- Column 1 -->
+          <div>
+            <div class="truncate text-[9px] text-center text-gray-600 overflow-hidden border py-2 rounded-lg mb-1"
+              (click)="editBudget('budget30K')">
+              <span *ngIf="!isEditing['budget30K']">
+                Reste/mois pour {{ budgetValues.budget30K | shortenNumber }}
+              </span>
+              <input *ngIf="isEditing['budget30K']" type="number" [(ngModel)]="budgetValues.budget30K"
+                class="w-full  border-none rounded outline-none" (blur)="saveBudget('budget30K')"
+                (keyup.enter)="saveBudget('budget30K')" />
+            </div>
+            <div class="text-center bg-[#E7F7F7] font-bold py-2 rounded-lg truncate" [ngClass]="{
+              'text-[#00796B]': (budgetValues.budget30K - getTotalsInvoices().totalInvoices) / 8 >= 0,
+              'bg-red/10 text-red': (budgetValues.budget30K - getTotalsInvoices().totalInvoices) / 8 < 0
+            }" nz-tooltip [nzTooltipMouseLeaveDelay]="0"
+              [nzTooltipTitle]="(budgetValues.budget30K - getTotalsInvoices().totalInvoices) / 8 | currency:'EUR':'symbol':'1.2-2':'fr-FR'"
+              nzTooltipPlacement="top">
+              {{
+              (budgetValues.budget30K - getTotalsInvoices().totalInvoices) / 8 | shortenNumber
+              }}
+            </div>
+          </div>
+          <div>
+            <div class="truncate text-[9px] text-center text-gray-600 overflow-hidden border py-2 rounded-lg mb-1"
+              (click)="editBudget('budget40K')">
+              <span *ngIf="!isEditing['budget40K']">
+                Reste/mois pour {{ budgetValues.budget40K | shortenNumber }}
+              </span>
+              <input *ngIf="isEditing['budget40K']" type="number" [(ngModel)]="budgetValues.budget40K"
+                class="w-full  border-none rounded outline-none" (blur)="saveBudget('budget40K')"
+                (keyup.enter)="saveBudget('budget40K')" />
+            </div>
+            <div class="text-center bg-[#E7F7F7] font-bold py-2 rounded-lg truncate" [ngClass]="{
+              'text-[#00796B]': (budgetValues.budget40K - getTotalsInvoices().totalInvoices) / 8 >= 0,
+              'bg-red/10 text-red': (budgetValues.budget40K - getTotalsInvoices().totalInvoices) / 8 < 0
+            }" nz-tooltip [nzTooltipMouseLeaveDelay]="0"
+              [nzTooltipTitle]="(budgetValues.budget40K - getTotalsInvoices().totalInvoices) / 8 | currency:'EUR':'symbol':'1.2-2':'fr-FR'"
+              nzTooltipPlacement="top">
+              {{
+              (budgetValues.budget40K - getTotalsInvoices().totalInvoices) / 8 | shortenNumber
+              }}
+            </div>
+          </div>
+          <div>
+            <div class="truncate text-[9px] text-center text-gray-600 overflow-hidden border py-2 rounded-lg mb-1"
+              (click)="editBudget('budget45K')">
+              <span *ngIf="!isEditing['budget45K']">
+                Reste/mois pour {{ budgetValues.budget45K | shortenNumber }}
+              </span>
+              <input *ngIf="isEditing['budget45K']" type="number" [(ngModel)]="budgetValues.budget45K"
+                class="w-full  border-none rounded outline-none" (blur)="saveBudget('budget45K')"
+                (keyup.enter)="saveBudget('budget45K')" />
+            </div>
+            <div class="text-center bg-[#E7F7F7] font-bold py-2 rounded-lg truncate" [ngClass]="{
+              'text-[#00796B]': (budgetValues.budget45K - getTotalsInvoices().totalInvoices) / 8 >= 0,
+              'bg-red/10 text-red': (budgetValues.budget45K - getTotalsInvoices().totalInvoices) / 8 < 0
+            }" nz-tooltip [nzTooltipMouseLeaveDelay]="0"
+              [nzTooltipTitle]="(budgetValues.budget45K - getTotalsInvoices().totalInvoices) / 8 | currency:'EUR':'symbol':'1.2-2':'fr-FR'"
+              nzTooltipPlacement="top">
+              {{
+              (budgetValues.budget45K - getTotalsInvoices().totalInvoices) / 8 | shortenNumber
+              }}
+            </div>
+          </div>
+          <div>
+            <div class="truncate text-[9px] text-center text-gray-600 overflow-hidden border py-2 rounded-lg mb-1"
+              (click)="editBudget('budget60K')">
+              <span *ngIf="!isEditing['budget60K']">
+                Reste/mois pour {{ budgetValues.budget60K | shortenNumber }}
+              </span>
+              <input *ngIf="isEditing['budget60K']" type="number" [(ngModel)]="budgetValues.budget60K"
+                class="w-full  border-none rounded outline-none" (blur)="saveBudget('budget60K')"
+                (keyup.enter)="saveBudget('budget60K')" />
+            </div>
+            <div class="text-center bg-[#E7F7F7] font-bold py-2 rounded-lg truncate" [ngClass]="{
+              'text-[#00796B]': (budgetValues.budget60K - getTotalsInvoices().totalInvoices) / 8 >= 0,
+              'bg-red/10 text-red': (budgetValues.budget60K - getTotalsInvoices().totalInvoices) / 8 < 0
+            }" nz-tooltip [nzTooltipMouseLeaveDelay]="0"
+              [nzTooltipTitle]="(budgetValues.budget60K - getTotalsInvoices().totalInvoices) / 8 | currency:'EUR':'symbol':'1.2-2':'fr-FR'"
+              nzTooltipPlacement="top">
+              {{
+              (budgetValues.budget60K - getTotalsInvoices().totalInvoices) / 8 | shortenNumber
+              }}
+            </div>
+          </div>
+          <!-- Add more columns as needed -->
+        </div>
+
+
+      </div>
+      <div *ngIf="isLoadingGraph" class="p-6 bg-white rounded-lg border w-full h-[249px] mx-auto">
+        <div class="animate-pulse">
+          <!-- Title -->
+          <div class="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
+          <!-- First Row -->
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Column 1 -->
+            <div>
+              <div class="h-4 bg-gray-200 rounded mb-2"></div>
+              <div class="h-6 bg-gray-300 rounded"></div>
+            </div>
+            <!-- Column 2 -->
+            <div>
+              <div class="h-4 bg-gray-200 rounded mb-2"></div>
+              <div class="h-6 bg-gray-300 rounded"></div>
+            </div>
+          </div>
+          <!-- Second Row -->
+          <div class="grid grid-cols-2 gap-4 mt-4">
+            <!-- Column 1 -->
+            <div>
+              <div class="h-4 bg-gray-200 rounded mb-2"></div>
+              <div class="h-6 bg-gray-300 rounded"></div>
+            </div>
+            <!-- Column 2 -->
+            <div>
+              <div class="h-4 bg-gray-200 rounded mb-2"></div>
+              <div class="h-6 bg-gray-300 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <div *ngIf="!isLoadingGetClientsStats"
+        class=" animate__fadeIn animate__animated animate__slow  font-Jakarta px-4 py-2 rounded-2xl w-full bg-white middleRight">
+        <ng-container>
+
+          <div class="flex justify-between items-center">
+
+            <h2 class="font-Jakarta text-[17px] font-semibold text-[#475569]">{{ 'index.TOTAL_CLIENTS' | translate }}
+            </h2>
+
+            <div class="flex justify-between items-center gap-2">
+              <div nz-popover [nzPopoverContent]="filterContentTotalClient" nzPopoverTitle="Filtres"
+                [(nzPopoverVisible)]="isPopoverFilterClientVisible"
+                (nzPopoverVisibleChange)="changePopoverFilterTotalRevenu($event)" nzPopoverTrigger="click"
+                nzPlacement="bottomLeft" nzTrigger="hover" class="rounded-full bg-[#EEF2FF] p-2">
+
+                <svg fill="#248a88" width="19" height="19" viewBox="0 0 36 36" version="1.1"
+                  preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"
+                  xmlns:xlink="http://www.w3.org/1999/xlink">
+                  <title>filter-line</title>
+                  <path class="clr-i-outline clr-i-outline-path-1"
+                    d="M33,4H3A1,1,0,0,0,2,5V6.67a1.79,1.79,0,0,0,.53,1.27L14,19.58v10.2l2,.76V19a1,1,0,0,0-.29-.71L4,6.59V6H32v.61L20.33,18.29A1,1,0,0,0,20,19l0,13.21L22,33V19.5L33.47,8A1.81,1.81,0,0,0,34,6.7V5A1,1,0,0,0,33,4Z">
+                  </path>
+                  <rect x="0" y="0" width="36" height="36" fill-opacity="0" />
+                </svg>
+
+              </div>
+
+              <!-- Popover Content -->
+              <ng-template #filterContentTotalClient>
+                <div class="p-4 space-y-4">
+
+                  <nz-date-picker [(ngModel)]="startDateClient" [nzPlaceHolder]="'Date Début'"
+                    class="w-full"></nz-date-picker>
+
+                  <!-- End Date Picker -->
+                  <nz-date-picker [(ngModel)]="endDateClient" [nzPlaceHolder]="'Date Fin'"
+                    class="w-full"></nz-date-picker>
+
+                  <div class="flex space-x-2 mt-4">
+                    <!-- Filter Button -->
+                    <button class="px-4 py-2 bg-blue text-white rounded hover:bg-blue"
+                      (click)="applyFilterTotalClient()">
+                      Filtrer
+                    </button>
+
+                    <!-- Reset Button -->
+                    <button (click)="resetFilterTotalClient()"
+                      class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
+                      Réinitialiser
+                    </button>
+                  </div>
+
+                </div>
+              </ng-template>
+              <div *ngIf="GetClientsStatsData.percentage > 0" class="bg-[#EEF2FF] rounded-full p-2">
+                <svg class="h-5 w-5 text-[#1E293B]" width="19" height="19" viewBox="0 0 19 19" fill="none"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M1.00557 2.94889C0.0506592 4.26322 0.0506592 6.13809 0.0506592 9.88782C0.0506592 13.6375 0.0506592 15.5124 1.00557 16.8267C1.31397 17.2512 1.68726 17.6245 2.11173 17.9329C3.42606 18.8878 5.30093 18.8878 9.05066 18.8878C12.8004 18.8878 14.6753 18.8878 15.9896 17.9329C16.4141 17.6245 16.7873 17.2512 17.0957 16.8267C18.0507 15.5124 18.0507 13.6375 18.0507 9.88782C18.0507 6.13809 18.0507 4.26322 17.0957 2.94889C16.7873 2.52442 16.4141 2.15113 15.9896 1.84273C14.6753 0.887817 12.8004 0.887817 9.05066 0.887817C5.30093 0.887817 3.42606 0.887817 2.11173 1.84273C1.68726 2.15113 1.31397 2.52442 1.00557 2.94889ZM7.3179 5.81651C7.73433 5.48208 8.17197 5.22771 8.70516 5.15975C8.81987 5.14513 8.93526 5.13782 9.05066 5.13782C9.16606 5.13782 9.28145 5.14513 9.39616 5.15975C9.92935 5.22771 10.367 5.48208 10.7834 5.81651C11.1804 6.13535 11.6236 6.58253 12.155 7.1187L13.5834 8.55986C13.8749 8.85406 13.8728 9.32893 13.5786 9.62051C13.2844 9.91209 12.8096 9.90997 12.518 9.61578L11.1201 8.2054C10.5503 7.6305 10.1668 7.24515 9.84417 6.98605C9.82938 6.97416 9.81488 6.96269 9.80066 6.95161V13.8878C9.80066 14.302 9.46487 14.6378 9.05066 14.6378C8.63645 14.6378 8.30066 14.302 8.30066 13.8878V6.95161C8.28644 6.96269 8.27194 6.97416 8.25715 6.98605C7.93452 7.24514 7.55099 7.6305 6.9812 8.2054L5.58335 9.61578C5.29177 9.90997 4.8169 9.91209 4.5227 9.62051C4.2285 9.32892 4.22638 8.85406 4.51797 8.55986L5.94631 7.11872C6.47769 6.58254 6.92088 6.13535 7.3179 5.81651Z"
+                    fill="#5DBF96" />
+                </svg>
+              </div>
+              <div *ngIf="GetClientsStatsData.percentage < 0" class="bg-[#EEF2FF] rounded-full p-2">
+                <svg class="h-5 w-5" width="19" height="19" viewBox="0 0 19 19" fill="none"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M1.05623 2.60734C0.101318 3.92167 0.101318 5.79653 0.101318 9.54626C0.101318 13.296 0.101318 15.1709 1.05623 16.4852C1.36463 16.9097 1.73792 17.283 2.16239 17.5914C3.47672 18.5463 5.35159 18.5463 9.10132 18.5463C12.8511 18.5463 14.7259 18.5463 16.0402 17.5914C16.4647 17.283 16.838 16.9097 17.1464 16.4852C18.1013 15.1709 18.1013 13.296 18.1013 9.54626C18.1013 5.79653 18.1013 3.92167 17.1464 2.60734C16.838 2.18286 16.4647 1.80958 16.0402 1.50118C14.7259 0.546265 12.8511 0.546265 9.10132 0.546265C5.35159 0.546265 3.47672 0.546265 2.16239 1.50118C1.73792 1.80958 1.36463 2.18286 1.05623 2.60734ZM9.85132 5.54626C9.85132 5.13205 9.51553 4.79626 9.10132 4.79626C8.68711 4.79626 8.35132 5.13205 8.35132 5.54626V12.4825C8.3371 12.4714 8.3226 12.4599 8.30781 12.448C7.98518 12.1889 7.60165 11.8036 7.03186 11.2287L5.63401 9.81831C5.34243 9.52411 4.86756 9.52199 4.57336 9.81357C4.27916 10.1052 4.27704 10.58 4.56863 10.8742L5.99696 12.3154C6.52835 12.8515 6.97154 13.2987 7.36856 13.6176C7.78498 13.952 8.22263 14.2064 8.75582 14.2743C8.87053 14.289 8.98592 14.2963 9.10132 14.2963C9.21671 14.2963 9.33211 14.289 9.44681 14.2743C9.98001 14.2064 10.4177 13.952 10.8341 13.6176C11.2311 13.2987 11.6743 12.8516 12.2057 12.3154L13.634 10.8742C13.9256 10.58 13.9235 10.1052 13.6293 9.81357C13.3351 9.52199 12.8602 9.52411 12.5686 9.81831L11.1708 11.2287C10.601 11.8036 10.2175 12.1889 9.89483 12.448C9.88003 12.4599 9.86553 12.4714 9.85132 12.4825V5.54626Z"
+                    fill="#FF534A" />
+                </svg>
+              </div>
+
+              <div *ngIf="GetClientsStatsData.percentage == 0" class="bg-[#EEF2FF] rounded-full p-2">
+                <svg class="h-5 w-5" width="19" height="19" viewBox="0 0 19 19" fill="none"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M1.00557 2.94889C0.0506592 4.26322 0.0506592 6.13809 0.0506592 9.88782C0.0506592 13.6375 0.0506592 15.5124 1.00557 16.8267C1.31397 17.2512 1.68726 17.6245 2.11173 17.9329C3.42606 18.8878 5.30093 18.8878 9.05066 18.8878C12.8004 18.8878 14.6753 18.8878 15.9896 17.9329C16.4141 17.6245 16.7873 17.2512 17.0957 16.8267C18.0507 15.5124 18.0507 13.6375 18.0507 9.88782C18.0507 6.13809 18.0507 4.26322 17.0957 2.94889C16.7873 2.52442 16.4141 2.15113 15.9896 1.84273C14.6753 0.887817 12.8004 0.887817 9.05066 0.887817C5.30093 0.887817 3.42606 0.887817 2.11173 1.84273C1.68726 2.15113 1.31397 2.52442 1.00557 2.94889ZM7.3179 5.81651C7.73433 5.48208 8.17197 5.22771 8.70516 5.15975C8.81987 5.14513 8.93526 5.13782 9.05066 5.13782C9.16606 5.13782 9.28145 5.14513 9.39616 5.15975C9.92935 5.22771 10.367 5.48208 10.7834 5.81651C11.1804 6.13535 11.6236 6.58253 12.155 7.1187L13.5834 8.55986C13.8749 8.85406 13.8728 9.32893 13.5786 9.62051C13.2844 9.91209 12.8096 9.90997 12.518 9.61578L11.1201 8.2054C10.5503 7.6305 10.1668 7.24515 9.84417 6.98605C9.82938 6.97416 9.81488 6.96269 9.80066 6.95161V13.8878C9.80066 14.302 9.46487 14.6378 9.05066 14.6378C8.63645 14.6378 8.30066 14.302 8.30066 13.8878V6.95161C8.28644 6.96269 8.27194 6.97416 8.25715 6.98605C7.93452 7.24514 7.55099 7.6305 6.9812 8.2054L5.58335 9.61578C5.29177 9.90997 4.8169 9.91209 4.5227 9.62051C4.2285 9.32892 4.22638 8.85406 4.51797 8.55986L5.94631 7.11872C6.47769 6.58254 6.92088 6.13535 7.3179 5.81651Z"
+                    fill="#D3D3D3" />
+                </svg>
+              </div>
+            </div>
+
+          </div>
+          <div class="flex items-baseline">
+            <span class="text-2xl font-bold text-[#1E293B]">{{GetClientsStatsData.total}} </span>
+
+            <span nz-tooltip [nzTooltipMouseLeaveDelay]="0" [nzTooltipTitle]="'Évolution des nouveaux clients'"
+              nzTooltipPlacement="top" class="ml-2 text-xs font-semibold text-green-500">
+              <!-- Changed from text-sm to text-xs -->
+              <img *ngIf="GetClientsStatsData.percentage > 0" class="h-4 w-4 inline" src="assets/icons/increment.svg" />
+              <img *ngIf="GetClientsStatsData.percentage < 0" class="h-4 w-4 inline" src="assets/icons/decrease.svg" />
+              <img *ngIf="GetClientsStatsData.percentage == 0" class="h-4 w-4 inline" src="assets/icons/stable.svg" />
+
+              <span class="pl-1" [ngClass]="{
+                'text-[#22C55E]': GetClientsStatsData.percentage > 0,
+                'text-[#F43F5E]': GetClientsStatsData.percentage < 0,
+                'text-gray-500': GetClientsStatsData.percentage === 0
+              }">
+                {{ GetClientsStatsData.percentage }}%
+              </span>
+            </span>
+
+
+          </div>
+          <div class=" bg-white border border-gray-50 rounded-2xl ">
+
+            <div class=" flex justify-center items-center bg-white border border-gray-50 rounded-2xl ">
+              <div id="chart3">
+                <apx-chart [series]="chartOptions3.series" [chart]="chartOptions3.chart" [xaxis]="chartOptions3.xaxis"
+                  [stroke]="chartOptions3.stroke" [dataLabels]="chartOptions3.dataLabels" [yaxis]="chartOptions3.yaxis"
+                  [labels]="chartOptions3.labels" [legend]="chartOptions3.legend"
+                  [fill]="chartOptions3.fill"></apx-chart>
+              </div>
+            </div>
+
+          </div>
+        </ng-container>
+
+
+      </div>
+      <div *ngIf="isLoadingGetClientsStats" class="font-Jakarta px-4 py-2 rounded-3xl w-full bg-white topRight">
+        <!-- Skeleton for the header -->
+        <div class="flex justify-between items-center">
+          <div class="h-4 bg-gray-200 rounded w-20"></div>
+          <div class="bg-gray-200 rounded-full p-2 h-7 w-7"></div>
+        </div>
+
+        <!-- Skeleton for the amount and percentage -->
+        <div class="flex items-baseline mt-4">
+          <div class="h-6 bg-gray-200 rounded w-24"></div>
+          <div class="h-4 bg-gray-200 rounded ml-2 w-10"></div>
+        </div>
+
+        <!-- Skeleton for the chart -->
+        <div class="mt-6 flex justify-center items-center bg-gray-50 border border-gray-100 rounded-2xl h-32">
+          <div class="h-full w-full bg-gray-200 rounded"></div>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 gap-4">
+        <!-- First table -->
+        <div class="bg-white border rounded-lg overflow-x-auto">
+          <div class="max-w-full p-6 bg-white rounded-lg shadow-sm">
+            <h2 class="text-lg font-medium text-[#334155] mb-4">{{ 'index.MOYENNE_LISSEE' | translate }}</h2>
+
+            <div class="space-y-2">
+              <div *ngFor="let item of InvoicesTotalsForEachMonth" class="flex justify-between items-center">
+                <span class="text-[#64748B]">{{ getMonthName(item?.month)}} </span>
+                <span class="px-4 py-2 rounded"
+                  [ngClass]="item?.total === 0 ? 'bg-[#F8FAFC] text-gray-500' : 'bg-[#F8FAFC] text-[#10B981]'">
+                  {{ item?.total?.toFixed(4) | currency:'EUR':'symbol':'1.2-2':'fr-FR' }}
+                </span>
+
+              </div>
+            </div>
+
+            <div class="mt-6 bg-[#F8FAFC] rounded p-4">
+              <div class="flex flex-col items-center">
+                <span class="font-medium text-[#334155]">{{ 'index.MOYENNE' | translate }}</span>
+                <span class="text-[#F59E0B] text-2xl font-semibold">
+                  {{ average.toFixed(4)| currency:'EUR':'symbol':'1.2-2':'fr-FR'}}
+                </span>
+              </div>
+              <div class="flex justify-between items-center mt-2">
+                <span></span>
+                <span class="text-[#334155] text-xl">{{ count | number:'1.0-2' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+  </main>
+</app-page-template>

@@ -1,0 +1,24 @@
+<div *ngIf="!isFormPaymentLoaded">LOADING...</div>
+
+
+<form  class="p-6 border rounded-3xl animate__animated animate__fadeIn m-4 max-md:p-0 max-md:border-0 max-md:rounded-none max-md:animate-none max-md:m-0" (submit)="submitPayment($event)">
+  <!-- Stripe will mount the PaymentElement here -->
+
+  <div id="payment-element"></div>
+
+  <div  *ngIf="isFormPaymentLoaded" class="p-1 font-Jakarta">
+    <dl class="flex items-center justify-between gap-4 border-t border-gray-200 pt-2 dark:border-gray-700">
+      <dt class="text-xs  font-bold text-gray-600 ">Package: {{ SelectedPlan.name }}</dt>
+      <dd class="text-xs font-bold text-gray-600 ">{{ SelectedPlan.price }}€</dd>
+    </dl>
+  </div>
+  <button
+  *ngIf="isFormPaymentLoaded"
+    class="px-4 py-2 border rounded-3xl mt-2 w-full text-white"
+    [ngClass]="isLoading ? 'bg-gray-100 cursor-not-allowed' : 'bg-green'"
+    [disabled]="isLoading"
+    type="submit">
+    {{ isLoading ? 'Chargement...' : 'Pay ' + SelectedPlan.price + '€' }}
+  </button>
+
+</form>

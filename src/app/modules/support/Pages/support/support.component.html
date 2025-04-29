@@ -1,0 +1,339 @@
+
+<nz-drawer
+  [nzVisible]="isOpenDetailsDraw"
+  nzPlacement="right"
+  nzTitle="Détails"
+  (nzOnClose)="isOpenDetailsDraw = false"
+>
+  <ng-container *nzDrawerContent>
+    <div class="p-4 space-y-6 font-Jakarta">
+      <!-- Section d'en-tête -->
+      <div class="flex items-center justify-between">
+
+        <div *ngIf="selectedData?.user?.profile_image" class="relative flex justify-center items-center w-13 h-13 ">
+          <img
+            [src]="selectedData?.user?.profile_image"
+            alt="Profile"
+            class="w-12 h-12 rounded-full object-contain border bg-gray-100"
+          />
+        </div>
+          <div *ngIf="!selectedData?.user?.profile_image"
+            class="w-12 capitalize h-12 rounded-full bg-[#EEF1FF] text-[#2C52F5] flex items-center justify-center font-semibold text-md ">
+            {{selectedData?.user?.first_name[0]}} {{selectedData?.user?.last_name[1]}}
+          </div>
+
+
+
+      </div>
+
+      <!-- Section Informations Générales -->
+      <div class="border-t pt-4">
+        <h4 class="text-lg font-semibold text-gray-800">{{ 'support.INFORMATIONS' | translate }}</h4>
+        <div class="space-y-2">
+          <p><strong>{{ 'support.ID' | translate }}</strong> {{ selectedData?.id }}</p>
+          <p><strong>{{ 'support.SUJET' | translate }}</strong> {{ selectedData?.subject }}</p>
+          <p><strong>{{ 'support.MESSAGE' | translate }}</strong> {{ selectedData?.message }}</p>
+
+          <p><strong>{{ 'support.CRÉÉ_LE' | translate }}</strong> {{ selectedData?.created_at | date: 'd MMMM y, HH:mm' }}</p>
+        </div>
+      </div>
+
+      <!-- Section Détails de l'Utilisateur -->
+      <div class="border-t pt-4">
+        <h4 class="text-lg font-semibold text-gray-800">{{ 'support.DÉTAILS_DE_LUTILISATEUR' | translate }}</h4>
+        <div class="space-y-4">
+          <p><strong>{{ 'support.PAYS' | translate }}</strong> {{ selectedData?.user?.country }}</p>
+          <p><strong>{{ 'support.TÉLÉPHONE' | translate }}</strong> {{ selectedData?.user?.phone }}</p>
+          <p><strong>{{ 'support.MÉTIER' | translate }}</strong> {{ selectedData?.user?.job }}</p>
+          <p><strong>{{ 'support.RÔLE' | translate }}</strong> {{ selectedData?.user?.role }}</p>
+          <p><strong>{{ 'support.ACTIF' | translate }}</strong>
+            <nz-tag [nzColor]="selectedData?.user?.active ? 'success' : 'error'">
+              {{ selectedData?.user?.active ? 'Actif' : 'Inactif' }}
+            </nz-tag>
+          </p>
+          <p><strong>{{ 'support.CRÉÉ_LE' | translate }}</strong> {{ selectedData?.user?.created_at | date: 'd MMMM y, HH:mm'}}</p>
+        </div>
+      </div>
+
+      <!-- Section Informations de Paiement (commentée) -->
+      <!--
+      <div class="border-t pt-4">
+        <h4 class="text-lg font-semibold text-gray-800">{{ 'support.INFORMATIONS_DE_PAIEMENT' | translate }}</h4>
+        <div class="space-y-2">
+          <p><strong>{{ 'support.MÉTHODE_DE_PAIEMENT_' | translate }}</strong> {{ selectedData?.user?.pm_type | uppercase }}</p>
+          <p><strong>{{ 'support.DERNIERS_QUATRE_CHIFFRES_DE_LA_CARTE_' | translate }}</strong> **** **** **** {{ selectedData?.user?.pm_last_four }}</p>
+          <p><strong>{{ 'support.DATE_D'EXPIRATION_' | translate }}</strong> {{ selectedData?.user?.exp_month }}/{{ selectedData?.user?.exp_year }}</p>
+        </div>
+      </div>
+      -->
+    </div>
+  </ng-container>
+</nz-drawer>
+
+
+<app-page-template titleNavbar="Support" (SearchValue)="setSearchValue($event)" sideIconPath="assets/icons/colored/support.svg">
+  <ng-container *ngIf="currentUser?.role == 'client'">
+    <main class="flex flex-col justify-center items-center ">
+      <div class="flex flex-col min-h-[40vh] lg:flex-row bg-white rounded-3xl p-4 max-w-4xl mx-auto shadow-sm font-Jakarta">
+        <div class="relative  bg-gradient-to-t from-[#2E9CA0]/80 to-[#184ce6] p-12 rounded-lg text-white w-full lg:w-1/2 flex flex-col items-start justify-center">
+          <!-- Background Image -->
+          <div class="absolute inset-0 bg-cover bg-center rounded-lg opacity-20  scale-x-[-1]" style="background-image: url('assets/images/backgroundSupport.jpg');"></div>
+
+          <!-- Content -->
+          <div class="relative z-10 flex  flex-col justify-center items-center">
+            <h2 class="text-xl text-white font-semibold mb-6">{{ 'support.FORMULAIRE_DE_CONTACT' | translate }}</h2>
+            <div class="border border-[#6497E6] px-8 py-12 rounded-3xl">
+
+
+              <div class="flex items-center">
+                <div class="w-10 h-10 flex items-center justify-center bg-white rounded-full text-blue-600 mr-4">
+                <!-- Email icon -->
+                  <svg class="h-4" width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20.784 6.88096C21.1742 7.75407 21.3395 8.94422 21.6236 10.9903C22.0598 14.1307 22.2779 15.7009 21.7984 16.9205C21.3774 17.9911 20.6001 18.8838 19.5976 19.4481C18.4556 20.0908 16.8703 20.0908 13.6997 20.0908H12.0755C8.90492 20.0908 7.31962 20.0908 6.17764 19.4481C5.17511 18.8838 4.39782 17.9911 3.97684 16.9205C3.49731 15.7009 3.7154 14.1307 4.15157 10.9903C4.41765 9.07451 4.57951 7.90911 4.91933 7.05175M20.784 6.88096C20.7078 6.71047 20.623 6.55207 20.5271 6.40174C20.0099 5.5909 19.2697 4.94645 18.3955 4.54565C17.4033 4.09082 16.1688 4.09082 13.6997 4.09082H12.0755C9.60646 4.09082 8.37193 4.09082 7.37976 4.54565C6.50547 4.94645 5.76533 5.5909 5.24807 6.40174C5.1209 6.60109 5.01331 6.81464 4.91933 7.05175M20.784 6.88096L20.6955 6.9695L19.8373 7.82762C16.504 11.161 14.8373 12.8276 12.7663 12.8276C10.6952 12.8276 9.02853 11.161 5.6952 7.82762L4.91933 7.05175" stroke="#248A88" stroke-width="1.5"/>
+                  </svg>
+                </div>
+                <div>
+                  <p class="font-bold">{{ 'support.EMAIL_SUPPORT' | translate }}</p>
+                  <p class="font-extralight">{{'support@macomptacesu.com'}}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Right Section: Contact Form -->
+        <div class="w-full lg:w-1/2 bg-white p-14 rounded-lg mt-8 lg:mt-0 lg:ml-8">
+          <h2 class="text-xl font-semibold mb-4 text-[#475569] text-center ">{{ 'support.VOUS_AVEZ_DES_QUESTIONS_OU_BESOIN_DASSISTANCE' | translate }}</h2>
+          <p class="mb-4 text-xs text-[#475569] text-center">{{ 'support.NOTRE_ÉQUIPE_EST_LÀ_POUR_VOUS_AIDER' | translate }}</p>
+
+          <form [formGroup]="form">
+            <div class="mb-4">
+
+              <div class="relative flex items-center rounded-full w-full mb-5">
+                <input formControlName="subject" class="outline-none text-[12px] px-4 py-2 rounded-full border w-1/2 " type="text" placeholder="Objet" maxlength="40"/>
+                <div *ngIf="form.get('subject')?.touched && form.get('subject')?.invalid"
+                     class="absolute top-full left-0 text-red text-[9px] animate__animated animate__fadeInDown mt-1">
+                  ＊Objet est requis.
+                </div>
+              </div>
+            </div>
+
+
+            <div class="mb-4">
+              <textarea formControlName="message" id="message" placeholder="Message" rows="5" class="w-full text-[11px] pl-6 p-2 border border-[#EEEEEE] rounded-3xl bg-white  focus:outline-none"></textarea>
+              <div *ngIf="form.get('message')?.touched && form.get('message')?.invalid"
+                   class="text-red text-[p12x] animate__animated animate__fadeInDown mt-1">
+                ＊Message est requis.
+              </div>
+            </div>
+
+            <div class="flex justify-center items-center">
+              <button [disabled]="form.invalid || isSendingSupport" (click)="OnSubmit()" type="submit" class="bg-[#2C52F5] disabled:bg-gray-300 text-white rounded-3xl p-3 px-6 hover:bg-blue-500 flex items-center">
+                <ng-container *ngIf="isSendingSupport; else submitLabel">
+                <span class="flex h-[10px] items-center">
+                  <svg class="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0115.25-4.28A8 8 0 0012 4v8H4z"></path>
+                  </svg>
+                  Chargement...
+                </span>
+                </ng-container>
+                <ng-template #submitLabel>
+                <span class="flex h-[10px] items-center">
+                  Envoyer
+                  <svg class="w-4 h-4 ml-2" width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21.6591 2.91157C21.1589 2.39819 20.4186 2.20693 19.7283 2.40825L3.63169 7.08911C2.90339 7.29145 2.38718 7.87228 2.24812 8.61014C2.10607 9.36109 2.60227 10.3144 3.25053 10.713L8.2836 13.8064C8.79981 14.1235 9.46608 14.044 9.89325 13.6131L15.6566 7.81389C15.9467 7.5119 16.4269 7.5119 16.717 7.81389C17.0072 8.10582 17.0072 8.57894 16.717 8.88093L10.9437 14.6812C10.5155 15.111 10.4355 15.7804 10.7506 16.2998L13.8259 21.3834C14.186 21.9873 14.8063 22.3296 15.4865 22.3296C15.5666 22.3296 15.6566 22.3296 15.7366 22.3195C16.517 22.2189 17.1372 21.6853 17.3673 20.9304L22.1393 4.85438C22.3494 4.16987 22.1593 3.42496 21.6591 2.91157Z" fill="white"/>
+                  </svg>
+                </span>
+                </ng-template>
+              </button>
+
+            </div>
+          </form>
+        </div>
+      </div>
+
+
+      <div class="relative bg-gradient-to-r mb-3 from-[#3665F4] to-[#406DF5] max-w-4xl rounded-3xl shadow-sm font-Jakarta mt-4 px-20 min-h-[500px] h-auto w-9/12">
+        <!-- Background Image -->
+        <img
+          class="absolute top-0 left-0 w-full h-full object-cover opacity-10 rounded-3xl"
+          src="https://img.freepik.com/free-vector/geometric-triangle-pattern-illustration_53876-81185.jpg"
+          alt="Background Pattern"
+        >
+
+        <!-- Content Container -->
+        <div class="bg-white min-h-[500px] p-8 w-full relative ">
+                <div class="text-center">
+            <div class="flex justify-center items-center mr-3 mb-2">
+              <div class="flex justify-evenly px-3 py-1 items-center border rounded-3xl bg-[#F8FAFC]">
+
+                <svg width="14" height="16" viewBox="0 0 18 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12.586 16.4999C12.586 16.719 12.4989 16.9292 12.344 17.0842C12.189 17.2392 11.9788 17.3263 11.7596 17.3263H6.2502C6.03102 17.3263 5.82082 17.2392 5.66584 17.0842C5.51085 16.9292 5.42379 16.719 5.42379 16.4999C5.42379 16.2807 5.51085 16.0705 5.66584 15.9155C5.82082 15.7605 6.03102 15.6734 6.2502 15.6734H11.7596C11.9788 15.6734 12.189 15.7605 12.344 15.9155C12.4989 16.0705 12.586 16.2807 12.586 16.4999ZM15.3407 7.68481C15.3432 8.64496 15.1263 9.59299 14.7065 10.4565C14.2868 11.32 13.6752 12.0762 12.9186 12.6674C12.8162 12.7454 12.7329 12.8459 12.6753 12.9611C12.6176 13.0763 12.5871 13.2031 12.586 13.332V13.4697C12.586 13.835 12.4409 14.1853 12.1826 14.4436C11.9243 14.7019 11.574 14.847 11.2087 14.847H6.80114C6.43584 14.847 6.08551 14.7019 5.8272 14.4436C5.5689 14.1853 5.42379 13.835 5.42379 13.4697V13.332C5.42364 13.2053 5.39437 13.0803 5.33825 12.9668C5.28212 12.8532 5.20065 12.7541 5.10011 12.677C4.34557 12.0893 3.7346 11.3377 3.31343 10.479C2.89226 9.62028 2.67192 8.67704 2.66908 7.72062C2.65049 4.28895 5.42379 1.43164 8.8527 1.349C9.69745 1.3287 10.5377 1.47758 11.3241 1.78689C12.1104 2.09619 12.827 2.55967 13.4315 3.15003C14.0361 3.7404 14.5164 4.44574 14.8443 5.22452C15.1722 6.00331 15.341 6.83982 15.3407 7.68481ZM13.6879 7.68481C13.6881 7.06015 13.5633 6.44177 13.3209 5.86607C13.0785 5.29036 12.7233 4.76898 12.2763 4.3326C11.8294 3.89623 11.2996 3.55368 10.7183 3.32514C10.1369 3.09659 9.51574 2.98666 8.89127 3.00182C6.35763 3.06242 4.30813 5.17459 4.32191 7.71098C4.32427 8.41786 4.48731 9.11495 4.7987 9.74955C5.1101 10.3841 5.56169 10.9396 6.11935 11.374C6.40029 11.5909 6.63121 11.8657 6.7964 12.1798C6.96158 12.4939 7.05716 12.8399 7.07661 13.1942H10.9401C10.9599 12.8392 11.0556 12.4925 11.2207 12.1776C11.3859 11.8627 11.6166 11.5868 11.8973 11.3685C12.4566 10.9314 12.9086 10.3723 13.2189 9.73389C13.5292 9.09549 13.6896 8.39464 13.6879 7.68481ZM12.3057 7.31844C12.2326 6.70007 11.9881 6.11446 11.5998 5.6277C11.2115 5.14094 10.6948 4.77242 10.1082 4.56373C9.9031 4.49674 9.67998 4.51257 9.48644 4.60787C9.29291 4.70316 9.1443 4.87035 9.07237 5.07373C9.00045 5.2771 9.01089 5.50055 9.10149 5.69633C9.19208 5.89211 9.35563 6.0447 9.55722 6.12152C9.85203 6.22485 10.112 6.40862 10.3079 6.65202C10.5037 6.89543 10.6275 7.18877 10.6653 7.49887C10.6894 7.71677 10.7991 7.91617 10.9702 8.0532C11.0549 8.12105 11.1522 8.17154 11.2565 8.2018C11.3607 8.23206 11.4699 8.24149 11.5778 8.22955C11.6857 8.21762 11.7902 8.18454 11.8853 8.13223C11.9804 8.07991 12.0643 8.00937 12.1321 7.92464C12.2 7.8399 12.2505 7.74264 12.2807 7.63839C12.311 7.53414 12.3204 7.42495 12.3085 7.31706L12.3057 7.31844Z" fill="#475569"/>
+                  </svg>
+
+                <span class="ml-2">{{ 'support.FAQ' | translate }}</span>
+              </div>
+            </div>
+            <h1 class="text-2xl font-semibold text-[#1E293B]  mb-1">{{ 'support.FREQUENTLY_ASKED_QUESTIONS' | translate }}</h1>
+            <p class="text-xs text-gray-600 mt-4">{{ 'support.SOUS_MESSAGE' | translate }}</p>
+          </div>
+
+          <nz-collapse [nzBordered]="false">
+            @for (panel of panels; track panel) {
+              <nz-collapse-panel
+                #p
+                [nzHeader]="headerTemplate"
+                [nzActive]="panel.active"
+                [style]="customStyle"
+
+                [nzExpandedIcon]="expandedIcon"
+              >
+              <ng-template #headerTemplate>
+                <div class="font-semibold">{{ panel.name }}</div>
+              </ng-template>
+
+                <ng-container *ngIf="panel.name == 'Comment nous contacter ?'; else contentTemplate">
+                  Vous avez une question ou besoin d'aide pour utiliser MaComptaCESU ? Notre équipe est là pour vous accompagner !<br />
+                  📧 Email : <a href="mailto:support@macomptacesu.com" class="text-blue-500 underline">{{'support@macomptacesu.com'}}</a><br />
+                  Envoyez-nous un message à tout moment, et nous vous répondrons dans les plus brefs délais.
+                  <ul>
+                    <li>{{ 'support.RÉPONDRE_À_VOS_QUESTIONS_SUR_L’UTILISATION_DE_L’OUTIL' | translate }}</li>
+                    <li>{{ 'support.VOUS_GUIDER_DANS_L’INSTALLATION_OU_L’IMPORTATION_DE_VOS_DONNÉES' | translate }}</li>
+                    <li>{{ 'support.RÉSOUDRE_TOUT_PROBLÈME_TECHNIQUE' | translate }}</li>
+                    <li>{{ 'support.RECUEILLIR_VOS_SUGGESTIONS_POUR_AMÉLIORER_MACOMPTACESU' | translate }}</li>
+                  </ul>
+                  N'hésitez pas à nous contacter, nous sommes là pour vous aider !
+                </ng-container>
+                <ng-template #contentTemplate>
+                  <p>{{ panel.content }}</p>
+                </ng-template>
+
+                <ng-template #expandedIcon let-active>
+                  {{ active }}
+                  <svg class="mr-2" width="22" height="22" viewBox="0 0 27 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15.1655 19.1591C15.1655 19.486 15.0686 19.8055 14.887 20.0773C14.7054 20.3491 14.4472 20.561 14.1452 20.6861C13.8432 20.8112 13.5109 20.8439 13.1903 20.7801C12.8696 20.7164 12.5751 20.5589 12.344 20.3278C12.1128 20.0966 11.9554 19.8021 11.8916 19.4815C11.8279 19.1609 11.8606 18.8286 11.9857 18.5266C12.1108 18.2246 12.3226 17.9664 12.5944 17.7848C12.8663 17.6032 13.1858 17.5063 13.5127 17.5063C13.9511 17.5063 14.3715 17.6804 14.6814 17.9904C14.9914 18.3003 15.1655 18.7207 15.1655 19.1591ZM24.6692 13.7874C24.6692 15.994 24.0149 18.151 22.789 19.9856C21.5631 21.8203 19.8207 23.2503 17.7821 24.0947C15.7435 24.9391 13.5003 25.1601 11.3362 24.7296C9.17201 24.2991 7.18411 23.2365 5.62384 21.6763C4.06357 20.116 3.00101 18.1281 2.57053 15.9639C2.14005 13.7998 2.36099 11.5566 3.2054 9.51798C4.04981 7.47939 5.47978 5.73697 7.31446 4.51108C9.14915 3.28518 11.3061 2.63086 13.5127 2.63086C16.4706 2.63414 19.3064 3.81061 21.3979 5.90216C23.4895 7.99371 24.666 10.8295 24.6692 13.7874ZM22.19 13.7874C22.19 12.0712 21.6811 10.3935 20.7276 8.96655C19.7742 7.53957 18.4189 6.42738 16.8334 5.77061C15.2478 5.11385 13.5031 4.94201 11.8198 5.27682C10.1366 5.61164 8.59046 6.43807 7.37692 7.65162C6.16337 8.86516 5.33694 10.4113 5.00212 12.0945C4.66731 13.7778 4.83915 15.5225 5.49591 17.1081C6.15268 18.6936 7.26487 20.0488 8.69185 21.0023C10.1188 21.9558 11.7965 22.4647 13.5127 22.4647C15.8133 22.4623 18.019 21.5473 19.6458 19.9205C21.2726 18.2937 22.1876 16.088 22.19 13.7874ZM13.5127 7.17612C11.0066 7.17612 8.96745 9.02934 8.96745 11.3082V11.7214C8.96745 12.0501 9.09805 12.3654 9.33052 12.5979C9.56299 12.8304 9.8783 12.961 10.2071 12.961C10.5358 12.961 10.8511 12.8304 11.0836 12.5979C11.3161 12.3654 11.4467 12.0501 11.4467 11.7214V11.3082C11.4467 10.3971 12.3764 9.65535 13.5127 9.65535C14.649 9.65535 15.5787 10.3971 15.5787 11.3082C15.5787 12.2193 14.649 12.961 13.5127 12.961C13.1839 12.961 12.8686 13.0916 12.6362 13.3241C12.4037 13.5565 12.2731 13.8718 12.2731 14.2006V15.027C12.2724 15.3333 12.385 15.629 12.5894 15.8571C12.7937 16.0852 13.0752 16.2296 13.3797 16.2625C13.6842 16.2953 13.9901 16.2143 14.2384 16.035C14.4867 15.8557 14.6598 15.5908 14.7244 15.2915C16.6438 14.808 18.058 13.2058 18.058 11.3082C18.058 9.02934 16.0188 7.17612 13.5127 7.17612Z" fill="#1E293B"/>
+                    </svg>
+
+                </ng-template>
+              </nz-collapse-panel>
+            }
+          </nz-collapse>
+
+
+        </div>
+      </div>
+
+
+    </main>
+  </ng-container>
+  <ng-container *ngIf="currentUser?.role == 'admin'">
+    <!-- table -->
+    <nz-table #nzTable
+
+    [nzBordered]="false"
+    [nzScroll]="isMobileScreen ? { x: '1000px' } : { x: null }"
+    [nzNoResult]="EMPTY"
+
+    [nzHideOnSinglePage]="true" [nzLoading]="query.isLoading()" [nzData]="query.data()?.data" nzTableLayout="fixed">
+    <ng-template #EMPTY>
+      <nz-empty class=" flex justify-center items-center flex-col"
+      nzNotFoundImage="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
+      [nzNotFoundContent]="contentTpl"
+    >
+      <ng-template #contentTpl>
+        <span>{{ 'support.AUCUN_TICKET' | translate }}</span>
+      </ng-template>
+
+    </nz-empty>
+    </ng-template>
+    <thead>
+      <tr>
+        <th class="text-[11px]  flex justify-center">{{ 'support.PHOTO' | translate }}</th>
+        <th class="text-[11px]">{{ 'support.NOM' | translate }}</th>
+        <th class="text-[11px]">{{ 'support.PRÉNOM' | translate }}</th>
+        <th class="text-[11px]">{{ 'support.TÉLÉPHONE' | translate }}</th>
+        <th class="text-[11px]">{{ 'support.EMAIL' | translate }}</th>
+        <th class="text-[11px]">{{ 'support.SUBJECT' | translate }}</th>
+        <th class="text-[11px]">{{ 'support.MESSAGE' | translate }}</th>
+        <th class="text-[11px]">{{ 'support.ACTION' | translate }}</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let item of nzTable.data" (click)="openDraw(item)">
+        <td class="text-[11px] truncate">
+
+          <div *ngIf="item?.user?.profile_image" class="relative flex justify-center items-center w-13 h-13 ">
+            <img
+              [src]="item?.user?.profile_image"
+              alt="Profile"
+              class="w-12 h-12 rounded-full object-contain border bg-gray-100"
+            />
+          </div>
+          <div *ngIf="!item?.user?.profile_image" class="relative flex justify-center items-center w-13 h-13 ">
+            <div class="flex-shrink-0">
+              <div
+                class="w-12 capitalize h-12 rounded-full bg-[#EEF1FF] text-[#2C52F5] flex items-center justify-center font-semibold text-md ">
+                {{item?.user?.first_name[0]}} {{item?.user?.last_name[0]}}
+              </div>
+            </div>
+          </div>
+
+        </td>
+        <td class="text-[11px] capitalize truncate">{{ item.user.first_name }}</td>
+        <td class="text-[11px] capitalize truncate">{{ item.user.last_name }}</td>
+        <td class="text-[11px] truncate">
+          <nz-tag class="rounded-3xl" [nzColor]="'geekblue'" [nzBordered]="false">{{ item.user.phone }}</nz-tag>
+        </td>
+        <td class="text-[11px]">
+          <nz-tag class="rounded-3xl truncate" [nzColor]="'orange'" [nzBordered]="false">{{ item.user.email  }}</nz-tag>
+
+        </td>
+        <td [nzTooltipTitle]="item.subject" nzTooltipPlacement="left" nz-tooltip class="text-[11px] truncate">{{ item.subject }}</td>
+        <td [nzTooltipTitle]="item.message" nzTooltipPlacement="left" nz-tooltip class="text-[11px] truncate">{{ item.message }}</td>
+        <td class="text-[11px] truncate">
+          <button (click)="isOpenDetailsDraw = true" aria-label="Open details">
+            <svg width="19" height="19" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                <title>{{ 'support.DETAILS' | translate }}</title>
+                <g id="Free-Icons" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                    <g transform="translate(-377.000000, -748.000000)" id="Group">
+                        <g transform="translate(375.000000, 746.000000)" id="Shape">
+                            <line x1="17" y1="3" x2="17" y2="5" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+            </line>
+                            <line x1="7" y1="3" x2="7" y2="5" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+            </line>
+                            <path d="M17,18 C17,18 17,17.6666667 17,17 C18.6568542,17 20,15.6568542 20,14 C20,12.3431458 18.6568542,11 17,11 C15.3431458,11 14,12.3431458 14,14" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+            </path>
+                            <path d="M17,20 C17.5522847,20 18,20.4477153 18,21 C18,21.5522847 17.5522847,22 17,22 C16.4477153,22 16,21.5522847 16,21 C16,20.4477153 16.4477153,20 17,20 Z" fill="#000000">
+
+            </path>
+                            <path d="M8.03064542,21 C7.42550126,21 6.51778501,21 5.30749668,21 C4.50512981,21 4.2141722,20.9218311 3.92083887,20.7750461 C3.62750553,20.6282612 3.39729582,20.4128603 3.24041943,20.1383964 C3.08354305,19.8639324 3,19.5916914 3,18.8409388 L3,7.15906122 C3,6.4083086 3.08354305,6.13606756 3.24041943,5.86160362 C3.39729582,5.58713968 3.62750553,5.37173878 3.92083887,5.22495386 C4.2141722,5.07816894 4.50512981,5 5.30749668,5 L18.6925033,5 C19.4948702,5 19.7858278,5.07816894 20.0791611,5.22495386 C20.3724945,5.37173878 20.6027042,5.58713968 20.7595806,5.86160362 C20.9164569,6.13606756 21,7.24671889 21,7.99747152" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+            </path>
+                        </g>
+                    </g>
+                </g>
+            </svg>
+          </button>
+
+        </td>
+      </tr>
+      </tbody>
+    </nz-table>
+
+    <div class="flex justify-end p-2">
+      <nz-pagination
+        (nzPageIndexChange)="changePage($event)"
+        [nzPageIndex]="query.data()?.current_page"
+        [nzTotal]="query.data()?.total">
+      </nz-pagination>
+    </div>
+    <!-- end table -->
+  </ng-container>
+
+</app-page-template>
+

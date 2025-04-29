@@ -1,0 +1,579 @@
+<div class="flex h-screen">
+  <div class="hidden md:block w-1/2 h-full">
+    <img class="object-cover w-full h-full" src="assets/images/Frame_auth.png" alt="">
+  </div>
+
+  <div class="w-full md:w-1/2 h-screen overflow-y-auto px-6 py-4">
+    <svg class="absolute top-0 right-0" width="410" height="274" viewBox="0 0 410 274" fill="none"
+      xmlns="http://www.w3.org/2000/svg">
+      <circle cx="316.735" cy="-42.6084" r="262.5" transform="rotate(-8.50294 316.735 -42.6084)" stroke="#5DBF96"
+        stroke-opacity="0.06" stroke-width="32" />
+    </svg>
+    <div *ngIf="PaymentProcessLoading || isSubmittingChosedPlan"
+      class="absolute inset-0 flex items-center justify-center bg-black  bg-opacity-10 z-10">
+      <svg aria-hidden="true" class="inline w-8 h-8 text-gray-200 animate-spin  fill-teal-green" viewBox="0 0 100 101"
+        fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+          fill="currentColor" />
+        <path
+          d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+          fill="currentFill" />
+      </svg>
+      <span class="sr-only">Loading...</span>
+    </div>
+    <!-- Button -->
+    <img [routerLink]="'/auth/login'" title="page précédente"
+      class="h-8 w-8 hover:cursor-pointer relative right-6 text-gray-400" src="assets/icons/BackArrow.svg" alt="" />
+    <!-- end Button  -->
+    <ng-container *ngIf="step == 1">
+      <form (ngSubmit)="onSubmit()" [formGroup]="registrationForm"
+        class="animate__animated animate__fadeInDown relative p-4 rounded-lg w-full max-w-md mx-auto">
+        <h1 class="mb-7 text-green font-bold text-2xl border-b-4 border-green w-24">{{ 'signup.Sinscrire' | translate }}
+        </h1>
+
+        <!-- Last Name Input -->
+        <div class="relative flex items-center border py-1 px-3 rounded-full w-full mb-6"
+          [ngClass]="{'border-red': registrationForm.get('last_name')?.touched && registrationForm.get('last_name')?.invalid, 'border-gray-300': !(registrationForm.get('last_name')?.touched && registrationForm.get('last_name')?.invalid)}">
+          <input formControlName="last_name" class="pl-2 outline-none px-4 py-2 rounded-full w-full" type="text"
+            placeholder="Nom*" />
+          <div *ngIf="registrationForm.get('last_name')?.touched && registrationForm.get('last_name')?.invalid"
+            class="absolute top-full left-0 text-red text-xs pl-4 animate__animated animate__fadeInDown mt-1">{{
+            'signup.Nom_est_requis' | translate }}</div>
+        </div>
+
+        <!-- First Name Input -->
+        <div class="relative flex items-center border py-1 px-3 rounded-full w-full mb-6"
+          [ngClass]="{'border-red': registrationForm.get('first_name')?.touched && registrationForm.get('first_name')?.invalid, 'border-gray-300': !(registrationForm.get('first_name')?.touched && registrationForm.get('first_name')?.invalid)}">
+          <input formControlName="first_name" class="pl-2 outline-none px-4 py-2 rounded-full w-full" type="text"
+            placeholder="Prénom*" />
+          <div *ngIf="registrationForm.get('first_name')?.touched && registrationForm.get('first_name')?.invalid"
+            class="absolute top-full left-0 text-red text-xs pl-4 animate__animated animate__fadeInDown mt-1">{{
+            'signup.Prnom_est_requis' | translate }}</div>
+        </div>
+        <!-- Phone Input -->
+        <div class="relative flex items-center border py-1 px-3 rounded-full w-full mb-6"
+          [ngClass]="{'border-red': registrationForm.get('phone')?.touched && registrationForm.get('phone')?.invalid, 'border-gray-300': !(registrationForm.get('phone')?.touched && registrationForm.get('phone')?.invalid)}">
+          <input formControlName="phone" class="pl-2 outline-none px-4 py-2 rounded-full w-full" type="tel"
+            placeholder="Téléphone" />
+          <div
+            *ngIf="registrationForm.get('phone')?.invalid && (registrationForm.get('phone')?.dirty || registrationForm.get('phone')?.touched)"
+            class="absolute top-full left-0 text-red text-xs pl-4 animate__animated animate__fadeInDown mt-1">
+            <div *ngIf="registrationForm.get('phone')?.errors?.['required']">{{ 'signup._Le_tlphone_est_requis' |
+              translate }}</div>
+            <div *ngIf="registrationForm.get('phone')?.errors?.['pattern']">{{
+              'signup._Le_tlphone_doit_contenir_10_chiffres' | translate }}</div>
+          </div>
+        </div>
+
+        <!-- Email Input -->
+        <div class="relative flex items-center border py-1 px-3 rounded-full w-full mb-6"
+          [ngClass]="{'border-red': registrationForm.get('email')?.touched && registrationForm.get('email')?.invalid, 'border-gray-300': !(registrationForm.get('email')?.touched && registrationForm.get('email')?.invalid)}">
+          <img class="h-4 w-4 text-gray-400" src="assets/icons/email.svg" alt="Email Icon" />
+          <input formControlName="email" class="pl-2 outline-none px-4 py-2 rounded-full w-full" type="text"
+            placeholder="Adresse e-mail*" />
+          <div
+            *ngIf="registrationForm.get('email')?.invalid && (registrationForm.get('email')?.dirty || registrationForm.get('email')?.touched)"
+            class="absolute pl-4 top-full left-0 text-red text-xs animate__animated animate__fadeInDown mt-1">
+            <div *ngIf="registrationForm.get('email')?.errors?.['required']" class="font-medium">{{
+              'login._LADRESSE_EMAIL_EST_OBLIGATOIRE' | translate }}</div>
+            <div
+              *ngIf="registrationForm.get('email')?.errors?.['email'] || registrationForm.get('email')?.hasError('pattern')"
+              class="font-medium">{{ 'login._FORMAT_DE_LADRESSE_EMAIL_INVALIDE' | translate }}</div>
+          </div>
+        </div>
+
+        <!-- Password Input -->
+        <div class="relative flex items-center border py-1 px-3 rounded-full w-full mb-2"
+          [ngClass]="{'border-red': registrationForm.get('password')?.touched && registrationForm.get('password')?.invalid, 'border-gray-300': !(registrationForm.get('password')?.touched && registrationForm.get('password')?.invalid)}">
+          <img class="h-4 w-4 text-gray-400" src="assets/icons/lock.svg" alt="Lock Icon" />
+          <input formControlName="password" class="pl-2 outline-none px-4 py-2 rounded-full w-full" type="password"
+            placeholder="Mot de passe*" />
+        </div>
+        <div
+          *ngIf="registrationForm.get('password')?.invalid && (registrationForm.get('password')?.dirty || registrationForm.get('password')?.touched)"
+          class="text-red pl-4 text-xs animate__animated animate__fadeInDown mt-1">
+          <div *ngIf="registrationForm.get('password')?.errors?.['required']" class="flex items-center space-x-2">
+            <span>{{ 'signup._Le_mot_de_passe_est_requis' | translate }}</span>
+          </div>
+          <div *ngIf="registrationForm.get('password')?.errors?.['minlength']" class="flex items-center space-x-2">
+            <span>{{ 'signup._Le_mot_de_passe_doit_comporter_au_moins_8_caractres' | translate }}</span>
+          </div>
+          <div *ngIf="registrationForm.get('password')?.errors?.['pattern']" class="flex items-start space-x-2">
+            <span>{{ 'signup._Mlangeant_des_majuscules_des_minuscules_des_chiffres_et_des_caractres_spciaux' | translate
+              }}</span>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" [nzPopoverVisible]="isPopoverVisible" [nzPopoverTrigger]="'hover'" nz-button nz-popover
+          nzType="primary" nzPopoverPlacement="bottom" nzPopoverContent="Veuillez remplir les champs correctement"
+          class="block py-4 px-3 rounded-full w-80 bg-green text-white mt-4 disabled:cursor-not-allowed"
+          [disabled]="registrationForm.invalid" (mouseenter)="togglePopover(true)" (mouseleave)="togglePopover(false)"
+          *ngIf="!isRegistering">{{ 'signup.Sinscrire' | translate }}</button>
+
+        <!-- Loading Button -->
+        <button type="submit"
+          class="flex items-center justify-center py-4 px-3 rounded-full w-80 bg-gray-300 cursor-wait mt-4 text-white"
+          *ngIf="isRegistering">
+          <span class="mr-2 text-sm">{{ 'signup.Chargement' | translate }}</span>
+          <img class="h-6 w-6 animate-spin" src="assets/icons/loader.svg" alt="Loader Icon" />
+        </button>
+      </form>
+    </ng-container>
+
+
+    <ng-container *ngIf="step == 2">
+      <div class="flex justify-start w-full">
+        <form class="animate__animated animate__fadeInDown  rounded-lg w-full ">
+          <h1 class="mb-3 text-green font-bold text-2xl border-b-4 border-green w-[3rem]">Plans</h1>
+          <div *ngIf="!PlansQuery.isLoading()  &&  Object.keys(PlansQuery.data() || {}).length > 0"
+            class="flex gap-4 flex-wrap">
+            <div *ngIf="freePlan"
+              class="hover:shadow-md min-w-68  animate__animated animate__fadeIn hover:border-blue hover:shadow-md duration-300 px-6 py-6 bg-[#3B82F6] border border-gray-200 rounded-3xl">
+              <h5 class="mb-2 text-xl text-white text-center">Essai gratuit de 45 jours</h5>
+
+              <div class="flex justify-center mb-3">
+                <div class="flex items-baseline bg-white px-10 py-2 rounded-xl text-[#3B82F6]">
+                  <span class="text-4xl font-semibold text-[#3B82F6]">€</span>
+                  <span class="text-4xl font-extrabold tracking-tight text-[#3B82F6]">0.00</span>
+                  <span class="text-xl font-normal ms-1 text-[#3B82F6]">/mois</span>
+                </div>
+              </div>
+
+              <ul role="list" class="space-y-2 px-6 mb-7">
+                <li class="flex text-[11px] truncate items-center">
+                  <svg class="flex-shrink-0 w-5 h-5 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                  </svg>
+                  <span class="text-white ms-3 text-[11px]">Revenus</span>
+                </li>
+                <li class="flex text-[11px] truncate items-center">
+                  <svg class="flex-shrink-0 w-5 h-5 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                  </svg>
+                  <span class="font-normal text-white ms-3 text-[11px] truncate">Gestion des Clients</span>
+                </li>
+
+                <li class="flex text-[11px] truncate items-center">
+                  <svg class="flex-shrink-0 w-5 h-5 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                  </svg>
+                  <span class="font-normal text-white ms-3 text-[11px] truncate">Analyse de CA Prévisions</span>
+                </li>
+                <li class="flex text-[11px] truncate items-center">
+                  <svg class="flex-shrink-0 w-5 h-5 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                  </svg>
+                  <span class="font-normal text-white ms-3 text-[11px] truncate">Historique</span>
+                </li>
+              </ul>
+
+              <div class="flex justify-center">
+                <button type="button" (click)="ChosePlan('FREE')"
+                  class="text-[#1E40AF] hover:bg-gray-100 duration-300 hover:text-blue  bg-white rounded-full text-sm px-10 py-4">Commencer</button>
+              </div>
+            </div>
+
+            <div
+              class="hover:shadow-xl animate__animated animate__fadeIn px-3 py-2 duration-300  bg-white border border-gray-200 rounded-3xl ">
+              <h5 class="mb-2 text-xl  text-[#248A88] text-center">Mensuel</h5>
+
+              <div class="flex justify-center mb-3">
+                <div class="flex items-baseline bg-[#F9F9F9] px-10 py-2 rounded-xl text-[#7B8694]">
+                  <span class="text-4xl font-semibold text-[#7B8694]">€</span>
+                  <span class="text-4xl font-extrabold tracking-tight text-[#7B8694]">12.90</span>
+                  <span class="text-xl font-normal  ms-1 text-[#7B8694]">/mois</span>
+                </div>
+              </div>
+
+              <ul role="list" class="space-y-2 px-6 mb-7">
+                <li class="flex text-[11px] truncate  items-center">
+                  <svg class="flex-shrink-0 w-5 h-5 text-[#5DBF96]" aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                  </svg>
+                  <span class=" text-gray-500 ms-3 text-[11px]">Revenus</span>
+                </li>
+                <li class="flex text-[11px] truncate  items-center">
+                  <svg class="flex-shrink-0 w-5 h-5 text-[#5DBF96]" aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                  </svg>
+                  <span class="font-normal text-gray-500 ms-3 text-[11px] truncate">Gestion des
+                    Clients</span>
+                </li>
+                <li class="flex text-[11px] truncate  items-center">
+                  <svg class="flex-shrink-0 w-5 h-5 text-[#5DBF96]" aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                  </svg>
+                  <span class="font-normal text-gray-500 ms-3 text-[11px] truncate">Analyse de CA
+                    Prévisions</span>
+                </li>
+                <li class="flex text-[11px] truncate  items-center">
+                  <svg class="flex-shrink-0 w-5 h-5 text-[#5DBF96]" aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                  </svg>
+                  <span class="font-normal text-gray-500 ms-3 text-[11px] truncate">Historique</span>
+
+                  <!-- <li class="flex text-[11px] truncate  items-center text-gray-500  ">
+                      <svg width="18" height="19" viewBox="0 0 18 19" fill="none"
+                           xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                              d="M0.954915 2.18815C0 3.50248 0 5.37734 0 9.12708C0 12.8768 0 14.7517 0.954915 16.066C1.26331 16.4905 1.6366 16.8638 2.06107 17.1722C3.3754 18.1271 5.25027 18.1271 9 18.1271C12.7497 18.1271 14.6246 18.1271 15.9389 17.1722C16.3634 16.8638 16.7367 16.4905 17.0451 16.066C18 14.7517 18 12.8768 18 9.12708C18 5.37734 18 3.50248 17.0451 2.18815C16.7367 1.76368 16.3634 1.39039 15.9389 1.08199C14.6246 0.127075 12.7497 0.127075 9 0.127075C5.25027 0.127075 3.3754 0.127075 2.06107 1.08199C1.6366 1.39039 1.26331 1.76368 0.954915 2.18815ZM7.40899 6.71807C7.1161 6.42517 6.64123 6.42517 6.34833 6.71807C6.05544 7.01096 6.05544 7.48583 6.34833 7.77873L7.93932 9.36972L6.34833 10.9607C6.05544 11.2536 6.05544 11.7285 6.34833 12.0214C6.64123 12.3143 7.1161 12.3143 7.40899 12.0214L8.99998 10.4304L10.591 12.0214C10.8839 12.3143 11.3587 12.3143 11.6516 12.0214C11.9445 11.7285 11.9445 11.2536 11.6516 10.9607L10.0606 9.36972L11.6516 7.77873C11.9445 7.48583 11.9445 7.01096 11.6516 6.71807C11.3587 6.42517 10.8839 6.42517 10.591 6.71807L8.99998 8.30906L7.40899 6.71807Z"
+                              fill="#DDDDDD" />
+                      </svg>
+
+                      <span class="text font-normal ms-3">Sketch Files</span>
+                    </li>
+                    <li class="flex text-[11px] truncate  items-center text-gray-500   ">
+                      <svg width="18" height="19" viewBox="0 0 18 19" fill="none"
+                           xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                              d="M0.954915 2.18815C0 3.50248 0 5.37734 0 9.12708C0 12.8768 0 14.7517 0.954915 16.066C1.26331 16.4905 1.6366 16.8638 2.06107 17.1722C3.3754 18.1271 5.25027 18.1271 9 18.1271C12.7497 18.1271 14.6246 18.1271 15.9389 17.1722C16.3634 16.8638 16.7367 16.4905 17.0451 16.066C18 14.7517 18 12.8768 18 9.12708C18 5.37734 18 3.50248 17.0451 2.18815C16.7367 1.76368 16.3634 1.39039 15.9389 1.08199C14.6246 0.127075 12.7497 0.127075 9 0.127075C5.25027 0.127075 3.3754 0.127075 2.06107 1.08199C1.6366 1.39039 1.26331 1.76368 0.954915 2.18815ZM7.40899 6.71807C7.1161 6.42517 6.64123 6.42517 6.34833 6.71807C6.05544 7.01096 6.05544 7.48583 6.34833 7.77873L7.93932 9.36972L6.34833 10.9607C6.05544 11.2536 6.05544 11.7285 6.34833 12.0214C6.64123 12.3143 7.1161 12.3143 7.40899 12.0214L8.99998 10.4304L10.591 12.0214C10.8839 12.3143 11.3587 12.3143 11.6516 12.0214C11.9445 11.7285 11.9445 11.2536 11.6516 10.9607L10.0606 9.36972L11.6516 7.77873C11.9445 7.48583 11.9445 7.01096 11.6516 6.71807C11.3587 6.42517 10.8839 6.42517 10.591 6.71807L8.99998 8.30906L7.40899 6.71807Z"
+                              fill="#DDDDDD" />
+                      </svg>
+
+                      <span class="text font-normal ms-3">Sketch Files</span>
+                    </li>
+                    <li class="flex text-[11px] truncate  items-center text-gray-500   ">
+                      <svg width="18" height="19" viewBox="0 0 18 19" fill="none"
+                           xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                              d="M0.954915 2.18815C0 3.50248 0 5.37734 0 9.12708C0 12.8768 0 14.7517 0.954915 16.066C1.26331 16.4905 1.6366 16.8638 2.06107 17.1722C3.3754 18.1271 5.25027 18.1271 9 18.1271C12.7497 18.1271 14.6246 18.1271 15.9389 17.1722C16.3634 16.8638 16.7367 16.4905 17.0451 16.066C18 14.7517 18 12.8768 18 9.12708C18 5.37734 18 3.50248 17.0451 2.18815C16.7367 1.76368 16.3634 1.39039 15.9389 1.08199C14.6246 0.127075 12.7497 0.127075 9 0.127075C5.25027 0.127075 3.3754 0.127075 2.06107 1.08199C1.6366 1.39039 1.26331 1.76368 0.954915 2.18815ZM7.40899 6.71807C7.1161 6.42517 6.64123 6.42517 6.34833 6.71807C6.05544 7.01096 6.05544 7.48583 6.34833 7.77873L7.93932 9.36972L6.34833 10.9607C6.05544 11.2536 6.05544 11.7285 6.34833 12.0214C6.64123 12.3143 7.1161 12.3143 7.40899 12.0214L8.99998 10.4304L10.591 12.0214C10.8839 12.3143 11.3587 12.3143 11.6516 12.0214C11.9445 11.7285 11.9445 11.2536 11.6516 10.9607L10.0606 9.36972L11.6516 7.77873C11.9445 7.48583 11.9445 7.01096 11.6516 6.71807C11.3587 6.42517 10.8839 6.42517 10.591 6.71807L8.99998 8.30906L7.40899 6.71807Z"
+                              fill="#DDDDDD" />
+                      </svg>
+
+                      <span class="text font-normal ms-3">Sketch Files</span>
+                    </li>
+                    <li class="flex text-[11px] truncate  items-center text-gray-500   ">
+                      <svg width="18" height="19" viewBox="0 0 18 19" fill="none"
+                           xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                              d="M0.954915 2.18815C0 3.50248 0 5.37734 0 9.12708C0 12.8768 0 14.7517 0.954915 16.066C1.26331 16.4905 1.6366 16.8638 2.06107 17.1722C3.3754 18.1271 5.25027 18.1271 9 18.1271C12.7497 18.1271 14.6246 18.1271 15.9389 17.1722C16.3634 16.8638 16.7367 16.4905 17.0451 16.066C18 14.7517 18 12.8768 18 9.12708C18 5.37734 18 3.50248 17.0451 2.18815C16.7367 1.76368 16.3634 1.39039 15.9389 1.08199C14.6246 0.127075 12.7497 0.127075 9 0.127075C5.25027 0.127075 3.3754 0.127075 2.06107 1.08199C1.6366 1.39039 1.26331 1.76368 0.954915 2.18815ZM7.40899 6.71807C7.1161 6.42517 6.64123 6.42517 6.34833 6.71807C6.05544 7.01096 6.05544 7.48583 6.34833 7.77873L7.93932 9.36972L6.34833 10.9607C6.05544 11.2536 6.05544 11.7285 6.34833 12.0214C6.64123 12.3143 7.1161 12.3143 7.40899 12.0214L8.99998 10.4304L10.591 12.0214C10.8839 12.3143 11.3587 12.3143 11.6516 12.0214C11.9445 11.7285 11.9445 11.2536 11.6516 10.9607L10.0606 9.36972L11.6516 7.77873C11.9445 7.48583 11.9445 7.01096 11.6516 6.71807C11.3587 6.42517 10.8839 6.42517 10.591 6.71807L8.99998 8.30906L7.40899 6.71807Z"
+                              fill="#DDDDDD" />
+                      </svg>
+
+                      <span class="text font-normal ms-3">Sketch Files</span>
+                    </li>
+                    <li class="flex text-[11px] truncate  items-center text-gray-500   ">
+                      <svg width="18" height="19" viewBox="0 0 18 19" fill="none"
+                           xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                              d="M0.954915 2.18815C0 3.50248 0 5.37734 0 9.12708C0 12.8768 0 14.7517 0.954915 16.066C1.26331 16.4905 1.6366 16.8638 2.06107 17.1722C3.3754 18.1271 5.25027 18.1271 9 18.1271C12.7497 18.1271 14.6246 18.1271 15.9389 17.1722C16.3634 16.8638 16.7367 16.4905 17.0451 16.066C18 14.7517 18 12.8768 18 9.12708C18 5.37734 18 3.50248 17.0451 2.18815C16.7367 1.76368 16.3634 1.39039 15.9389 1.08199C14.6246 0.127075 12.7497 0.127075 9 0.127075C5.25027 0.127075 3.3754 0.127075 2.06107 1.08199C1.6366 1.39039 1.26331 1.76368 0.954915 2.18815ZM7.40899 6.71807C7.1161 6.42517 6.64123 6.42517 6.34833 6.71807C6.05544 7.01096 6.05544 7.48583 6.34833 7.77873L7.93932 9.36972L6.34833 10.9607C6.05544 11.2536 6.05544 11.7285 6.34833 12.0214C6.64123 12.3143 7.1161 12.3143 7.40899 12.0214L8.99998 10.4304L10.591 12.0214C10.8839 12.3143 11.3587 12.3143 11.6516 12.0214C11.9445 11.7285 11.9445 11.2536 11.6516 10.9607L10.0606 9.36972L11.6516 7.77873C11.9445 7.48583 11.9445 7.01096 11.6516 6.71807C11.3587 6.42517 10.8839 6.42517 10.591 6.71807L8.99998 8.30906L7.40899 6.71807Z"
+                              fill="#DDDDDD" />
+                      </svg>
+
+                      <span class="text font-normal ms-3">Sketch Files</span>
+                    </li> -->
+
+              </ul>
+
+              <div class="flex justify-center">
+                <button type="button" (click)="ChosePlan(4)"
+                  class="text-[#475569] duration-300 hover:bg-green/75 hover:text-white bg-[#F2EFEF]  rounded-full text-sm px-10 py-4">Commencer</button>
+              </div>
+            </div>
+
+            <div
+              class="hover:shadow-md animate__animated animate__fadeIn hover:border-green hover:shadow-light-green  duration-300 px-3 py-2 bg-[#5DBF96] border border-gray-200 rounded-3xl">
+              <h5 class="mb-2 text-xl  text-white text-center">Annuel</h5>
+
+              <div class="flex justify-center mb-3">
+                <div class="flex items-baseline bg-white px-10 py-2 rounded-xl text-[#5DBF96]">
+                  <span class="text-4xl font-semibold text-[#5DBF96]">€</span>
+                  <span class="text-4xl font-extrabold tracking-tight text-[#5DBF96]">116.10</span>
+                  <span class="text-xl font-normal  ms-1 text-[#5DBF96]">/an</span>
+                </div>
+              </div>
+
+              <ul role="list" class="space-y-2 px-6 mb-7">
+                <li class="flex text-[11px] truncate  items-center">
+                  <svg class="flex-shrink-0 w-5 h-5 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                  </svg>
+
+                  <span class=" text-white ms-3 text-[11px]">Revenus</span>
+                </li>
+                <li class="flex text-[11px] truncate  items-center">
+                  <svg class="flex-shrink-0 w-5 h-5 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                  </svg>
+
+                  <span class="font-normal text-white ms-3 text-[11px] truncate">Gestion des
+                    Clients</span>
+                </li>
+                <li class="flex text-[11px] truncate  items-center">
+                  <svg class="flex-shrink-0 w-5 h-5 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                  </svg>
+
+                  <span class="font-normal text-white ms-3 text-[11px] truncate">Analyse de CA
+                    Prévisions</span>
+                </li>
+                <li class="flex text-[11px] truncate  items-center">
+                  <svg class="flex-shrink-0 w-5 h-5 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                  </svg>
+
+                  <span class="font-normal text-white ms-3 text-[11px] truncate">Historique</span>
+
+                  <!-- <li class="flex   items-center text-white text-[11px] truncate ">
+                      <svg class="flex-shrink-0 w-5 h-5 text-white" aria-hidden="true"
+                           xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                          d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                      </svg>
+
+
+                      <span class="text font-normal ms-3 text-[11px] truncate">Sketch Files</span>
+                    </li>
+                    <li class="flex   items-center text-white text-[11px] truncate ">
+                      <svg class="flex-shrink-0 w-5 h-5 text-white" aria-hidden="true"
+                           xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                          d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                      </svg>
+
+
+                      <span class="text font-normal ms-3 text-[11px] truncate">Sketch Files</span>
+                    </li>
+                    <li class="flex   items-center text-white text-[11px] truncate ">
+                      <svg class="flex-shrink-0 w-5 h-5 text-white" aria-hidden="true"
+                           xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                          d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                      </svg>
+
+
+                      <span class="text font-normal ms-3 text-[11px] truncate">Sketch Files</span>
+                    </li>
+                    <li class="flex   items-center text-white text-[11px] truncate ">
+                      <svg class="flex-shrink-0 w-5 h-5 text-white" aria-hidden="true"
+                           xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                          d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                      </svg>
+
+
+                      <span class="text font-normal ms-3 text-[11px] truncate">Sketch Files</span>
+                    </li>
+                    <li class="flex   items-center text-white text-[11px] truncate ">
+                      <svg class="flex-shrink-0 w-5 h-5 text-white" aria-hidden="true"
+                           xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                          d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                      </svg>
+
+
+                      <span class="text font-normal ms-3 text-[11px] truncate">Sketch Files</span>
+                    </li> -->
+
+              </ul>
+
+              <div class="flex justify-center">
+                <button type="button" (click)="ChosePlan(3)"
+                  class="text-[#475569]  hover:bg-gray-50 duration-300 hover:text-teal-green  bg-white  rounded-full text-sm px-10 py-4">Commencer</button>
+              </div>
+            </div>
+
+          </div>
+          <div *ngIf="PlansQuery.isLoading()">
+            <div class="flex gap-4">
+              <div
+                class="hover:shadow-xl px-3 py-2 duration-300 bg-white border border-gray-200 rounded-3xl animate-pulse">
+                <h5 class="mb-2 text-xl text-[#248A88] text-center bg-gray-100 rounded h-6 w-2/4 mx-auto"></h5>
+
+                <div class="flex justify-center mb-3">
+                  <div class="flex items-baseline bg-[#F9F9F9] px-10 py-2 rounded-xl text-[#7B8694]">
+                    <span class="text-4xl font-semibold text-[#7B8694] bg-gray-100 rounded h-8 w-full"></span>
+
+                  </div>
+                </div>
+
+                <ul role="list" class="space-y-2 px-6 mb-7">
+                  <li class="flex items-center">
+                    <span class="bg-gray-100 rounded h-5 w-5"></span>
+                    <span class="font-normal  ms-3 text-[11px] bg-gray-100 rounded h-5 w-32"></span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="bg-gray-100 rounded h-5 w-5"></span>
+                    <span class="font-normal  ms-3 text-[11px] bg-gray-100 rounded h-5 w-32"></span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="bg-gray-100 rounded h-5 w-5"></span>
+                    <span class="font-normal  ms-3 text-[11px] bg-gray-100 rounded h-5 w-32"></span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="bg-gray-100 rounded h-5 w-5"></span>
+                    <span class="font-normal  ms-3 text-[11px] bg-gray-100 rounded h-5 w-32"></span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="bg-gray-100 rounded h-5 w-5"></span>
+                    <span class="font-normal  ms-3 text-[11px] bg-gray-100 rounded h-5 w-32"></span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="bg-gray-100 rounded h-5 w-5"></span>
+                    <span class="font-normal  ms-3 text-[11px] bg-gray-100 rounded h-5 w-32"></span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="bg-gray-100 rounded h-5 w-5"></span>
+                    <span class="font-normal  ms-3 text-[11px] bg-gray-100 rounded h-5 w-32"></span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="bg-gray-100 rounded h-5 w-5"></span>
+                    <span class="font-normal  ms-3 text-[11px] bg-gray-100 rounded h-5 w-32"></span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="bg-gray-100 rounded h-5 w-5"></span>
+                    <span class="font-normal  ms-3 text-[11px] bg-gray-100 rounded h-5 w-32"></span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="bg-gray-100 rounded h-5 w-5"></span>
+                    <span class="font-normal  ms-3 text-[11px] bg-gray-100 rounded h-5 w-32"></span>
+                  </li>
+
+                </ul>
+
+                <div class="flex justify-center mb-3">
+                  <div class="flex items-baseline bg-[#F9F9F9] px-10 py-4 rounded-xl text-[#7B8694]">
+
+                  </div>
+                </div>
+              </div>
+              <div
+                class="hover:shadow-xl px-3 py-2 duration-300 bg-white border border-gray-200 rounded-3xl animate-pulse">
+                <h5 class="mb-2 text-xl text-[#248A88] text-center bg-gray-100 rounded h-6 w-2/4 mx-auto"></h5>
+
+                <div class="flex justify-center mb-3">
+                  <div class="flex items-baseline bg-[#F9F9F9] px-10 py-2 rounded-xl text-[#7B8694]">
+                    <span class="text-4xl font-semibold text-[#7B8694] bg-gray-100 rounded h-8 w-full"></span>
+
+                  </div>
+                </div>
+
+                <ul role="list" class="space-y-2 px-6 mb-7">
+                  <li class="flex items-center">
+                    <span class="bg-gray-100 rounded h-5 w-5"></span>
+                    <span class="font-normal  ms-3 text-[11px] bg-gray-100 rounded h-5 w-32"></span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="bg-gray-100 rounded h-5 w-5"></span>
+                    <span class="font-normal  ms-3 text-[11px] bg-gray-100 rounded h-5 w-32"></span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="bg-gray-100 rounded h-5 w-5"></span>
+                    <span class="font-normal  ms-3 text-[11px] bg-gray-100 rounded h-5 w-32"></span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="bg-gray-100 rounded h-5 w-5"></span>
+                    <span class="font-normal  ms-3 text-[11px] bg-gray-100 rounded h-5 w-32"></span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="bg-gray-100 rounded h-5 w-5"></span>
+                    <span class="font-normal  ms-3 text-[11px] bg-gray-100 rounded h-5 w-32"></span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="bg-gray-100 rounded h-5 w-5"></span>
+                    <span class="font-normal  ms-3 text-[11px] bg-gray-100 rounded h-5 w-32"></span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="bg-gray-100 rounded h-5 w-5"></span>
+                    <span class="font-normal  ms-3 text-[11px] bg-gray-100 rounded h-5 w-32"></span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="bg-gray-100 rounded h-5 w-5"></span>
+                    <span class="font-normal  ms-3 text-[11px] bg-gray-100 rounded h-5 w-32"></span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="bg-gray-100 rounded h-5 w-5"></span>
+                    <span class="font-normal  ms-3 text-[11px] bg-gray-100 rounded h-5 w-32"></span>
+                  </li>
+                  <li class="flex items-center">
+                    <span class="bg-gray-100 rounded h-5 w-5"></span>
+                    <span class="font-normal  ms-3 text-[11px] bg-gray-100 rounded h-5 w-32"></span>
+                  </li>
+
+                </ul>
+
+                <div class="flex justify-center mb-3">
+                  <div class="flex items-baseline bg-[#F9F9F9] px-10 py-4 rounded-xl text-[#7B8694]">
+
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <div *ngIf="!PlansQuery.isLoading() && PlansQuery.data() && Object.keys(PlansQuery.data() || {}).length == 0">
+            <div class="flex flex-col h-[30rem]  justify-center items-center">
+              <img src="assets/images/no-data.svg" />
+              <span class="font-Jakarta text-center">
+                Malheureusement, nous n'avons pas de plans pour le moment. Ils seront disponibles plus tard.
+              </span>
+            </div>
+
+
+          </div>
+
+        </form>
+
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="step == 3">
+      <div class="animate__animated animate__fadeInDown  bg-transparent z-30 p-4 rounded-lg w-full max-w-md mx-auto">
+        <h1 class=" text-green font-bold text-4xl border-b-4 border-green w-[6rem]">{{ 'signup.Paiement' | translate }}
+        </h1>
+        <div class="flex gap-2">
+          <app-payment [SelectedPlan]="selectedPlan"></app-payment>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="step == 4">
+      <form class="  bg-transparent font-Jakarta font-medium z-30 p-4 rounded-lg w-full max-w-md mx-auto">
+        <h1 class=" text-green font-bold text-4xl border-b-4 border-green w-[6rem]">{{ 'signup.Paiement' | translate }}
+        </h1>
+        <div class="flex gap-2 mt-4">
+          <div class="flex flex-col  justify-center align-middle py-8 px-14 rounded-3xl border-2 border-teal-green">
+            <span class="text-center   text-teal-green">{{ 'signup.Paiement_effectu_avec_succs' | translate }}</span>
+            <img class="mt-8" src="assets/images/payment.gif" />
+          </div>
+
+        </div>
+        <button type="submit" [routerLink]="['/']"
+          class="w-full mt-6 bg-green  hover:bg-green/75 border border-transparent rounded-full shadow-sm py-4 px-6 text-sm  text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          {{ 'signup.connecter' | translate }}
+        </button>
+        <!-- <button type="submit"
+                    class="flex items-center justify-center py-4 px-3 rounded-full w-full bg-gray-300 cursor-wait mt-4 text-white hover:bg-green-700 relative">
+                    <span class="mr-2 text-[12px]">Chargement...</span>
+                    <img class="h-6 w-6 animate-spin" src="assets/icons/loader.svg" alt="" />
+                </button> -->
+      </form>
+    </ng-container>
+  </div>
+</div>

@@ -1,0 +1,24 @@
+<nz-modal [(nzVisible)]="isVisible" [nzTitle]="titleTemplate" [nzContent]="contentTemplate" [nzFooter]="null" (nzOnCancel)="handleCancel()">
+  <ng-template #titleTemplate>
+    <div class="h-14 bg-[#F2774B]"></div>
+  </ng-template>
+
+  <ng-template #contentTemplate>
+    <div class="flex p-6 flex-col items-center">
+      <div class=" text-white p-3 rounded-full mb-4">
+
+        <svg  width="54" height="56" viewBox="0 0 54 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M26.7417 16.1361V29.8865M26.7417 48.2203C16.6682 48.2203 11.6315 48.2203 8.7198 46.0319C6.18011 44.1231 4.54265 41.1891 4.21451 37.9594C3.83831 34.2567 6.35668 29.7443 11.3934 20.7196C16.4302 11.6948 18.9486 7.18248 22.2364 5.66814C25.1043 4.34727 28.3792 4.34727 31.247 5.66814C34.5349 7.18248 37.0533 11.6948 42.09 20.7196C47.1268 29.7443 49.6451 34.2567 49.2689 37.9594C48.9408 41.1891 47.3033 44.1231 44.7637 46.0319C41.852 48.2203 36.8152 48.2203 26.7417 48.2203Z" stroke="#F2774B" stroke-width="2.75007" stroke-linecap="round"/>
+          <path d="M28.957 36.7617C28.957 38.0274 27.9652 39.0534 26.7417 39.0534C25.5182 39.0534 24.5264 38.0274 24.5264 36.7617C24.5264 35.496 25.5182 34.47 26.7417 34.47C27.9652 34.47 28.957 35.496 28.957 36.7617Z" fill="#F2774B"/>
+        </svg>
+
+      </div>
+      <h2 class="text-xl font-bold text-[#F2774B] mb-4">Attention</h2>
+      <p class="text-gray-700 text-center mb-6">Vous voulez enregistrer vos modifications avant de quitter ?</p>
+      <div class="flex justify-center w-full space-x-4">
+        <button class="px-4 py-2 h-10 cursor-pointer border border-gray-300 rounded-full text-gray-600 hover:bg-gray-100 transition duration-200" (click)="handleCancel()">Annuler</button>
+        <button nz-button [nzLoading]="isloading" class="px-4 py-2 h-10 cursor-pointer bg-[#F2774B] text-white rounded-full hover:bg-red transition duration-200" (click)="handleConfirmDelete()">Comfirmé</button>
+      </div>
+    </div>
+  </ng-template>
+</nz-modal>

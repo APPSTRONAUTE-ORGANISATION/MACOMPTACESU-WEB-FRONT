@@ -1,0 +1,470 @@
+
+<nz-modal [(nzVisible)]="ModalEditImage" [nzFooter]="null" (nzOnCancel)="handleCancel()" >
+  <ng-container *nzModalTitle>
+    <div class="p-4">{{ 'settings.CHANGER_LIMAGE_DU_PROFIL' | translate }}</div>
+  </ng-container>
+  <ng-container *nzModalContent>
+    <div class="bg-[#F9F9F9]">
+      <nz-upload
+        class="avatar-uploader bg-white overflow-hidden p-4 flex flex-col justify-center items-center relative group"
+        [nzAction]="environment.serverUrl+'/update_profile_image'"
+        nzName="avatar"
+        nzListType="picture-card"
+        [nzShowUploadList]="false"
+        [nzData]="UserIdPayload"
+        [nzBeforeUpload]="beforeUpload"
+        (nzChange)="handleChange($event)"
+      >
+        <div class="flex flex-col items-center cursor-pointer text-center relative">
+          <ng-container *ngIf="isUpdatingImageAvatar; else uploadContent">
+            <div class="flex justify-center items-center">
+              <div class="w-full max-w-sm p-6">
+                <div class="p-8 text-center">
+                  <p class="text-gray-500 mb-4">{{ 'settings.UPLOADING...' | translate }}</p>
+                  <div class="loader"></div> <!-- Add your loading spinner here -->
+                </div>
+              </div>
+            </div>
+          </ng-container>
+          <ng-template #uploadContent>
+            <ng-container *ngIf="!avatarUrl; else avatarTemplate">
+              <div class="flex justify-center items-center h-screen">
+                <div class="w-full max-w-sm p-6">
+                  <div class="flex justify-center items-center flex-col space-y-2 p-8 text-center">
+                    <p class="text-[#5DBF96] mb-4">{{ 'settings.PARCOUREZ_VOTRE_FICHIER_À_TÉLÉCHARGER_!' | translate }}</p>
+                    <p class="text-[#9BA8BC] text-sm mb-4">{{ 'settings.FORMAT_PRIS_EN_CHARGE_:_IMAGE,_ETC' | translate }}</p>
+                    <button class="flex justify-center items-center bg-[#5DBF96] text-white hover:bg-green-600 font-semibold py-1 px-4 rounded-3xl transition duration-200">
+                      Parcourir le fichier
+
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+            <ng-template #avatarTemplate>
+              <div class="relative">
+                <img [src]="avatarUrl" class="w-full object-cover rounded-lg" alt="Avatar" />
+                <!-- Overlay on hover -->
+                <div
+                  class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 text-white font-semibold opacity-0 group-hover:opacity-100 transition duration-200 rounded-lg"
+                >
+
+                {{ 'settings.Cliquez_pour_changer_limage' | translate }}
+              </div>
+              </div>
+            </ng-template>
+          </ng-template>
+        </div>
+      </nz-upload>
+    </div>
+  </ng-container>
+
+  <ng-container *nzModalFooter>
+
+  </ng-container>
+</nz-modal>
+<app-comfirm-modal [isloading]="isSaving" [isVisible]="ShowConfirmCancelDialog" (cancel)="handleCancelDialog()" (confirm)="HandleComfirmDialog()"/>
+
+
+<nz-modal [(nzVisible)]="isOpenDeleteModal"  [nzTitle]="DeleteModalTitle" [nzFooter]="null" [nzContent]="DeleteModalContent"  (nzOnCancel)="handleCancel()">
+  <ng-template #DeleteModalTitle>
+    <div class="h-14 bg-[#F13759]">
+    </div>
+  </ng-template>
+
+  <ng-template #DeleteModalContent>
+
+    <div class="flex p-6 flex-col items-center">
+      <div class="bg-[#F13759] text-white p-3 rounded-full mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+      </div>
+      <h2 class="text-xl font-bold text-[#F13759] mb-4">{{ 'settings.ATTENTION' | translate }}</h2>
+      <p class="text-gray-700 text-center mb-6">{{ 'settings.VOUS_VOULEZ_VRAIMENT_SUPPRIMER' | translate }}</p>
+      <div class="flex justify-center w-full space-x-4">
+        <button class="px-4 py-2 h-10 cursor-pointer border border-gray-300 rounded-full text-gray-600 hover:bg-gray-100 transition duration-200" (click)="handleCancel()">{{ 'settings.ANNULER' | translate }}</button>
+        <button nz-button [nzLoading]="isDeletingAvatar" class="px-4 py-2 h-10 cursor-pointer bg-[#F13759] text-white rounded-full hover:bg-red transition duration-200" (click)="HandleComfirmDelete()">{{ 'settings.SUPPRIMER' | translate }}</button>
+      </div>
+    </div>
+  </ng-template>
+</nz-modal>
+<app-page-template  titleNavbar="Paramètres" sideIconPath="assets/icons/colored/settings_light.svg">
+
+
+  <div class="rounded-3xl font-Jakarta bg-white px-4 py-2 mb-12">
+    <nz-tabset>
+      @for (tab of tabs; track tab) {
+      <nz-tab [nzTitle]="tab.name" [nzDisabled]="tab.disabled">
+        <ng-container *ngIf="tab.name == 'Abonnement' && currentUser?.role != 'admin'">
+          <div class="flex flex-wrap -mx-3 mb-8 p-2">
+            <div class="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+              <h2 class="text-lg font-semibold mb-4">{{ 'settings.PLAN' | translate }}</h2>
+              <div class="bg-gradient-to-t min-h-[44px] from-[#2C52F5] to-[#248A88] rounded-lg p-6 text-white">
+                <div class="flex border-b py-6 justify-between items-center mb-4">
+                  <div>
+                    Plan
+                    <span class="bg-white text-[#4F46E5] px-2 py-1 rounded-full text-[11px] font-semibold">
+                {{ dataCard?.subscription?.plan ? dataCard?.subscription?.plan : 'Non défini' }}
+            </span>
+                  </div>
+                  <span class="text-3xl font-bold">
+            {{ dataCard?.subscription?.price ? (dataCard?.subscription?.price + '€') : 'Non défini' }}
+                    <span class="text-lg font-normal">/mois</span>
+        </span>
+                </div>
+                <p class="text-[11px]">
+                  Actif jusqu'au {{ dataCard?.subscription?.current_period_end ? (dataCard?.subscription?.current_period_end | date: 'dd MMMM yyyy') : 'Non défini' }}
+                </p>
+              </div>
+            </div>
+            <div class="w-full md:w-1/2 px-3">
+              <h2 class="text-lg font-semibold mb-4">{{ 'settings.DÉTAILS_DE_LA_CARTE' | translate }}</h2>
+              <div class="bg-white border border-gray-200 rounded-3xl py-8 px-10">
+                <!-- Card Number -->
+                <div class="mb-4">
+                  <h3 class="text-[11px] font-semibold mb-2">{{ 'settings.CARTE_DE_CRÉDIT' | translate }}</h3>
+                  <div class="flex border rounded-3xl px-4 py-2 justify-between items-center">
+                    <span class="text-[11px] truncate" disabled>
+                      {{ dataCard?.card?.card_last4 ? '✳✳✳✳ ✳✳✳✳ ✳✳✳✳ ✳✳✳✳ ' + dataCard?.card?.card_last4 : 'non disponible' }}
+                    </span>
+                    <span class="text-gray-500 text-[9px] border p-0.5">{{ dataCard?.card?.card_brand ? dataCard?.card?.card_brand : 'non disponible' }}</span>
+                  </div>
+                </div>
+                <!-- Cardholder Name -->
+                <div class="mb-4">
+                  <h3 class="text-[11px] font-semibold mb-2">{{ 'settings.NOM_DU_TITULAIRE' | translate }}</h3>
+                  <p class="text-sm border rounded-3xl px-4 py-2" disabled>{{ dataCard.first_name }} {{ dataCard.last_name }}</p>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="tab.name == 'Outils'">
+          <div class="py-4 flex gap-6">
+            <div class="h-48 w-[25rem] border rounded-3xl flex flex-col justify-between px-6 py-4 ">
+              <svg width="224" height="57" viewBox="0 0 224 57" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g clip-path="url(#clip0_176_10173)">
+                  <path
+                    d="M26.1002 50.7842C40.1411 50.7842 51.5291 39.4696 51.5291 25.5193C51.5291 11.569 40.1411 0.254395 26.1002 0.254395C12.0594 0.254395 0.671387 11.569 0.671387 25.5193C0.671387 39.4696 12.0512 50.7842 26.1002 50.7842Z"
+                    fill="#2CA01C" />
+                  <path
+                    d="M17.6212 15.6909C12.1586 15.6909 7.729 20.092 7.729 25.5194C7.729 30.9468 12.1503 35.3396 17.6212 35.3396H19.0344V31.6939H17.6212C14.1916 31.6939 11.4066 28.9269 11.4066 25.5194C11.4066 22.1118 14.1916 19.3448 17.6212 19.3448H21.0178V38.4351C21.0178 40.4467 22.6624 42.0807 24.6871 42.0807V15.6909H17.6212ZM34.5793 35.3396C40.0419 35.3396 44.4715 30.9385 44.4715 25.5194C44.4715 20.1002 40.0502 15.6991 34.5793 15.6991H33.1661V19.3448H34.5793C38.0089 19.3448 40.7939 22.1118 40.7939 25.5194C40.7939 28.9269 38.0089 31.6939 34.5793 31.6939H31.1827V12.6036C31.1827 10.592 29.5381 8.95801 27.5134 8.95801V35.3396H34.5793Z"
+                    fill="white" />
+                  <path
+                    d="M75.6691 56.9096H71.7353V47.0155H71.6692C70.6527 48.5756 68.6528 49.5526 66.4545 49.5526C61.6695 49.5526 58.7192 45.7756 58.7192 41.2186C58.7192 36.6616 61.8679 33.0077 66.3553 33.0077C69.2395 33.0077 71.0081 34.4036 71.7932 35.6434H71.8923V33.4593H75.6608V56.9096H75.6691ZM67.2479 46.2929C70.1321 46.2929 71.8675 43.7229 71.8675 41.2761C71.8675 38.8292 70.1321 36.1935 67.2479 36.1935C64.2066 36.1935 62.7274 38.7635 62.7274 41.2104C62.7274 43.649 64.1984 46.2929 67.2479 46.2929ZM93.3213 49.0928H89.5859V46.5803H89.5198C88.8339 48.1404 86.9662 49.5444 84.6357 49.5444C80.5366 49.5444 78.8342 46.4161 78.8342 43.2303V33.4593H82.768V42.1218C82.768 43.9775 83.1895 46.2847 85.7183 46.2847C88.2471 46.2847 89.3876 44.1335 89.3876 42.0561V33.4593H93.3213V49.0846V49.0928ZM97.2716 33.1227H101.205V48.7562H97.2716V33.1227ZM115.907 37.7947C115.287 36.9161 113.94 36.2592 112.659 36.2592C109.775 36.2592 108.329 38.8292 108.329 41.2761C108.329 43.7229 109.808 46.2929 112.783 46.2929C113.998 46.2929 115.337 45.8003 116.097 44.8971L118.552 47.3685C117.238 48.7644 115.073 49.5526 112.75 49.5526C108.098 49.5526 104.23 46.49 104.23 41.2843C104.23 36.0786 108.032 33.0159 112.651 33.0159C114.949 33.0159 117.337 33.9273 118.585 35.4546L115.899 37.7947H115.907ZM120.535 24.4766H124.469V40.0362H124.568L130.535 33.4593H135.584L128.766 40.5289L136.014 49.0928H130.808L124.576 41.079H124.477V49.0928H120.544V24.4848L120.535 24.4766ZM141.733 24.4766V35.4546H141.832C142.65 34.4446 144.22 33.0159 147.113 33.0159C151.6 33.0159 154.749 36.5959 154.749 41.2268C154.749 45.8577 151.799 49.5609 147.014 49.5609C144.815 49.5609 142.683 48.5509 141.609 46.7609H141.543V49.1093H137.807V24.4848H141.741L141.733 24.4766ZM146.22 36.2017C143.336 36.2017 141.601 38.8374 141.601 41.2843C141.601 43.7311 143.336 46.3011 146.22 46.3011C149.27 46.3011 150.741 43.6654 150.741 41.2186C150.741 38.7718 149.27 36.2017 146.22 36.2017ZM164.996 33.0077C169.748 33.0077 173.55 36.3003 173.55 41.2186C173.55 46.1369 169.748 49.5526 164.996 49.5526C160.245 49.5526 156.443 46.1369 156.443 41.2186C156.443 36.3003 160.245 33.0077 164.996 33.0077ZM164.996 46.2929C168.112 46.2929 169.55 43.6572 169.55 41.2104C169.55 38.7635 168.112 36.1935 164.996 36.1935C161.881 36.1935 160.443 38.7635 160.443 41.2104C160.443 43.6572 161.881 46.2929 164.996 46.2929ZM183.822 33.0077C188.574 33.0077 192.376 36.3003 192.376 41.2186C192.376 46.1369 188.574 49.5526 183.822 49.5526C179.07 49.5526 175.269 46.1369 175.269 41.2186C175.269 36.3003 179.07 33.0077 183.822 33.0077ZM183.822 46.2929C186.938 46.2929 188.376 43.6572 188.376 41.2104C188.376 38.7635 186.938 36.1935 183.822 36.1935C180.707 36.1935 179.269 38.7635 179.269 41.2104C179.269 43.649 180.707 46.2929 183.822 46.2929ZM194.756 24.4766H198.689V40.0362H198.789L204.755 33.4593H209.797L202.987 40.5289L210.226 49.0928H205.02L198.789 41.079H198.689V49.0928H194.756V24.4848V24.4766ZM220.961 37.6304C220.276 36.719 218.962 35.939 217.524 35.939C216.284 35.939 214.995 36.3988 214.995 37.6387C214.995 38.8785 216.21 39.1741 218.4 39.6914C220.73 40.2497 223.482 41.2843 223.482 44.3469C223.482 48.1568 220.366 49.5609 216.929 49.5609C214.507 49.5609 211.978 48.6494 210.466 46.9908L213.053 44.5851C213.904 45.6935 215.383 46.5392 217.086 46.5392C218.234 46.5392 219.614 46.0794 219.614 44.6836C219.614 43.3781 218.4 42.9921 216.011 42.4338C213.681 41.8755 211.358 40.9394 211.358 38.0081C211.358 34.5185 214.507 33.0323 217.623 33.0323C219.879 33.0323 222.242 33.8124 223.523 35.4053L220.978 37.6551L220.961 37.6304ZM101.809 12.1274C101.809 16.0933 104.999 18.9835 109.056 18.9835C113.114 18.9835 116.312 16.0933 116.312 12.1274V3.02979H112.379V11.6676C112.379 13.8025 110.941 15.2394 109.048 15.2394C107.156 15.2394 105.709 13.8107 105.709 11.6676V3.02979H101.784L101.809 12.1274ZM126.824 6.68363H131.518V18.6715H135.444V6.68363H140.13V3.02979H126.824V6.68363ZM124.279 3.02979H120.353V18.6797H124.279V3.02979ZM85.9497 6.68363H90.6437V18.6715H94.5692V6.68363H99.255V3.02979H85.9579V6.68363H85.9497ZM65.3388 3.02979H61.4134V18.6797H65.3388V3.02979ZM83.8836 9.57386C83.8836 5.608 80.6854 2.71777 76.6277 2.71777C72.57 2.71777 69.3718 5.608 69.3718 9.57386V18.6715H73.2972V10.0337C73.2972 7.89884 74.7352 6.46194 76.6277 6.46194C78.5202 6.46194 79.9582 7.89063 79.9582 10.0337V18.6715H83.8836V9.57386Z"
+                    fill="black" />
+                </g>
+                <defs>
+                  <clipPath id="clip0_176_10173">
+                    <rect width="222.843" height="56.6551" fill="white" transform="translate(0.671875 0.254395)" />
+                  </clipPath>
+                </defs>
+              </svg>
+
+              <div class="flex justify-end">
+                <nz-switch [nzCheckedChildren]="checkedTemplate" [nzUnCheckedChildren]="unCheckedTemplate"></nz-switch>
+                <ng-template #checkedTemplate>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M13.8346 5.53653L6.28058 13.0905C6.21479 13.1566 6.13661 13.2089 6.05053 13.2447C5.96444 13.2804 5.87215 13.2988 5.77895 13.2988C5.68574 13.2988 5.59345 13.2804 5.50737 13.2447C5.42128 13.2089 5.3431 13.1566 5.27731 13.0905L1.97243 9.78566C1.90656 9.71979 1.8543 9.64158 1.81865 9.55551C1.783 9.46944 1.76465 9.37719 1.76465 9.28403C1.76465 9.19087 1.783 9.09862 1.81865 9.01255C1.8543 8.92648 1.90656 8.84827 1.97243 8.7824C2.03831 8.71652 2.11651 8.66426 2.20258 8.62861C2.28865 8.59296 2.3809 8.57461 2.47407 8.57461C2.56723 8.57461 2.65948 8.59296 2.74555 8.62861C2.83162 8.66426 2.90982 8.71652 2.9757 8.7824L5.77954 11.5862L12.8325 4.53444C12.9655 4.4014 13.146 4.32666 13.3341 4.32666C13.5223 4.32666 13.7027 4.4014 13.8358 4.53444C13.9688 4.66748 14.0436 4.84793 14.0436 5.03608C14.0436 5.22423 13.9688 5.40467 13.8358 5.53771L13.8346 5.53653Z"
+                      fill="white" />
+                  </svg>
+                </ng-template>
+                <ng-template #unCheckedTemplate>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M13.2025 12.0882C13.3355 12.2212 13.4103 12.4017 13.4103 12.5898C13.4103 12.778 13.3355 12.9584 13.2025 13.0915C13.0694 13.2245 12.889 13.2992 12.7008 13.2992C12.5127 13.2992 12.3323 13.2245 12.1992 13.0915L8.4523 9.34337L4.70421 13.0903C4.57117 13.2233 4.39073 13.2981 4.20258 13.2981C4.01443 13.2981 3.83399 13.2233 3.70095 13.0903C3.56791 12.9572 3.49316 12.7768 3.49316 12.5886C3.49316 12.4005 3.56791 12.22 3.70095 12.087L7.44904 8.3401L3.70213 4.59201C3.56909 4.45897 3.49434 4.27853 3.49434 4.09038C3.49434 3.90223 3.56909 3.72179 3.70213 3.58874C3.83517 3.4557 4.01561 3.38096 4.20376 3.38096C4.39191 3.38096 4.57235 3.4557 4.7054 3.58874L8.4523 7.33683L12.2004 3.58815C12.3334 3.45511 12.5139 3.38037 12.702 3.38037C12.8902 3.38037 13.0706 3.45511 13.2037 3.58815C13.3367 3.7212 13.4114 3.90164 13.4114 4.08979C13.4114 4.27794 13.3367 4.45838 13.2037 4.59142L9.45557 8.3401L13.2025 12.0882Z"
+                      fill="white" />
+                  </svg>
+                </ng-template>
+              </div>
+
+
+
+            </div>
+            <div class="h-48 w-[25rem] border rounded-3xl flex flex-col justify-between px-6 py-4 ">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M13.2025 12.0882C13.3355 12.2212 13.4103 12.4017 13.4103 12.5898C13.4103 12.778 13.3355 12.9584 13.2025 13.0915C13.0694 13.2245 12.889 13.2992 12.7008 13.2992C12.5127 13.2992 12.3323 13.2245 12.1992 13.0915L8.4523 9.34337L4.70421 13.0903C4.57117 13.2233 4.39073 13.2981 4.20258 13.2981C4.01443 13.2981 3.83399 13.2233 3.70095 13.0903C3.56791 12.9572 3.49316 12.7768 3.49316 12.5886C3.49316 12.4005 3.56791 12.22 3.70095 12.087L7.44904 8.3401L3.70213 4.59201C3.56909 4.45897 3.49434 4.27853 3.49434 4.09038C3.49434 3.90223 3.56909 3.72179 3.70213 3.58874C3.83517 3.4557 4.01561 3.38096 4.20376 3.38096C4.39191 3.38096 4.57235 3.4557 4.7054 3.58874L8.4523 7.33683L12.2004 3.58815C12.3334 3.45511 12.5139 3.38037 12.702 3.38037C12.8902 3.38037 13.0706 3.45511 13.2037 3.58815C13.3367 3.7212 13.4114 3.90164 13.4114 4.08979C13.4114 4.27794 13.3367 4.45838 13.2037 4.59142L9.45557 8.3401L13.2025 12.0882Z"
+                  fill="white" />
+              </svg>
+
+
+              <div class="flex justify-end">
+                <nz-switch [nzCheckedChildren]="checkedTemplate" [nzUnCheckedChildren]="unCheckedTemplate"></nz-switch>
+                <ng-template #checkedTemplate>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M13.8346 5.53653L6.28058 13.0905C6.21479 13.1566 6.13661 13.2089 6.05053 13.2447C5.96444 13.2804 5.87215 13.2988 5.77895 13.2988C5.68574 13.2988 5.59345 13.2804 5.50737 13.2447C5.42128 13.2089 5.3431 13.1566 5.27731 13.0905L1.97243 9.78566C1.90656 9.71979 1.8543 9.64158 1.81865 9.55551C1.783 9.46944 1.76465 9.37719 1.76465 9.28403C1.76465 9.19087 1.783 9.09862 1.81865 9.01255C1.8543 8.92648 1.90656 8.84827 1.97243 8.7824C2.03831 8.71652 2.11651 8.66426 2.20258 8.62861C2.28865 8.59296 2.3809 8.57461 2.47407 8.57461C2.56723 8.57461 2.65948 8.59296 2.74555 8.62861C2.83162 8.66426 2.90982 8.71652 2.9757 8.7824L5.77954 11.5862L12.8325 4.53444C12.9655 4.4014 13.146 4.32666 13.3341 4.32666C13.5223 4.32666 13.7027 4.4014 13.8358 4.53444C13.9688 4.66748 14.0436 4.84793 14.0436 5.03608C14.0436 5.22423 13.9688 5.40467 13.8358 5.53771L13.8346 5.53653Z"
+                      fill="white" />
+                  </svg>
+                </ng-template>
+                <ng-template #unCheckedTemplate>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M13.2025 12.0882C13.3355 12.2212 13.4103 12.4017 13.4103 12.5898C13.4103 12.778 13.3355 12.9584 13.2025 13.0915C13.0694 13.2245 12.889 13.2992 12.7008 13.2992C12.5127 13.2992 12.3323 13.2245 12.1992 13.0915L8.4523 9.34337L4.70421 13.0903C4.57117 13.2233 4.39073 13.2981 4.20258 13.2981C4.01443 13.2981 3.83399 13.2233 3.70095 13.0903C3.56791 12.9572 3.49316 12.7768 3.49316 12.5886C3.49316 12.4005 3.56791 12.22 3.70095 12.087L7.44904 8.3401L3.70213 4.59201C3.56909 4.45897 3.49434 4.27853 3.49434 4.09038C3.49434 3.90223 3.56909 3.72179 3.70213 3.58874C3.83517 3.4557 4.01561 3.38096 4.20376 3.38096C4.39191 3.38096 4.57235 3.4557 4.7054 3.58874L8.4523 7.33683L12.2004 3.58815C12.3334 3.45511 12.5139 3.38037 12.702 3.38037C12.8902 3.38037 13.0706 3.45511 13.2037 3.58815C13.3367 3.7212 13.4114 3.90164 13.4114 4.08979C13.4114 4.27794 13.3367 4.45838 13.2037 4.59142L9.45557 8.3401L13.2025 12.0882Z"
+                      fill="white" />
+                  </svg>
+                </ng-template>
+              </div>
+
+
+            </div>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="tab.name == 'Compte'">
+          <div class="p-4">
+            <div class="">
+              <div class="flex flex-col-reverse md:flex-row space-y-6 md:space-y-0 md:space-x-6">
+                <!-- Left Section -->
+                <div class="w-full md:w-2/3">
+                  <!-- Form -->
+                  <form [formGroup]="form" [ngClass]="isEditingCase ? 'animate__fadeIn animate__animated' : 'animate__animated'" class="grid grid-cols-2 gap-4 relative">
+                    <div class="relative">
+                      <label class="block text-gray-600 text-sm">{{ 'settings.NOM_DUTILISATEUR' | translate }}</label>
+                      <input formControlName="first_name" type="text" placeholder="Jean"
+                             [ngClass]="{'border-red': form.get('first_name')?.invalid && form.get('first_name')?.touched}"
+                             class="w-full mt-1 px-4 py-3 border rounded-3xl outline-none pl-3 text-gray-700 text-sm" />
+                      <div *ngIf="form.get('first_name')?.invalid && form.get('first_name')?.touched" class="text-red pl-4 animate__animated animate__fadeInDown text-sm absolute -bottom-5 left-0">
+                        <small>{{ 'settings.NOM_DUTILISATEUR_EST_REQUIS' | translate }}</small>
+                      </div>
+                    </div>
+
+                    <div class="relative">
+                      <label class="block text-gray-600 text-sm">{{ 'settings.PRÉNOM' | translate }}</label>
+                      <input formControlName="last_name" type="text" placeholder="Pastore" autocomplete="off"
+                             [ngClass]="{'border-red': form.get('last_name')?.invalid && form.get('last_name')?.touched}"
+                             class="w-full mt-1 px-4 py-3 border rounded-3xl outline-none pl-3 text-gray-700 text-sm" />
+                      <div *ngIf="form.get('last_name')?.invalid && form.get('last_name')?.touched" class="text-red pl-4 animate__animated animate__fadeInDown text-sm absolute -bottom-5 left-0">
+                        <small>{{ 'settings.PRÉNOM_EST_REQUIS' | translate }}</small>
+                      </div>
+                    </div>
+
+                    <div class="relative">
+                      <label class="block text-gray-600 text-sm">{{ 'settings.TÉLÉPHONE' | translate }}</label>
+                      <input formControlName="phone" type="text" placeholder="Téléphone" autocomplete="off"
+                             [ngClass]="{'border-red': form.get('phone')?.invalid && form.get('phone')?.touched}"
+                             class="w-full mt-1 px-4 py-3 border rounded-3xl outline-none pl-3 text-gray-700 text-sm" />
+                      <div *ngIf="form.get('phone')?.invalid && form.get('phone')?.touched" class="text-red pl-4 animate__animated animate__fadeInDown text-sm absolute -bottom-5 left-0">
+                        <small>{{ 'settings.TÉLÉPHONE_EST_REQUIS' | translate }}</small>
+                      </div>
+                    </div>
+
+
+                    <div class="relative">
+                      <label class="block text-gray-600 text-sm">{{ 'settings.EMAIL' | translate }}</label>
+                      <input formControlName="email" type="email" placeholder="jean.pastore@gmail.com" autocomplete="off"
+                             [ngClass]="{'border-red': form.get('email')?.invalid && form.get('email')?.touched}"
+                             class="w-full mt-1 px-4 py-3 border rounded-3xl outline-none pl-3 text-gray-700 text-sm" />
+                      <div *ngIf="form.get('email')?.invalid && form.get('email')?.touched" class="text-red pl-4 animate__animated animate__fadeInDown text-sm absolute -bottom-5 left-0">
+                        <small>{{ 'settings.EMAIL_EST_REQUIS' | translate }}</small>
+                      </div>
+                    </div>
+
+
+                  </form>
+
+                </div>
+
+                <!-- Right Section: Profile Image -->
+                <div class="w-full mb-2 md:w-1/3 flex flex-col  max-md:items-start items-center   max-md:m-0 max-md:px-0 m-4 rounded-xl px-4 py-4 space-y-4">
+                  <span class="font-semibold text-sm">{{ 'settings.IMAGE_DE_PROFIL' | translate }}</span>
+                  <div class="flex flex-col  max-md:flex-row items-center justify-center">
+                    <img
+                      [src]="avatarUrl || 'https://st.depositphotos.com/1779253/5140/v/600/depositphotos_51405259-stock-illustration-male-avatar-profile-picture-use.jpg'"
+                      class="w-20 object-cover mb-1 h-20 rounded-full border-4 border-blue-600" alt="Profile Image" />
+                                    <div class="space-y-2">
+                    <button
+                      (click)="ShowModalUploadImage()"
+                      class="flex items-center justify-center w-full h-8 px-4 py-2 text-sm text-[#248A88] bg-white border border-gray-200 rounded-2xl hover:bg-gray-100 transition duration-200"
+                    >
+                      <span class="mr-2 ">{{ 'settings.MODIFIER' | translate }}</span>
+                      <svg class="h-6" width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M14.0632 5.14337L14.1533 5.19537C14.9314 5.64459 15.5802 6.01918 16.0554 6.38582C16.5568 6.77281 16.9549 7.21701 17.1216 7.83919C17.2883 8.46137 17.1657 9.04507 16.9249 9.63096C16.6968 10.186 16.3221 10.8349 15.8729 11.613L11.9973 18.3257C11.7004 18.841 11.4656 19.2484 11.1083 19.5555C10.7509 19.8625 10.3127 20.0333 9.75862 20.2492L9.60887 20.3077C8.58066 20.7094 7.7331 21.0406 7.03904 21.2028C6.31315 21.3723 5.61229 21.3935 4.95902 21.0163C4.30575 20.6391 3.97359 20.0216 3.75752 19.3082C3.55092 18.626 3.41394 17.7264 3.24775 16.6351L3.2235 16.4762C3.13347 15.8883 3.06228 15.4235 3.14952 14.9605C3.16042 14.9026 3.17364 14.8456 3.18901 14.7892C3.29659 14.394 3.50943 14.0261 3.77 13.5756L7.64562 6.86296C8.09483 6.08484 8.46942 5.43598 8.83606 4.96087C9.22305 4.45939 9.66725 4.06136 10.2894 3.89465C10.9116 3.72793 11.4953 3.85054 12.0812 4.09134C12.6363 4.31948 13.2851 4.69411 14.0632 5.14337ZM8.54365 8.30751L14.1728 11.5575L10.7494 17.4871C10.3764 18.1331 10.2698 18.2982 10.1307 18.4177C9.99161 18.5373 9.81226 18.6178 9.11749 18.8892C8.02102 19.3176 7.27425 19.6074 6.69778 19.7421C6.1409 19.8722 5.88821 19.8207 5.70902 19.7172C5.52982 19.6138 5.35889 19.4207 5.19312 18.8734C5.02153 18.3068 4.89909 17.5152 4.72185 16.3514C4.60954 15.614 4.58963 15.4184 4.62358 15.2382C4.65753 15.058 4.74726 14.8831 5.12022 14.2371L8.54365 8.30751ZM15.5375 9.06074C15.405 9.38318 15.2023 9.76231 14.9212 10.2576L9.29522 7.00938C9.58361 6.51835 9.8106 6.15326 10.0236 5.87728C10.308 5.50866 10.4996 5.39124 10.6777 5.34354C10.8557 5.29584 11.0803 5.30173 11.511 5.47873C11.9618 5.66401 12.5234 5.98641 13.3582 6.46841C14.1931 6.95042 14.7531 7.27558 15.139 7.57334C15.5076 7.8578 15.625 8.0494 15.6727 8.22742C15.7204 8.40544 15.7145 8.63008 15.5375 9.06074Z" fill="#248A88"/>
+                        <path d="M12.7002 20.6717C12.7002 20.2574 13.036 19.9217 13.4502 19.9217H19.4502C19.8644 19.9217 20.2002 20.2574 20.2002 20.6717C20.2002 21.0859 19.8644 21.4217 19.4502 21.4217H13.4502C13.036 21.4217 12.7002 21.0859 12.7002 20.6717Z" fill="#248A88"/>
+                      </svg>
+                    </button>
+                    <button
+                      class="flex items-center justify-center w-full h-8 px-4 py-2 text-sm text-[#F43F5E] bg-white border border-gray-200 rounded-2xl hover:bg-gray-100 transition duration-200"
+                      (click)="isOpenDeleteModal=true"
+                    >
+                      <span class="mr-2">{{ 'settings.SUPPRIMER' | translate }}</span>
+                      <svg class="h-4" width="19" height="22" viewBox="0 0 19 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M9.54053 0.249023C6.91717 0.249023 4.79053 2.37567 4.79053 4.99902V5.24902H1.54053C1.12631 5.24902 0.790527 5.58481 0.790527 5.99902C0.790527 6.41324 1.12631 6.74902 1.54053 6.74902H17.5405C17.9547 6.74902 18.2905 6.41324 18.2905 5.99902C18.2905 5.58481 17.9547 5.24902 17.5405 5.24902H14.2905V4.99902C14.2905 2.37567 12.1639 0.249023 9.54053 0.249023ZM9.54053 1.74902C11.3355 1.74902 12.7905 3.2041 12.7905 4.99902V5.24902H6.29053V4.99902C6.29053 3.2041 7.7456 1.74902 9.54053 1.74902Z" fill="#F43F5E"/>
+                        <path d="M3.28716 7.92808C3.24799 7.51573 2.88194 7.21321 2.46959 7.25239C2.05723 7.29157 1.75471 7.65761 1.79389 8.06996C1.88836 9.06424 2.05885 10.2893 2.27801 11.8641L2.55955 13.8872C2.82872 15.8219 2.98137 16.9191 3.31162 17.818C3.92623 19.4908 5.02258 20.8319 6.43258 21.4269C7.19826 21.75 8.07405 21.7496 9.37786 21.7491H9.7032C11.007 21.7496 11.8828 21.75 12.6485 21.4269C14.0585 20.8319 15.1548 19.4908 15.7694 17.818C16.0997 16.9191 16.2523 15.8219 16.5215 13.8871L16.803 11.8641C17.0222 10.2893 17.1927 9.06425 17.2872 8.06996C17.3263 7.65761 17.0238 7.29157 16.6115 7.25239C16.1991 7.21321 15.8331 7.51573 15.7939 7.92808C15.7029 8.88605 15.537 10.0791 15.3149 11.6751L15.0526 13.5602C14.762 15.6478 14.629 16.5726 14.3615 17.3007C13.8456 18.7048 12.9877 19.6556 12.0653 20.0449C11.6151 20.2348 11.0697 20.249 9.54053 20.249C8.01136 20.249 7.46596 20.2348 7.01576 20.0449C6.09332 19.6556 5.23549 18.7048 4.7196 17.3007C4.45209 16.5726 4.31903 15.6478 4.0285 13.5602L3.76617 11.6751C3.54405 10.0791 3.37818 8.88605 3.28716 7.92808Z" fill="#F43F5E"/>
+                      </svg>
+                    </button>
+                  </div>
+                    </div>
+
+                </div>
+              </div>
+
+              <div class="flex justify-end py-2 space-x-2">
+                <ng-container *ngIf="!isEditingCase; else btnEdit">
+                  <button
+                    (click)="changeModeEditing()"
+                    class="text-[#2C52F5] animate__flipInX animate__animated  text-[11px] bg-[#FAFAFA] rounded-3xl border py-2 px-4 hover:text-blue-700 font-semibold">
+                    Modifier
+                  </button>
+                </ng-container>
+                <ng-template #btnEdit>
+                  <button
+                    (click)="changeModeEditing()"
+                    class="text-[#2C52F5] animate__flipInX animate__animated  text-[11px] bg-[#FAFAFA] rounded-3xl border py-2 px-4 hover:text-blue-700 font-semibold">
+                    Annuler
+                  </button>
+                </ng-template>
+
+                <button
+                  nz-button
+                  [nzLoading]="isSaving"
+                  (click)="HandleComfirmDialog()"
+                  class="bg-[#2C52F5] text-[11px] hover:bg-[#2C52F5]/75 text-white font-semibold py-2 px-4 rounded-3xl">
+                  Valider
+                </button>
+              </div>
+            </div>
+            <div>
+
+              <div [formGroup]="passwordForm" class="font-Jakarta md:w-3/4 flex flex-col md:flex-row items-start justify-evenly gap-4 p-4 rounded-lg bg-white">
+                <!-- Champ de mot de passe -->
+                <div class="w-full">
+                  <label for="password" class="block text-sm font-medium text-gray-700">Nouveau mot de passe</label>
+                  <nz-input-group class="rounded-2xl py-2 px-2.5" [nzPrefix]="lockIcon">
+                    <input
+                      class="outline-none w-full"
+                      nz-input
+                      type="password"
+                      id="password"
+                      formControlName="password"
+                      placeholder="Mot de passe"
+                    />
+                  </nz-input-group>
+                  <ng-template #lockIcon>
+                    <i nz-icon nzType="lock" nzTheme="outline"></i>
+                  </ng-template>
+                  <div *ngIf="passwordForm.get('password')?.invalid && passwordForm.get('password')?.touched" class="text-red text-xs mt-1">
+                    <div *ngIf="passwordForm.get('password')?.errors?.['required']">Le mot de passe est requis.</div>
+                    <div *ngIf="passwordForm.get('password')?.errors?.['minlength']">Le mot de passe doit contenir au moins 8 caractères.</div>
+                    <div *ngIf="passwordForm.get('password')?.errors?.['pattern']">Le mot de passe doit contenir une majuscule, une minuscule, un chiffre et un caractère spécial.</div>
+                  </div>
+                </div>
+
+                <!-- Champ de confirmation du mot de passe -->
+                <div class="w-full">
+                  <label for="repeat-password" class="block text-sm font-medium text-gray-700">Répéter le nouveau mot de passe</label>
+                  <nz-input-group class="rounded-2xl py-2 px-2.5" [nzPrefix]="lockIcon">
+                    <input
+                      class="w-full outline-none"
+                      nz-input
+                      type="password"
+                      id="repeat-password"
+                      formControlName="confirmPassword"
+                      placeholder="Répétez Mot de passe"
+                    />
+                  </nz-input-group>
+                  <div class="text-red text-xs mt-1" *ngIf="passwordForm.errors?.['passwordsMismatch'] && passwordForm.get('confirmPassword')?.touched">
+                    Les mots de passe ne correspondent pas !
+                  </div>
+                </div>
+
+                <!-- Bouton de changement de mot de passe -->
+                <button
+                  nz-button
+                  nzType="default"
+                  class="h-10 rounded-xl bg-dark-blue text-white w-full md:w-auto px-4 py-2 self-stretch md:self-end"
+                  [disabled]="passwordForm.invalid"
+                  (click)="changePassword()"
+                >
+                  Changer
+                </button>
+              </div>
+
+
+
+            </div>
+          </div>
+
+        </ng-container>
+        <ng-container *ngIf="tab.name == 'Paiements en retard'">
+          <div class="max-w-6xl mx-auto py-10 px-4">
+            <!-- Invoice settings -->
+            <div class="flex justify-between items-start mb-10">
+              <!-- Invoice sending interval -->
+              <div class="w-1/3">
+                <h2 class="text-xs text-[#62666C] mb-4">{{ 'settings.ENVOI_DE_FACTURE_AUTOMATIQUE' | translate }}</h2>
+                <div class="flex items-center">
+                  <input type="number" value="10" class="w-16 p-2 border rounded-md text-center text-[10px]" />
+                  <span class="ml-2 text-xs font-medium">{{ 'settings.JOURS' | translate }}</span>
+                </div>
+              </div>
+
+              <!-- Invoice template upload -->
+              <div class="w-1/3 text-center">
+                <h2 class="text-xs text-[#62666C] mb-4">{{ 'settings.MODÈLE_DE_FACTURE' | translate }}</h2>
+                <nz-upload class="bg-red" nzType="drag" nzAccept=".pdf" [nzMultiple]="true" (nzChange)="handleChange($event)">
+                  <p class="ant-upload-drag-icon">
+                    <span nz-icon nzType="inbox"></span>
+                  </p>
+                  <p class="ant-upload-text text-[10px]">{{ 'settings.PARCOUREZ_VOTRE_FICHIER_À_TÉLÉCHARGER_!' | translate }}</p>
+                  <p class="ant-upload-hint text-[10px]">{{ 'settings.FORMAT_PRIS_EN_CHARGE_:_PDF' | translate }}</p>
+                  <div class="flex justify-center items-center">
+                    <button
+                      class="text-white mt-4 text-[10px] bg-[#5DBF96] rounded-3xl border py-2 px-4 hover:text-blue-700 font-semibold flex justify-center items-center">
+                      Parcourir le fichier
+                      <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                          d="M14.6168 9.34981V13.3095C14.6168 13.5065 14.5386 13.6953 14.3994 13.8345C14.2601 13.9738 14.0713 14.052 13.8744 14.052H2.98513C2.78822 14.052 2.59937 13.9738 2.46013 13.8345C2.3209 13.6953 2.24268 13.5065 2.24268 13.3095V9.34981C2.24268 9.1529 2.3209 8.96406 2.46013 8.82482C2.59937 8.68559 2.78822 8.60736 2.98513 8.60736C3.18204 8.60736 3.37088 8.68559 3.51012 8.82482C3.64935 8.96406 3.72758 9.1529 3.72758 9.34981V12.5671H13.1319V9.34981C13.1319 9.1529 13.2102 8.96406 13.3494 8.82482C13.4886 8.68559 13.6775 8.60736 13.8744 8.60736C14.0713 8.60736 14.2601 8.68559 14.3994 8.82482C14.5386 8.96406 14.6168 9.1529 14.6168 9.34981ZM6.48021 5.4204L7.68731 4.21453V9.34981C7.68731 9.54672 7.76553 9.73557 7.90477 9.8748C8.044 10.014 8.23285 10.0923 8.42976 10.0923C8.62667 10.0923 8.81551 10.014 8.95475 9.8748C9.09398 9.73557 9.17221 9.54672 9.17221 9.34981V4.21453L10.3793 5.42225C10.4484 5.49132 10.5304 5.5461 10.6206 5.58348C10.7108 5.62085 10.8075 5.64009 10.9052 5.64009C11.0029 5.64009 11.0996 5.62085 11.1898 5.58348C11.2801 5.5461 11.362 5.49132 11.4311 5.42225C11.5002 5.35319 11.555 5.2712 11.5923 5.18097C11.6297 5.09073 11.6489 4.99402 11.6489 4.89635C11.6489 4.79868 11.6297 4.70197 11.5923 4.61174C11.555 4.5215 11.5002 4.43951 11.4311 4.37045L8.95628 1.89562C8.8873 1.8264 8.80534 1.77148 8.71509 1.73401C8.62485 1.69654 8.52809 1.67725 8.43038 1.67725C8.33266 1.67725 8.2359 1.69654 8.14566 1.73401C8.05541 1.77148 7.97345 1.8264 7.90447 1.89562L5.42964 4.37045C5.36058 4.43951 5.3058 4.5215 5.26842 4.61174C5.23104 4.70197 5.21181 4.79868 5.21181 4.89635C5.21181 5.0936 5.29016 5.28278 5.42964 5.42225C5.56912 5.56173 5.75829 5.64009 5.95554 5.64009C6.15279 5.64009 6.34197 5.56173 6.48145 5.42225L6.48021 5.4204Z"
+                          fill="white" />
+                      </svg>
+                    </button>
+                  </div>
+                </nz-upload>
+              </div>
+            </div>
+
+            <!-- Payment overdue list -->
+            <h2 class="text-xs text-[#62666C] mb-4">{{ 'settings.LISTES_DES_PAYMENTS_EN_RETARDS' | translate }}</h2>
+            <div class="flex bg-[#F7F7F7] flex-col gap-2 rounded-lg border p-2">
+              <!-- Single Payment Row -->
+              <div class="flex border rounded-3xl bg-white justify-between items-center p-4 border-b">
+                <div class="flex items-center">
+                  <!-- Avatar -->
+                  <div
+                    class="w-10 h-10 rounded-full bg-[#EEF1FF] text-[#2C52F5] flex items-center justify-center font-semibold text-md mr-4">
+                    AF
+                  </div>
+                  <div>
+                    <p class="font-medium text-xs">{{ 'settings.ADAM_FIYE' | translate }}</p>
+                    <p class="text-[10px] text-gray-400">{{ 'settings.30_JUIN_2024' | translate }}</p>
+                  </div>
+                </div>
+                <p class="text-red-500 font-bold text-xs">{{ 'settings.180,00_€' | translate }}</p>
+              </div>
+
+              <div class="flex border rounded-3xl bg-white justify-between items-center p-4 border-b">
+                <div class="flex items-center">
+                  <div
+                    class="w-10 h-10 rounded-full bg-[#EEF1FF] text-[#2C52F5] flex items-center justify-center font-semibold text-md mr-4">
+                    AF
+                  </div>
+                  <div>
+                    <p class="font-medium text-xs">{{ 'settings.TOM_FORD' | translate }}</p>
+                    <p class="text-[10px] text-gray-400">{{ 'settings.30_JUIN_2024' | translate }}</p>
+                  </div>
+                </div>
+                <p class="text-red-500 font-bold text-xs">{{ 'settings.180,00_€' | translate }}</p>
+              </div>
+            </div>
+          </div>
+
+
+        </ng-container>
+      </nz-tab>
+      }
+    </nz-tabset>
+  </div>
+</app-page-template>

@@ -1,0 +1,272 @@
+<app-page-template titleNavbar="Informations de l'utilisateur" sideIconPath="assets/icons/colored/users.svg">
+
+  <ng-container *ngIf="!GetUserDetailsQuery.isLoading()">
+    <div class="min-h-screen font-Jakarta">
+      <!-- Client Description -->
+      <div class="bg-white p-6 rounded-3xl mb-6">
+        <div class="flex flex-col space-y-4 md:space-y-0 md:flex-row justify-between">
+          <div class="w-full">
+            <h2 class="text-lg font-semibold text-[#0D204E]">
+              {{ 'user_details.description' | translate }}
+            </h2>
+            <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+              <div>
+                <span class="block font-medium text-gray-500">
+                  {{ 'user_details.first_name' | translate }}
+                </span>
+                <span class="block text-gray-900">
+                  {{ GetUserDetailsQuery.data()?.first_name }}
+                </span>
+              </div>
+              <div>
+                <span class="block font-medium text-gray-500">
+                  {{ 'user_details.last_name' | translate }}
+                </span>
+                <span class="block text-gray-900">
+                  {{ GetUserDetailsQuery.data()?.last_name }}
+                </span>
+              </div>
+              <div>
+                <span class="block font-medium text-gray-500">
+                  {{ 'user_details.phone' | translate }}
+                </span>
+                <span class="block text-gray-900">
+                  {{ GetUserDetailsQuery.data()?.phone }}
+                </span>
+              </div>
+              <div>
+                <span class="block font-medium text-gray-500">
+                  {{ 'user_details.email' | translate }}
+                </span>
+                <span class="block text-gray-900">
+                  {{ GetUserDetailsQuery.data()?.email }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Invoice History -->
+      <div class="bg-white p-6 rounded-3xl ">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-lg font-semibold text-gray-800">{{'user_details.subscription_history' | translate}}</h2>
+        </div>
+
+
+
+        <!-- Subscription Table -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left min-w-[900px] table-fixed">
+            <thead>
+              <tr class="bg-white border-b">
+                <th class="p-2 text-[#475467] text-center">
+                  {{ "user_details.type" | translate }}
+                </th>
+                <th class="p-2 text-[#475467] text-center">
+                  {{ "user_details.creation_date" | translate }}
+                </th>
+                <th class="p-2 text-[#475467] text-center">
+                  {{ "user_details.status" | translate }}
+                </th>
+                <th class="p-2 text-[#475467] text-center">
+                  {{ "user_details.ends_on" | translate }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Skeleton Loading State -->
+              <ng-container *ngIf="GetUserDetailsQuery.isLoading(); else content">
+                <tr *ngFor="let _ of [1, 2, 3, 4]" class="border-b">
+                  <td class="p-2 text-center"><div class="animate-pulse bg-gray-300 h-4 w-4 rounded"></div></td>
+                  <td class="p-2 text-center"><div class="animate-pulse bg-gray-300 h-6 w-20"></div></td>
+                  <td class="p-2 text-center"><div class="animate-pulse bg-gray-300 h-6 w-24"></div></td>
+                  <td class="p-2 text-center"><div class="animate-pulse bg-gray-300 h-6 w-16"></div></td>
+                  <td class="p-2 text-center"><div class="animate-pulse bg-gray-300 h-6 w-20"></div></td>
+                </tr>
+              </ng-container>
+        
+              <!-- Data and Empty State -->
+              <ng-template #content>
+                <ng-container *ngIf="GetUserDetailsQuery.data()?.subscriptions?.length > 0; else empty">
+                  <tr *ngFor="let subscription of GetUserDetailsQuery.data()?.subscriptions" class="border-b">
+                    <td class="p-2 text-[#248A88] font-semibold text-center">
+                      {{ subscription.type }}
+                    </td>
+                    <td class="p-2 text-[#878E9C] text-center">
+                      {{ subscription.created_at | date:'yyyy-MM-dd' }}
+                    </td>
+                    <td class="p-2 text-center">
+                      <nz-tag class="rounded-3xl"
+                      [nzColor]="subscription.stripe_status == 'active' ? 'green' : (subscription.stripe_status == 'incomplete' ? 'orange' : 'red')"                              [nzBordered]="false">
+                              {{ subscription.stripe_status == 'active' 
+                              ? 'Actif' 
+                              : (subscription.stripe_status == 'incomplete' 
+                                   ? 'Incomplet' 
+                                   : 'Annulé') }}
+                          
+                      </nz-tag>
+                    </td>
+                    <td class="p-2 text-center">
+                      {{ subscription.ends_at ? (subscription.ends_at | date:'yyyy-MM-dd') : '--' }}
+                    </td>
+                  </tr>
+                </ng-container>
+        
+                <!-- Empty State -->
+                <ng-template #empty>
+                  <tr>
+                    <td colspan="5" class="p-4 text-center text-gray-500">
+                      {{ "user_details.No_subscriptions_available" | translate }}.
+                    </td>
+                  </tr>
+                </ng-template>
+              </ng-template>
+            </tbody>
+          </table>
+        </div>
+        
+
+
+        <!-- Pagination -->
+        <div class="flex justify-end p-2">
+          <nz-pagination
+            (nzPageIndexChange)="changePage($event)"
+            [nzPageIndex]="GetUserDetailsQuery.data()?.current_page"
+            [nzTotal]="GetUserDetailsQuery.data()?.total">
+          </nz-pagination>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+
+  <ng-container  *ngIf="GetUserDetailsQuery.isLoading()">
+    <div class="min-h-screen font-Jakarta animate-pulse">
+      <!-- Client Description Skeleton -->
+      <div class="bg-white p-6 rounded-3xl mb-6">
+        <div class="flex justify-between">
+          <div>
+            <h2 class="text-lg font-semibold w-full text-gray-300">Description de client</h2>
+            <div class="mt-4 grid grid-cols-4 gap-6">
+              <div>
+                <span class="block bg-gray-50 h-5 w-16 rounded-md"></span>
+                <span class="block bg-gray-50 h-5 w-32 rounded-md mt-2"></span>
+              </div>
+              <div>
+                <span class="block bg-gray-50 h-5 w-16 rounded-md"></span>
+                <span class="block bg-gray-50 h-5 w-32 rounded-md mt-2"></span>
+              </div>
+              <div>
+                <span class="block bg-gray-50 h-5 w-20 rounded-md"></span>
+                <span class="block bg-gray-50 h-5 w-40 rounded-md mt-2"></span>
+              </div>
+              <div>
+                <span class="block bg-gray-50 h-5 w-16 rounded-md"></span>
+                <span class="block bg-gray-50 h-5 w-32 rounded-md mt-2"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Invoice History Skeleton -->
+      <div class="bg-white p-6 rounded-3xl">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-lg font-semibold w-64 h-6 bg-gray-50 rounded-md"></h2>
+        </div>
+
+        <!-- Search & Filter Skeleton -->
+        <div class="flex flex-wrap items-center gap-4 mb-4">
+          <div class="relative flex items-center w-full">
+            <div class="bg-gray-50 h-10 w-full rounded-md"></div>
+          </div>
+        </div>
+
+        <!-- Invoice Table Skeleton -->
+        <table class="w-full text-left table-fixed">
+          <thead>
+          <tr class="bg-white border-b">
+            <th class="p-2 w-12 text-center bg-gray-50 rounded-md"></th>
+            <th class="p-2 text-gray-50 text-center h-5 w-20 rounded-md"></th>
+            <th class="p-2 text-gray-50 text-center h-5 w-20 rounded-md"></th>
+            <th class="p-2 text-gray-50 text-center h-5 w-20 rounded-md"></th>
+          </tr>
+          </thead>
+          <tbody>
+          <!-- Repeat skeleton row for table rows -->
+          <tr class="border-b">
+            <td class="p-2 text-center">
+              <div class="bg-gray-50 h-5 w-5 rounded-full"></div>
+            </td>
+            <td class="p-2">
+              <div class="bg-gray-50 h-6 w-16 mx-auto rounded-md"></div>
+            </td>
+            <td class="p-2">
+              <div class="bg-gray-50 h-6 w-16 mx-auto rounded-md"></div>
+            </td>
+            <td class="p-2">
+              <div class="bg-gray-50 h-6 w-12 mx-auto rounded-md"></div>
+            </td>
+          </tr>
+          <tr class="border-b">
+            <td class="p-2 text-center">
+              <div class="bg-gray-50 h-5 w-5 rounded-full"></div>
+            </td>
+            <td class="p-2">
+              <div class="bg-gray-50 h-6 w-16 mx-auto rounded-md"></div>
+            </td>
+            <td class="p-2">
+              <div class="bg-gray-50 h-6 w-16 mx-auto rounded-md"></div>
+            </td>
+            <td class="p-2">
+              <div class="bg-gray-50 h-6 w-12 mx-auto rounded-md"></div>
+            </td>
+          </tr>
+          <tr class="border-b">
+            <td class="p-2 text-center">
+              <div class="bg-gray-50 h-5 w-5 rounded-full"></div>
+            </td>
+            <td class="p-2">
+              <div class="bg-gray-50 h-6 w-16 mx-auto rounded-md"></div>
+            </td>
+            <td class="p-2">
+              <div class="bg-gray-50 h-6 w-16 mx-auto rounded-md"></div>
+            </td>
+            <td class="p-2">
+              <div class="bg-gray-50 h-6 w-12 mx-auto rounded-md"></div>
+            </td>
+          </tr>
+          <tr class="border-b">
+            <td class="p-2 text-center">
+              <div class="bg-gray-50 h-5 w-5 rounded-full"></div>
+            </td>
+            <td class="p-2">
+              <div class="bg-gray-50 h-6 w-16 mx-auto rounded-md"></div>
+            </td>
+            <td class="p-2">
+              <div class="bg-gray-50 h-6 w-16 mx-auto rounded-md"></div>
+            </td>
+            <td class="p-2">
+              <div class="bg-gray-50 h-6 w-12 mx-auto rounded-md"></div>
+            </td>
+          </tr>
+          <!-- Add more rows as needed -->
+          </tbody>
+        </table>
+
+        <!-- Pagination Skeleton -->
+        <div class="flex justify-between items-center mt-4">
+          <span class="bg-gray-50 h-5 w-20 rounded-md"></span>
+          <div class="flex items-center gap-2">
+            <div class="bg-gray-50 h-8 w-8 rounded-md"></div>
+            <div class="bg-gray-50 h-8 w-16 rounded-md"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+
+</app-page-template>

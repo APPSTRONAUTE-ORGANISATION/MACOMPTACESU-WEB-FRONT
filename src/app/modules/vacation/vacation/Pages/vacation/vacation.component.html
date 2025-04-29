@@ -1,0 +1,201 @@
+
+<nz-modal [(nzVisible)]="ShowDeleteModal" [nzTitle]="DeleteModalTitleInvoices" [nzFooter]="null"
+  [nzContent]="DeleteModalContentInvoices" (nzOnCancel)="handleCancelDeleteModal()">
+  <ng-template #DeleteModalTitleInvoices>
+    <div class="h-14 bg-[#F13759]">
+    </div>
+  </ng-template>
+
+  <ng-template #DeleteModalContentInvoices>
+
+    <div class="flex p-6 flex-col items-center">
+      <div class="bg-[#F13759] text-white p-3 rounded-full mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+      </div>
+      <h2 class="text-xl font-bold text-[#F13759] mb-4">Attention</h2>
+      <p class="text-gray-700 text-center mb-6">Voulez-vous vraiment supprimer la semaine {{SelectedWeek}} de l'année {{SelectedYear.getFullYear()}} ?</p>
+      <div class="flex justify-center w-full space-x-4">
+        <button
+          class="px-4 py-2 h-10 cursor-pointer border border-gray-300 rounded-full text-gray-600 hover:bg-gray-100 transition duration-200"
+          (click)="handleCancelDeleteModal()">Annuler</button>
+        <button nz-button nzType="text" [nzLoading]="IsAdding"
+          class="px-4 py-2 h-10 cursor-pointer bg-[#F13759] text-white rounded-full hover:bg-red transition duration-200"
+          (click)="HandleComfirmDeleteModal()">Supprimer</button>
+      </div>
+    </div>
+  </ng-template>
+</nz-modal>
+
+<!-- Modal -->
+<nz-modal
+  [(nzVisible)]="isModalVisible"
+  (nzOnCancel)="closeModal()"
+
+  [nzFooter]="null" 
+>
+<ng-container *nzModalContent>
+  <div class="bg-blue font-Jakarta text-white text-center py-4 rounded-t-lg">
+    <h2 class="text-xl text-white font-semibold">Ajouter un congé</h2>
+  </div>
+  
+  <div class="p-6 space-y-6">
+    <form nz-form [formGroup]="yearWeekForm" >
+      
+      <!-- Week Selection -->
+      <div class="form-group space-y-2">
+        <label for="week" class="block text-sm font-medium text-gray-700">Semaine</label>
+        <nz-date-picker 
+          formControlName="week"
+          [(ngModel)]="SemaineYear"
+          [nzMode]="'week'" 
+          [nzPlaceHolder]="'Sélectionner la Semaine'"
+          [nzAllowClear]="false"
+          class="w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </nz-date-picker>
+      </div>
+      
+      
+      <!-- Ajouter Button -->
+      <button nz-button 
+              [disabled]="yearWeekForm.invalid && IsAdding"
+              
+              (click)="submit()"
+              class="w-full mt-4 bg-blue hover:bg-blue text-white font-medium py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-gray-300 disabled:cursor-not-allowed"
+              nzType="primary" 
+              >
+        {{IsAdding ? 'En cours...' : 'Ajouter' }}
+      </button>
+    </form>
+  </div>
+</ng-container>
+
+</nz-modal>
+
+
+
+
+<div>
+    <div class="flex font-Jakarta  justify-start items-center mb-4">
+        <button (click)="openModalAdd()" class="flex justify-center items-center bg-[#2C52F5] text-white px-4 py-2  rounded-full">
+            <svg width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3.53471 18.1882L3.97555 17.5814L3.53471 18.1882ZM2.42855 17.082L3.03531 16.6412L2.42855 17.082ZM18.5187 17.082L17.912 16.6412L18.5187 17.082ZM17.4126 18.1882L16.9717 17.5814L17.4126 18.1882ZM17.4126 2.09798L16.9717 2.70474L17.4126 2.09798ZM18.5187 3.20414L17.912 3.64498L18.5187 3.20414ZM3.53471 2.09798L3.97555 2.70474L3.53471 2.09798ZM2.42855 3.20414L3.03531 3.64498L2.42855 3.20414ZM7.47363 9.39307C7.05942 9.39307 6.72363 9.72885 6.72363 10.1431C6.72363 10.5573 7.05942 10.8931 7.47363 10.8931V9.39307ZM13.4736 10.8931C13.8878 10.8931 14.2236 10.5573 14.2236 10.1431C14.2236 9.72885 13.8878 9.39307 13.4736 9.39307V10.8931ZM9.72363 13.1431C9.72363 13.5573 10.0594 13.8931 10.4736 13.8931C10.8878 13.8931 11.2236 13.5573 11.2236 13.1431H9.72363ZM11.2236 7.14307C11.2236 6.72885 10.8878 6.39307 10.4736 6.39307C10.0594 6.39307 9.72363 6.72885 9.72363 7.14307H11.2236ZM10.4736 18.3931C8.58206 18.3931 7.22363 18.392 6.17168 18.2781C5.13377 18.1656 4.48355 17.9505 3.97555 17.5814L3.09387 18.7949C3.90019 19.3807 4.84457 19.6431 6.01011 19.7693C7.16161 19.8941 8.61547 19.8931 10.4736 19.8931V18.3931ZM0.723633 10.1431C0.723633 12.0012 0.722603 13.4551 0.847361 14.6066C0.973639 15.7721 1.23596 16.7165 1.82178 17.5228L3.03531 16.6412C2.66622 16.1331 2.45108 15.4829 2.33863 14.445C2.22466 13.3931 2.22363 12.0346 2.22363 10.1431H0.723633ZM3.97555 17.5814C3.61474 17.3193 3.29745 17.002 3.03531 16.6412L1.82178 17.5228C2.17644 18.011 2.60572 18.4403 3.09387 18.7949L3.97555 17.5814ZM18.7236 10.1431C18.7236 12.0346 18.7226 13.3931 18.6086 14.445C18.4962 15.4829 18.281 16.1331 17.912 16.6412L19.1255 17.5228C19.7113 16.7165 19.9736 15.7721 20.0999 14.6066C20.2247 13.4551 20.2236 12.0012 20.2236 10.1431H18.7236ZM10.4736 19.8931C12.3318 19.8931 13.7857 19.8941 14.9372 19.7693C16.1027 19.6431 17.0471 19.3807 17.8534 18.7949L16.9717 17.5814C16.4637 17.9505 15.8135 18.1656 14.7756 18.2781C13.7236 18.392 12.3652 18.3931 10.4736 18.3931V19.8931ZM17.912 16.6412C17.6498 17.002 17.3325 17.3193 16.9717 17.5814L17.8534 18.7949C18.3415 18.4403 18.7708 18.011 19.1255 17.5228L17.912 16.6412ZM10.4736 1.89307C12.3652 1.89307 13.7236 1.8941 14.7756 2.00807C15.8135 2.12052 16.4637 2.33566 16.9717 2.70474L17.8534 1.49122C17.0471 0.90539 16.1027 0.643072 14.9372 0.516794C13.7857 0.392037 12.3318 0.393066 10.4736 0.393066V1.89307ZM20.2236 10.1431C20.2236 8.28491 20.2247 6.83104 20.0999 5.67954C19.9736 4.51401 19.7113 3.56962 19.1255 2.7633L17.912 3.64498C18.281 4.15298 18.4962 4.8032 18.6086 5.84111C18.7226 6.89306 18.7236 8.25149 18.7236 10.1431H20.2236ZM16.9717 2.70474C17.3325 2.96688 17.6498 3.28418 17.912 3.64498L19.1255 2.7633C18.7708 2.27516 18.3415 1.84588 17.8534 1.49122L16.9717 2.70474ZM10.4736 0.393066C8.61547 0.393066 7.16161 0.392037 6.01011 0.516794C4.84457 0.643072 3.90019 0.90539 3.09387 1.49122L3.97555 2.70474C4.48355 2.33566 5.13377 2.12052 6.17168 2.00807C7.22363 1.8941 8.58206 1.89307 10.4736 1.89307V0.393066ZM2.22363 10.1431C2.22363 8.25149 2.22466 6.89306 2.33863 5.84111C2.45108 4.8032 2.66622 4.15298 3.03531 3.64498L1.82178 2.7633C1.23596 3.56962 0.973639 4.514 0.847361 5.67954C0.722603 6.83104 0.723633 8.28491 0.723633 10.1431H2.22363ZM3.09387 1.49122C2.60572 1.84588 2.17644 2.27516 1.82178 2.7633L3.03531 3.64498C3.29745 3.28418 3.61474 2.96688 3.97555 2.70474L3.09387 1.49122ZM7.47363 10.8931H13.4736V9.39307H7.47363V10.8931ZM11.2236 13.1431V7.14307H9.72363V13.1431H11.2236Z" fill="white"/>
+                </svg>
+                <span class="ml-2">Ajouter un congé</span>
+          </button>
+        <div class="flex items-center space-x-2">
+            <label class="ml-4">Année : </label>
+            <nz-date-picker [nzPlaceHolder]="'Année'" [(ngModel)]="SelectedYear"   (ngModelChange)="onDateChange($event)" 
+            class="bg-red" [nzMode]="'year'"></nz-date-picker>
+
+
+        </div>
+      </div>
+    <div *ngIf="!isLoadingVacations" class="container animate__animated animate__fadeIn font-Jakarta mx-auto">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1">
+          <div *ngFor="let month of monthNames; let i = index" class=" p-2 rounded-lg">
+            <div>
+                <h5 class="text-md font-bold capitalize text-[#0D204E]">{{ month }} </h5>
+                <h2 class="text-xl font-bold  text-[#0D204E] "> {{ year }}</h2>
+            </div>
+            <div class="grid grid-cols-8 bg-white rounded-xl overflow-hidden border  mt-4">
+              <div class="font-semibold bg-[#ECECEC]  text-[#7B8694] py-1 px-2 truncate text-center">S</div>
+              <div *ngFor="let day of ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam']" class="text-center text-xs   bg-[#ECECEC] text-[#7B8694] py-2 px-2  font-semibold">
+                {{ day }}
+              </div>
+      
+              <div *ngFor="let week of getWeeksForMonth(i, year)" class="col-span-8">
+                <div class="grid grid-cols-8 ">
+                  <div class="text-center   w-full h-8  font-semibold">
+                    <!-- Highlight selected weeks with bg-red -->
+                    <div (click)="showDeleteModal(week.weekNumber)" class="flex cursor-pointer items-center justify-center font-bold h-8" [ngClass]="{'bg-[#FDE9B9]  text-[#F7B71E]': isSelectedWeek(week.weekNumber), ' text-[#999999]': !isSelectedWeek(week.weekNumber)}">
+                      {{ week.weekNumber }}
+                    </div>
+                  </div>
+                  
+                  <!-- Loop through the days of the week -->
+                  <div *ngFor="let day of week.days; let j = index" 
+                       class="h-8 flex items-center justify-center "
+                       [ngClass]="{
+                         'bg-[#FDE9B9] text-black': ArraySelectedWeeks.includes(week.weekNumber) && day !== 0,
+                         'text-black': !ArraySelectedWeeks.includes(week.weekNumber) || day === 0
+                       }">
+                    {{ day === 0 ? '' : day }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <ng-container *ngIf="isLoadingVacations">
+      <div class="container  font-Jakarta mx-auto">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1">
+
+        <div *ngFor="let i of [].constructor(12)" class="grid-cols-1">
+          <div class="p-4 -lg  bg-white">
+            <div class="space-y-2">
+              <div class="h-4 w-24 bg-gray-300  animate-pulse"></div>
+              <div class="h-6 w-32 bg-gray-300  animate-pulse"></div>
+            </div>
+            <div class="grid grid-cols-8 bg-gray-50 -xl overflow-hidden border mt-4">
+              <div class="h-6 bg-gray-200  animate-pulse col-span-8"></div>
+              <div class="col-span-8 space-y-2 mt-2">
+                <div class="grid grid-cols-8 gap-1">
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                </div>
+                     <div class="grid grid-cols-8 gap-1">
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                </div>
+                     <div class="grid grid-cols-8 gap-1">
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                </div>
+                     <div class="grid grid-cols-8 gap-1">
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                  <div class="h-8 w-full bg-gray-300  animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+      
+    </ng-container>
+      
+      
+      
+      
+  
+
+  </div>

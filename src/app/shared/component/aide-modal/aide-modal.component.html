@@ -1,0 +1,40 @@
+<nz-modal [nzWidth]="650" [(nzVisible)]="isVisible" [nzFooter]="null" (nzOnCancel)="handleClose()"  >
+  <ng-container *nzModalTitle >
+    <div class="flex font-Jakarta items-center justify-between mb-4 p-2">
+      <div class="flex items-center border py-2 px-3 rounded-3xl ">
+        <div class="bg-teal-500  text-white rounded-full p-2 mr-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h1 class="font-bold text-teal-700">Aide</h1>
+      </div>
+
+    </div>
+  </ng-container>
+  <ng-container  *nzModalContent>
+    <div class="bg-[#F9F9F9] font-Jakarta rounded-lg  p-6 max-w-2xl w-full">
+
+      <h2 class="text-xl font-semibold text-teal-600 mb-2">Bienvenue sur la page d'aide</h2>
+
+      <p class="text-gray-600 mb-4">
+        Cette page est conçue pour vous guider à travers les fonctionnalités de notre site/application. Vous trouverez ci-dessous une explication détaillée de chaque page et comment elle fonctionne.
+      </p>
+
+      <div class="relative pt-[56.25%] bg-gradient-to-r from-blue-500 to-teal-500 rounded-lg overflow-hidden">
+        <iframe
+          class="absolute top-0 left-0 w-full h-full"
+          src="https://www.youtube.com/embed/QyCIXOpJGcE"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen>
+        </iframe>
+      </div>
+
+      <div class="mt-4 text-center">
+        <h3 class="text-lg font-semibold text-teal-700">Macompta CESU</h3>
+        <p class="text-gray-600">Comment ça marche ?</p>
+      </div>
+    </div>
+
+  </ng-container>
+</nz-modal>

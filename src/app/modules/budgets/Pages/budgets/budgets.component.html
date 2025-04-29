@@ -1,0 +1,251 @@
+<nz-modal [(nzVisible)]="isOpenAddModal" (nzOnCancel)="ClearModalAddBudgets()" [nzFooter]="null"
+  [nzContent]="AddModalContent">
+  <ng-template #AddModalContent>
+    <div class="px-4 py-2">
+      <!-- Dynamic Form -->
+      <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+        <div class="font-Jakarta py-4" formArrayName="records">
+          <div *ngFor="let record of records.controls; let i = index" [formGroupName]="i">
+            <div class="flex justify-between ">
+              <h3 class="text-lg font-semibold mb-2">Objectif {{ i + 1 }}</h3>
+              <button *ngIf="records.length > 1" (click)="removeRecord(i)" type="button"
+                class="text-red hover:underline text-xs font-bold mt-2">Supprimer</button>
+
+            </div>
+            <label class="block text-gray-700 text-sm font-bold mb-1">Sélectionner une Année</label>
+            <nz-date-picker [nzFormat]="dateFormat" class="w-full px-3 py-2 mb-3 border rounded focus:outline-none "
+              formControlName="year" nzMode="year"></nz-date-picker>
+
+
+            <label class="block text-gray-700 text-sm font-bold mb-1">Sélectionner un Mois</label>
+            <nz-select formControlName="month" class="w-full py-1 mb-3 border rounded-xl  focus:outline-none ">
+              <nz-option *ngFor="let month of months" [nzValue]="month.value" [nzLabel]="month.name"></nz-option>
+            </nz-select>
+            <label class="block text-gray-700 text-sm font-bold mb-1">Semaine</label>
+            <nz-select formControlName="week" class="w-full py-1 mb-3 border rounded-xl  focus:outline-none ">
+              <nz-option *ngFor="let week of weeks" [nzValue]="week.value" [nzLabel]="week.label"></nz-option>
+            </nz-select>
+
+            <label class="block text-gray-700 text-sm font-bold mb-1">Montant</label>
+            <input type="number" formControlName="amount"
+              class="w-full px-3 py-2 mb-3 border rounded-xl focus:outline-none " />
+
+          </div>
+        </div>
+
+        <!-- Add More Button -->
+        <button (click)="addRecord()" type="button"
+          class="w-full bg-green text-white font-bold py-2 px-4 rounded-3xl hover:bg-green-600 transition duration-300 mb-4">+
+          Ajouter Plus</button>
+
+        <!-- Submit Button -->
+
+        <button type="submit" nz-button nzType="text" [nzLoading]="isAddingNewbudgets"
+          class="w-full bg-dark-blue text-white flex justify-center items-center font-bold py-2 px-4 rounded-3xl hover:bg-blue-600 transition duration-300">
+          Soumettre
+        </button>
+
+      </form>
+    </div>
+  </ng-template>
+</nz-modal>
+
+
+<nz-modal [(nzVisible)]="isDeleteModalOpen" [nzTitle]="DeleteModalTitle" [nzFooter]="null"
+  [nzContent]="DeleteModalContent" (nzOnCancel)="handleCancelDeleteModal()">
+  <ng-template #DeleteModalTitle>
+    <div class="h-14 bg-[#F13759]">
+    </div>
+  </ng-template>
+
+  <ng-template #DeleteModalContent>
+
+    <div class="flex p-6 flex-col items-center">
+      <div class="relative py-4">
+        <!-- Full-Screen Loading Indicator -->
+        <div *ngIf="isDeletingBudget" class="absolute inset-0 z-50 flex items-center justify-center bg-white/80">
+          <div class="flex flex-col items-center">
+            <div class="loader border-t-dark-blue animate-spin rounded-full h-12 w-12 border-4 border-gray-300"></div>
+            <p class="mt-2 text-dark-blue text-sm">Suppression en cours...</p>
+          </div>
+        </div>
+        <!-- Modal Content -->
+        <div class="px-2 bg-white">
+          <div class="flex gap-2 justify-around rounded-b-lg bg-white py-2 text-dark-blue">
+            <span class="relative border border-dark-blue p-2 rounded-md" *ngFor="let entry of selectedData.data">
+              <p class="text-xs">Semaine {{ entry.week }}</p>
+              <p class="cursor-pointer hover:bg-gray-200 p-1 rounded">
+                {{ entry.amount }} €
+              </p>
+              <button nz-popconfirm nzPopconfirmTitle="Êtes-vous sûr de vouloir supprimer cette semaine ?"
+                nzOkText="Oui" nzCancelText="Annuler"
+                class="absolute bg-red flex justify-center items-center rounded-full -top-2 -right-2 h-4 w-4 text-white text-xs text-red-500 cursor-pointer hover:text-red-700"
+                (nzOnConfirm)="confirm(entry)" (nzOnCancel)="cancel()">
+                x
+              </button>
+            </span>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </ng-template>
+</nz-modal>
+
+
+<nz-modal [(nzVisible)]="isEditModalOpen" (nzOnCancel)="isEditModalOpen = false" [nzFooter]="null"
+  [nzContent]="EditModalContent">
+  <ng-template #EditModalContent>
+    <div class="bg-[#248a88] text-white font-Jakarta py-3 px-4 ">
+      <p>Edité</p>
+
+    </div>
+    <div class="relative py-4">
+      <!-- Full-Screen Loading Indicator -->
+      <div *ngIf="isUpdatingBudget" class="absolute inset-0 z-50 flex items-center justify-center bg-white/80">
+        <div class="flex flex-col items-center">
+          <div class="loader border-t-dark-blue animate-spin rounded-full h-12 w-12 border-4 border-gray-300"></div>
+          <p class="mt-2 text-dark-blue text-sm">Updating...</p>
+        </div>
+      </div>
+      <!-- Modal Content -->
+      <div class="px-2 bg-white">
+        <div class="flex justify-around rounded-b-lg bg-white py-2 text-dark-blue">
+          <span class="border-dark-blue" *ngFor="let entry of selectedData.data">
+            <p class="text-xs">Semaine {{ entry.week }}</p>
+            <p nzTooltipTitle="Double-cliquez pour éditer la valeur" nzTooltipPlacement="rightTop" nz-tooltip
+              *ngIf="!isEditing(entry)" (dblclick)="enableEdit(entry)"
+              class="cursor-pointer hover:bg-gray-200 p-1 rounded">
+              {{ entry.amount }} €
+            </p>
+            <input *ngIf="isEditing(entry)" [(ngModel)]="entry.amount" (blur)="disableEdit(entry)"
+              class="border border-gray-300 rounded px-2 py-1 text-dark-blue" type="number" />
+          </span>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+</nz-modal>
+
+
+
+
+
+
+<app-page-template titleNavbar="Objectifs">
+
+  <div class="bg-white rounded-2xl font-Jakarta p-2">
+    <div class="flex flex-col md:flex-row items-center w-full justify-between gap-4">
+      <h2 class="text-xl text-dark-blue font-bold mb-4 md:mb-0">Objectifs de {{currentYear}}</h2>
+
+      <!-- Blue Buttons Section -->
+      <div class="flex flex-wrap gap-2 justify-center md:justify-evenly">
+        <!-- Add Goal Button -->
+        <button (click)="OpenModalAdd()"
+          class="flex items-center text-[12px] px-4 py-1 text-white bg-dark-blue rounded-full hover:bg-blue-700 focus:outline-none">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Ajouter un objectif
+        </button>
+
+        <!-- Filter by Date Button -->
+        <button (click)="OpenModalFilterDate()" nzType="primary" nz-popover nzPopoverTitle="Filtrer par date"
+          [(nzPopoverVisible)]="isFilterDateOpen" nzPopoverTrigger="click"
+          [nzPopoverContent]="contentTemplateModalFilter"
+          class="text-[11px] bg-white justify-center items-center cursor-pointer hover:bg-gray-50 duration-300 px-2.5 py-1 border flex border-[#E6E6E6] text-[#475569] rounded-3xl">
+          <div class="flex items-center">
+            <img class="h-8 w-8 mr-2" src="assets/icons/calender.svg" alt="Calendar icon" />
+            <p class="text-sm font-semibold">Filtrer par date</p>
+          </div>
+        </button>
+      </div>
+
+      <!-- Filter Date Modal Template -->
+      <ng-template #contentTemplateModalFilter>
+        <main class="flex-grow bg-white flex items-center justify-center p-4">
+          <nz-date-picker nzMode="year" [(ngModel)]="date" nzPlaceHolder="Sélectionnez une année"
+            (ngModelChange)="onChange($event)"></nz-date-picker>
+        </main>
+        <div class="flex justify-end space-x-4">
+          <button class="text-[#2C52F5] hover:text-[#2C52F5] hover:underline" nz-button nzType="link"
+            (click)="handleCloseDateModalFilter()">Annuler</button>
+          <button
+            class="bg-[#2C52F5] border rounded-full text-white hover:text-white hover:bg-[#2C52F5]/75 transition-colors"
+            nz-button nzType="text" (click)="ComfirmModalFiltrageFilter()" [nzLoading]="isLoadingFilter">
+            Filtre
+          </button>
+        </div>
+      </ng-template>
+    </div>
+
+
+
+    <div class="">
+      <!-- Skeleton Loading -->
+      <div *ngIf="isLoadingBudgets" class="w-full  py-4 space-y-4">
+        <div class="bg-gray-50 animate-pulse rounded-t-lg py-1 h-6"></div>
+        <div class="flex justify-around bg-gray-50 animate-pulse rounded-b-lg py-2 h-12">
+          <div class="w-16 h-4 bg-gray-200 rounded"></div>
+          <div class="w-24 h-4 bg-gray-200 rounded"></div>
+        </div>
+
+        <div class="bg-gray-50 animate-pulse rounded-t-lg py-1 h-6"></div>
+        <div class="flex justify-around bg-gray-50 animate-pulse rounded-b-lg py-2 h-12">
+          <div class="w-16 h-4 bg-gray-200 rounded"></div>
+          <div class="w-24 h-4 bg-gray-200 rounded"></div>
+        </div>
+
+        <div class="bg-gray-50 animate-pulse rounded-t-lg py-1 h-6"></div>
+        <div class="flex justify-around bg-gray-50 animate-pulse rounded-b-lg py-2 h-12">
+          <div class="w-16 h-4 bg-gray-200 rounded"></div>
+          <div class="w-24 h-4 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+
+      <!-- Empty Case (Only shown if no loading and empty data) -->
+      <div *ngIf="!isLoadingBudgets && (!Budgets || Budgets.length === 0)"
+        class="w-full text-center text-gray-500 py-4">
+        <p>Aucun objectif disponible.</p>
+      </div>
+
+      <div *ngIf="!isLoadingBudgets && Budgets && Budgets.length > 0"
+        class="grid mt-4 animate__animated animate__fadeIn grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full text-center text-white">
+        <div *ngFor="let month of Budgets" class="relative">
+          <div class="rounded-t-lg bg-dark-blue py-1 flex justify-between items-center">
+            <span class="ml-3">{{ getMonthName(month.month) }} </span>
+            <button class="text-white focus:outline-none flex gap-1 mr-2" nz-popover nzPopoverTrigger="hover"
+              [nzPopoverContent]="popoverContent">
+              <span class="inline-block w-1 h-1 bg-white rounded-full mb-1"></span>
+              <span class="inline-block w-1 h-1 bg-white rounded-full mb-1"></span>
+              <span class="inline-block w-1 h-1 bg-white rounded-full mb-1"></span>
+            </button>
+
+            <ng-template #popoverContent>
+              <div class="flex flex-col gap-0">
+                <button (click)="openEditModal(month)"
+                  class="text-gray-dark hover:underline  px-2 py-1 rounded">Moddifier</button>
+                <button (click)="openDeleteModal(month)"
+                  class="text-red hover:underline  px-2 py-1 rounded">supprimier</button>
+              </div>
+            </ng-template>
+          </div>
+          <div class="flex justify-around rounded-b-lg bg-dark-blue/5 py-2 text-dark-blue">
+            <span class="border-dark-blue" *ngFor="let entry of month.data">
+              <p class="text-xs">Semaine {{ entry.week }}</p>
+              <p>{{ entry.amount }} €</p>
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+
+  </div>
+
+</app-page-template>

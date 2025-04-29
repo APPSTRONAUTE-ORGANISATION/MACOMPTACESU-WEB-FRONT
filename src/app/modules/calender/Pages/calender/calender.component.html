@@ -1,0 +1,998 @@
+<nz-modal [(nzVisible)]="isOpenDeleteModalInvoices" [nzTitle]="DeleteModalTitleInvoices" [nzFooter]="null"
+  [nzContent]="DeleteModalContentInvoices" (nzOnCancel)="handleCancelDeleteModalInvoices()">
+  <ng-template #DeleteModalTitleInvoices>
+    <div class="h-14 bg-[#F13759]">
+    </div>
+  </ng-template>
+
+  <ng-template #DeleteModalContentInvoices>
+
+    <div class="flex p-6 flex-col items-center">
+      <div class="bg-[#F13759] text-white p-3 rounded-full mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+      </div>
+      <h2 class="text-xl font-bold text-[#F13759] mb-4">{{ 'calender.ATTENTION' | translate }}</h2>
+      <p class="text-gray-700 text-center mb-6">{{ 'calender.VOUS_VOULEZ_VRAIMENT_SUPPRIMER' | translate }}</p>
+      <div class="flex justify-center w-full space-x-4">
+        <button
+          class="px-4 py-2 h-10 cursor-pointer border border-gray-300 rounded-full text-gray-600 hover:bg-gray-100 transition duration-200"
+          (click)="handleCancelDeleteModalInvoices()">Annuler</button>
+        <button nz-button nzType="text" [nzLoading]="isDeletingActivity"
+          class="px-4 py-2 h-10 cursor-pointer bg-[#F13759] text-white rounded-full hover:bg-red transition duration-200"
+          (click)="HandleComfirmDeleteModalInvoices()">Supprimer</button>
+      </div>
+    </div>
+  </ng-template>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="isAddModalOpen" [nzTitle]="modalTitle" [nzContent]="modalContent" [nzFooter]="modalFooter"
+  (nzOnCancel)="HandleCancelDelete()">
+  <ng-template #modalTitle>
+    <div class="relative font-Jakarta bg-[#2C52F5] flex flex-col py-2 px-1 items-center overflow-hidden">
+      <div class="w-14 h-14 p-4 bg-cover bg-center" style="background-image: url('assets/icons/payCal.svg');"></div>
+      <div class="mt-2 text-[13px] text-[white]">{{ !isEditMode ? 'Ajouter les heures de travail' : 'Modifier les heurs de travail' }}</div>
+      <div class="absolute rotate-12 w-32 h-32 bg-cover bg-center opacity-30 -left-14 transform -rotate-30"
+        style="background-image: url('assets/icons/sidebarIcons/bigcal.svg');"></div>
+      <div class="absolute -rotate-12 w-32 h-32 bg-cover bg-center opacity-30 -right-14 transform rotate-30"
+        style="background-image: url('assets/icons/sidebarIcons/bigcal.svg');"></div>
+    </div>
+  </ng-template>
+
+  <ng-template #modalContent>
+    <nz-spin [nzSpinning]="isLoadingInvoicesDetails">
+      <main class="flex-grow font-Jakarta bg-white py-4 px-6">
+
+
+        <form [formGroup]="form" (ngSubmit)="submitForm()">
+          <div class="grid grid-cols-2 gap-4 mb-2">
+
+            <div class="relative col-span-2">
+              <label class="text-[12px] mb-1 block">{{ 'calender.CLIENT' | translate }}</label>
+              <div
+                class="text-[12px] w-full py-1 border border-gray-300 rounded-xl pl-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <nz-select formControlName="client_id" nzShowSearch nzAllowClear
+                  [nzPlaceHolder]="('calender.SÉLECTIONNEZ_UN_CLIENT' | translate)" class="custom-select w-11/12">
+                  <nz-option *ngFor="let option of GetClientMutation?.data()?.data || []"
+                    [nzLabel]="option.first_name + ' ' + option.last_name" [nzValue]="option.id"></nz-option>
+                </nz-select>
+              </div>
+              <div
+                *ngIf="form.get('client_id')?.invalid && (form.get('client_id')?.dirty || form.get('client_id')?.touched)"
+                class="text-red animate__animated animate__fadeInDown text-[9px] mt-1">
+                <div *ngIf="form.get('client_id')?.errors?.['required']">{{ 'calender.*_CLIENT_EST_REQUIS' | translate
+                  }}
+                </div>
+              </div>
+            </div>
+
+            <!-- <div class="col-span-2">
+            <label class="text-[12px] mb-1 block">{{ 'calender.DATE_D'ÉCHÉANCE' | translate }}</label>
+            <nz-date-picker formControlName="due_date" [nzDisabledDate]="disablePastDates"
+              [nzPlaceHolder]="('calender.SÉLECTIONNEZ_UNE_DATE' | translate)" class="w-full"></nz-date-picker>
+            <div *ngIf="form.get('due_date')?.invalid && (form.get('due_date')?.dirty || form.get('due_date')?.touched)"
+              class="text-red text-[9px] mt-1">
+              * La date d'échéance est requise.
+            </div>
+          </div> -->
+            <!-- <div class="col-span-2">
+            <label class="text-[12px] mb-1 block">{{ 'calender.DATE_FACTURE' | translate }}</label>
+            <nz-date-picker formControlName="invoice_date" [nzPlaceHolder]="('calender.SÉLECTIONNEZ_UNE_DATE' | translate)"
+              class="w-full"></nz-date-picker>
+            <div
+              *ngIf="form.get('invoice_date')?.invalid && (form.get('invoice_date')?.dirty || form.get('invoice_date')?.touched)"
+              class="text-red text-[9px] mt-1">
+              * La date de facture est requise.
+            </div>
+          </div> -->
+
+            <!-- <div
+            *ngIf="form.get('due_date')?.value && form.get('invoice_date')?.value &&
+                  (form.get('due_date')?.value < form.get('invoice_date')?.value)"
+            class="text-red text-[9px] mt-2">
+            * La date d'échéance doit être postérieure ou égale à la date de facture.
+          </div> -->
+
+          </div>
+
+
+
+
+          <!--
+        <div *ngIf="!isEditMode">
+          <div class="flex flex-col">
+            <label class="text-sm font-medium text-gray-700 block mb-2">{{ 'calender.FICHIER_DE_FACTURE' | translate }}</label>
+
+
+            <ng-container *ngIf="isEditMode && !fileList.length">
+              <a target="_blank" [href]="selectedInvoice.invoice_file">{{ 'calender.CONSULTER_LE_FICHIER' | translate }}</a>
+            </ng-container>
+
+            <nz-upload [(nzFileList)]="fileList" [nzBeforeUpload]="beforeUpload">
+              <button nz-button class="w-full rounded-xl">
+                <span nz-icon nzType="upload"></span>
+                Sélectionner un fichier
+              </button>
+            </nz-upload>
+          </div>
+
+
+        </div> -->
+
+
+          <div class="relative mb-2">
+            <label class="text-[12px] mt-3 block">{{ 'calender.ACTIVITÉ' | translate }}</label>
+            <div
+              class="text-[12px] w-full py-1 border border-gray-300 rounded-xl mt-2 pl-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <nz-select [nzDropdownRender]="renderTemplate" formControlName="activity_id" nzShowSearch nzAllowClear
+                [nzPlaceHolder]="('calender.SÉLECTIONNEZ_UNE_ACTIVITÉ' | translate)" class="custom-select w-11/12">
+                <nz-option *ngFor="let option of GetActivityMutation?.data()?.data || []" [nzLabel]="option.name"
+                  [nzValue]="option.id"></nz-option>
+
+
+              </nz-select>
+              <ng-template #renderTemplate>
+                <span (click)="OpenModalActivities()"
+                  class="flex justify-center  items-center px-4 py-2 cursor-pointer hover:text-white hover:bg-blue duration-500">
+                  <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                  </svg>
+                  Ajouter
+                </span>
+              </ng-template>
+            </div>
+            <div *ngIf="form.get('activity_id')?.invalid && (form.get('activity_id')?.dirty)"
+              class="text-red animate__animated animate__fadeInDown text-[9px] mt-1">
+              <div *ngIf="form.get('activity_id')?.errors?.['required']">{{ 'calender.*_ACTIVITÉ_EST_REQUISE' |
+                translate
+                }}</div>
+            </div>
+          </div>
+
+
+          <label class="text-sm font-medium text-gray-700 mb-1 block">{{ 'calender.TARIF/HR' | translate }}</label>
+          <nz-input-number formControlName="Tarif_Hour" class="w-full mb-3 py-1 rounded-xl overflow-hidden"
+            [nzPlaceHolder]="('calender.TARIF/HR_EN_€' | translate)"></nz-input-number>
+
+
+          <div formArrayName="invoice_days" class="space-y-4 w-full">
+            <div *ngFor="let day of invoiceDays.controls; let i = index" [formGroupName]="i"
+              class="border border-gray-300 rounded-lg p-4 bg-white shadow-sm">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="text-sm font-medium text-gray-700 mb-1 block">{{ 'calender.DATE_DE_TRAVAIL' | translate
+                    }}</label>
+                  <nz-date-picker formControlName="work_date" [nzDisabledDate]="disabledSpecificWeeks"
+                    [nzPlaceHolder]="('calender.SÉLECTIONNEZ_UNE_DATE' | translate)"
+                    class="w-full mb-3"></nz-date-picker>
+                </div>
+
+                <div>
+                  <label class="text-sm font-medium text-gray-700 mb-1 block">{{ 'calender.LES_HEURES_DE_TRAVAIL' |
+                    translate }}</label>
+                  <nz-input-number formControlName="hours" class="w-full mb-3 py-1 rounded-xl overflow-hidden"
+                    [nzPlaceHolder]="('calender.HEURES' | translate)" [nzMin]="1" [nzMax]="24">
+                  </nz-input-number>
+                </div>
+              </div>
+
+              <button nz-button nzType="link" nzDanger (click)="removeInvoiceDay(i)"
+                class="mt-2 text-red-600 hover:text-red-800">
+                Supprimer
+              </button>
+            </div>
+
+            <button *ngIf="!isEditMode" nz-button nzType="primary" (click)="addInvoiceDay()"
+              class="text-sm font-medium">{{ 'calender.AJOUTER_UN_JOUR' | translate }}</button>
+          </div>
+          <div *ngIf="!isEditMode" class="col-span-2 mt-2">
+            <div class="flex items-center justify-evenly">
+              <label class="text-[15px] text-dark-blue mb-1 mt-1  block">Statut </label>
+
+
+              <nz-radio-group class="flex items-center" formControlName="statusPay" nzName="radiogroup">
+                <label nz-radio [nzValue]="0" class="custom-radio">
+                  <span class="radio-text">Non payé</span>
+                </label>
+                <label nz-radio [nzValue]="1" class="custom-radio">
+                  <span class="radio-text">Payé</span>
+                </label>
+              </nz-radio-group>
+            </div>
+
+            <div
+              *ngIf="form.get('statusPay')?.invalid && (form.get('statusPay')?.dirty || form.get('statusPay')?.touched)"
+              class="text-red-500 text-[9px] mt-1">
+              * Le statut "Payé / Non Payé" est obligatoire.
+            </div>
+          </div>
+          <div *ngIf="isEditMode" class="col-span-2 mt-2">
+
+            <div class="flex items-center justify-evenly">
+              <label class="text-[15px] text-dark-blue mb-1 mt-1  block">Statut</label>
+
+
+              <nz-radio-group class="flex items-center" formControlName="statusPay" nzName="radiogroup">
+                <label nz-radio [nzValue]="0" class="custom-radio">
+                  <span class="radio-text">Non payé</span>
+                </label>
+                <label nz-radio [nzValue]="1" class="custom-radio">
+                  <span class="radio-text">Payé</span>
+                </label>
+              </nz-radio-group>
+            </div>
+
+            <div
+              *ngIf="form.get('statusPay')?.invalid && (form.get('statusPay')?.dirty || form.get('statusPay')?.touched)"
+              class="text-red-500 text-[9px] mt-1">
+              * Le statut "Payé / Non Payé" est obligatoire.
+            </div>
+          </div>
+          <button type="submit" [disabled]="form.invalid"
+            class="mt-4 bg-blue-500 text-white px-4 py-2 rounded">Soumettre</button>
+        </form>
+      </main>
+    </nz-spin>
+  </ng-template>
+
+  <ng-template #modalFooter>
+    <div class="flex justify-end space-x-4">
+      <button class="text-[#2C52F5] hover:text-[#2C52F5] hover:underline" nz-button nzType="link"
+        (click)="HandleCancelDelete()">
+        Annuler
+      </button>
+      <button
+        class="bg-[#2C52F5] border rounded-full text-white hover:text-white   hover:bg-[#2C52F5]/75 transition-colors"
+        nz-button nzType="text" (click)="ConfirmModal()" [nzLoading]="isAddingItem">
+        {{ !isEditMode ? 'Ajouter' : 'Modifier' }}
+      </button>
+    </div>
+  </ng-template>
+
+</nz-modal>
+<nz-modal class="z-50" [nzDraggable]="true" [nzVisible]="isModalActivitiesOpen" [nzTitle]="modalTitleActivities"
+  [nzContent]="modalContentActivities" [nzFooter]="null" (nzOnCancel)="HandleCloseActivitiesModal()">
+
+  <ng-template #modalTitleActivities>
+    <div class="relative bg-[#2C52F5] flex flex-col py-2 px-1 items-center overflow-hidden">
+      <div class="mt-2 text-[11px] font-Jakarta text-[white]">Gestion des activités</div>
+    </div>
+  </ng-template>
+
+  <ng-template #modalContentActivities>
+    <main class="flex-grow bg-white w-full flex items-center  p-2">
+      <div *ngIf="isAddingActivity" class="flex w-full justify-center items-center">
+        <div class="animate-pulse space-y-4 w-3/4">
+          <div class="h-4 bg-gray-200 rounded w-full"></div>
+          <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+          <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+          <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+          <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+        </div>
+      </div>
+      <ng-container *ngIf="!isAddingActivity">
+        <div class="w-full" *ngIf="GetActivityMutation?.data()?.data?.length > 0; else noDataTemplate">
+          <div *ngFor="let item of GetActivityMutation?.data()?.data"
+            class="flex w-[100%] mb-2 justify-between items-center">
+            <div class="flex items-center space-x-3">
+              <div>
+                <p class="text-sm ml-3.5 border rounded-2xl py-1 px-3 font-medium">{{ item?.name }}</p>
+                <p class="text-xs text-gray-500">{{ item?.createdAt | date: 'yyyy-MM-dd' }}</p>
+              </div>
+            </div>
+            <p (click)="OpenDelete(item?.id)"
+              class="text-red text-[11px] hover:underline font-semibold mr-4 cursor-pointer">Supprimer</p>
+          </div>
+
+          <!-- Ajout de la dernière ligne -->
+          <div class="flex w-[100%] mb-2 justify-between items-center border-t">
+            <div class="flex items-center space-x-3 mt-2">
+
+              <input placeholder="Saisir le nom de l'activité" class="border rounded-2xl px-4 py-1 outline-0"
+                type="text" [(ngModel)]="Activity">
+
+            </div>
+            <button (click)="AddNewActivity()"
+              class=" bg-[#0D204E] pl-4 text-white outline-0 py-1  px-4 border rounded-3xl" nz-button nzType="text"
+              [nzLoading]="isAddingActivity" [disabled]="Activity.length < 5">Ajouter</button>
+          </div>
+        </div>
+
+        <!-- Gestion de l'absence de données -->
+        <ng-template #noDataTemplate>
+          <div class="flex flex-col">
+            <div class="text-center p-4 text-gray-500">
+              Aucune activité n'est disponible.
+            </div>
+            <!-- Ajout de la dernière ligne -->
+            <div class="flex w-[100%] mb-2 justify-between items-center border-t">
+              <div class="flex items-center space-x-3 mt-2">
+
+                <input placeholder="Saisir le nom de l'activité" class="border rounded-2xl px-4 py-1 outline-0"
+                  type="text" [(ngModel)]="Activity">
+
+              </div>
+              <button (click)="AddNewActivity()"
+                class=" bg-[#0D204E] pl-4 text-white outline-0 py-1  px-4 border rounded-3xl" nz-button nzType="text"
+                [nzLoading]="isAddingActivity" [disabled]="Activity.length < 5">Ajouter</button>
+            </div>
+          </div>
+        </ng-template>
+      </ng-container>
+    </main>
+  </ng-template>
+</nz-modal>
+
+<nz-modal [(nzVisible)]="isOpenDeleteModal" [nzTitle]="DeleteModalTitle" [nzFooter]="null"
+  [nzContent]="DeleteModalContent" (nzOnCancel)="handleCancelDeleteModal()">
+  <ng-template #DeleteModalTitle>
+    <div class="h-14 bg-[#F13759]">
+    </div>
+  </ng-template>
+
+  <ng-template #DeleteModalContent>
+
+    <div class="flex p-6 flex-col items-center">
+      <div class="bg-[#F13759] text-white p-3 rounded-full mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+      </div>
+      <h2 class="text-xl font-bold text-[#F13759] mb-4">{{ 'calender.ATTENTION' | translate }}</h2>
+      <p class="text-gray-700 text-center mb-6">{{ 'calender.VOUS_VOULEZ_VRAIMENT_SUPPRIMER' | translate }}</p>
+      <div class="flex justify-center w-full space-x-4">
+        <button
+          class="px-4 py-2 h-10 cursor-pointer border border-gray-300 rounded-full text-gray-600 hover:bg-gray-100 transition duration-200"
+          (click)="handleCancelDeleteModal()">Annuler</button>
+        <button nz-button nzType="text" [nzLoading]="isDeletingActivity"
+          class="px-4 py-2 h-10 cursor-pointer bg-[#F13759] text-white rounded-full hover:bg-red transition duration-200"
+          (click)="HandleComfirmDeleteModal()">Supprimer</button>
+      </div>
+    </div>
+  </ng-template>
+</nz-modal>
+
+
+
+
+<nz-modal [(nzVisible)]="PayModalOpen" (nzOnCancel)="HandleCancelPaymentModal()" [nzTitle]="PayModalT" [nzFooter]="null"
+  [nzContent]="PayModal">
+  <ng-template #PayModalT>
+    <div class="h-14 bg-[#5DBF96]">
+    </div>
+  </ng-template>
+
+  <ng-template #PayModal>
+
+    <div class="flex p-6 flex-col items-center">
+      <div class="bg-[#5DBF96] text-white p-3 rounded-full mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+      </div>
+      <h2 class="text-xl font-bold text-[#5DBF96] mb-4"> Statut : payé </h2>
+      <p class="text-gray-700 text-center mb-6">Êtes-vous sûr de vouloir marquer ce paiement comme payé ?</p>
+      <div class="flex justify-center w-full space-x-4">
+        <button (click)="HandleCancelPaymentModal()"
+          class="px-4 py-2 h-10 cursor-pointer border border-gray-300 rounded-full text-gray-600 hover:bg-gray-100 transition duration-200">{{
+          'settings.ANNULER' | translate }}</button>
+        <button (click)="comfirmPayment()" nz-button nzType="default" [nzLoading]="isAddingPayment"
+          class="px-4 py-2 h-10 cursor-pointer bg-[#5DBF96] text-white rounded-full  transition duration-200">Confimer</button>
+      </div>
+    </div>
+  </ng-template>
+</nz-modal>
+
+
+
+<app-page-template sideIconPath="assets/icons/colored/timer.svg" [seachbar]="false" titleNavbar="Calendrier">
+  <div class="bg-white p-2 rounded-xl border font-Jakarta mb-3 overflow-hidden overflow-x-auto">
+    <div class="flex justify-between items-center mb-4">
+      <button (click)="openModal('ADD')" class="bg-[#2C52F5] text-white px-4 py-2 rounded-full">{{
+        'calender.AJOUTER_UNE_FACTURE_+' | translate }} </button>
+      <div class="flex items-center space-x-2">
+        <button (click)="OpenModalFilterDate()" nzType="primary" nz-popover nzPopoverTitle="Rechercher par date"
+          [(nzPopoverVisible)]="isOpenModalFilterDate" nzPopoverTrigger="click"
+          [nzPopoverContent]="contentTemplateModalFilter"
+          class="text-[11px] cursor-pointer hover:bg-gray-50 duration-300 px-2.5 py-1 border flex border-[#E6E6E6] text-[#475569] rounded-3xl">
+          <p class="text-[15px] capitalize font-semibold mr-1">{{ FilterDates.startDate | date: 'MMMM' }}
+            {{FilterDates.startDate | date: 'YYYY'}} </p>
+        </button>
+        <div nz-popover [(nzPopoverVisible)]="isOpenModalColor" nzPopoverTrigger="click"
+          [nzPopoverContent]="contentTemplateModalColor"
+          class="bg-white border rounded-full flex justify-center items-center cursor-pointer h-10 w-10">
+          <img src="/assets/icons/sidebarIcons/parameters.svg">
+        </div>
+        <ng-template #contentTemplateModalFilter>
+          <main class="flex-grow bg-white flex items-center justify-center p-1 ">
+            <nz-date-picker nzMode="month" [(ngModel)]="date"
+              (ngModelChange)="onChangeDateFilter($event)"></nz-date-picker>
+
+          </main>
+          <div class="flex justify-end space-x-4">
+            <button class="text-[#2C52F5] hover:text-[#2C52F5] hover:underline" nz-button nzType="link"
+              (click)="handleCloseDateModal()">
+              Annuler
+            </button>
+            <button
+              class="bg-[#2C52F5] border rounded-full text-white hover:text-white   hover:bg-[#2C52F5]/75 transition-colors"
+              nz-button nzType="text" (click)="ComfirmModalFiltrage()" [nzLoading]="isSearchingWithDate">
+              Filtre
+            </button>
+          </div>
+        </ng-template>
+        <ng-template #contentTemplateModalColor>
+          <div class="p-1 w-[200px]">
+
+            <div class="mb-4 flex justify-between items-center">
+              <label class="block text-xs font-medium text-gray-700">Total journée entre 0 à 100€</label>
+              <nz-color-picker [(ngModel)]="colorsTotalJournee.low" (ngModelChange)="saveColors()"
+                class="mt-1"></nz-color-picker>
+            </div>
+
+            <div class="mb-4 flex justify-between items-center">
+              <label class="block text-xs font-medium text-gray-700">Total journée entre 100 à 200€</label>
+              <nz-color-picker [(ngModel)]="colorsTotalJournee.medium" (ngModelChange)="saveColors()"
+                class="mt-1"></nz-color-picker>
+            </div>
+            <div class="mb-4 flex justify-between items-center">
+              <label class="block text-xs font-medium text-gray-700">Total journée plus de 200€</label>
+              <nz-color-picker [(ngModel)]="colorsTotalJournee.high" (ngModelChange)="saveColors()"
+                class="mt-1"></nz-color-picker>
+            </div>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+
+    <nz-spin nzTip="Chargement en cours..." [nzSpinning]="isLoading">
+
+      <div class="bg-white animate__animated animate__fadeIn overflow-x-auto">
+        <div class=" min-w-[1000px] font-Jakarta">
+          <!-- Header Row -->
+          <div class="grid grid-cols-9 ml-1 gap-2 py-1 bg-white">
+            <div class="rounded-xl py-3 border border-gray-300 text-md px-4 text-center font-semibold">Semaine</div>
+            <div class="rounded-xl py-3 border border-gray-300 text-md px-4 text-center font-semibold">{{
+              'calender.DATE'
+              | translate }}</div>
+            <div class="rounded-xl py-3 border border-gray-300 text-md px-4 text-center font-semibold">{{
+              'calender.CLIENT' | translate }}</div>
+            <div class="rounded-xl py-3 border border-gray-300 text-md px-4 text-center font-semibold">{{
+              'calender.ACTIVITÉ' | translate }}</div>
+            <div class="rounded-xl py-3 border border-gray-300 text-md px-4 text-center font-semibold">{{
+              'calender.HEURES' | translate }}</div>
+            <div class="rounded-xl py-3 border border-gray-300 text-md px-4 text-center font-semibold">{{
+              'calender.FACTURE' | translate }}</div>
+            <div class="rounded-xl py-3 border border-gray-300 text-md px-4 text-center font-semibold">{{
+              'calender.PAYMENT_STATUS' | translate }}</div>
+            <div class="rounded-xl py-3 border border-gray-300 text-md px-4 text-center font-semibold">{{
+              'calender.SOLDE'
+              | translate }}</div>
+            <div class="rounded-xl py-3 border border-gray-300 text-md px-4 text-center font-semibold">{{
+              'calender.TOTAL_JOURNÉE' | translate }}</div>
+
+          </div>
+
+          <!-- Week Data -->
+          <ng-container>
+            <div *ngFor="let week of CalenderData[0]?.weeks " class="grid grid-cols-9 gap-2 p-1">
+              <!-- Week Name -->
+              <div [class]="'rounded-xl flex justify-center items-center border border-gray-300 px-4 py-2'">
+                {{ week.weekName }}
+              </div>
+
+              <!-- Day Data -->
+              <div class=" col-span-8 grid grid-cols-8 gap-2">
+
+                <ng-container *ngFor="let day of week.days; let i = index">
+                  <!-- Day Date -->
+                  <div [class]="'rounded-xl border border-gray-300 px-4 py-2 '+'row-span-1 '">
+                    <div class="font-semibold text-dark-blue capitalize">{{ day?.date | date: 'EEEE' }}</div>
+                    <div class="text-sm float-right text-gray-500">{{ day?.date | date: 'dd' }}</div>
+                  </div>
+
+                  <!-- Invoice or Empty Message -->
+                  <ng-container *ngIf="day.invoices.length > 0; else emptyDay">
+                    <div
+                      class="col-span-7 border-gray-50  border rounded-xl p-[2px] grid grid-rows-[repeat(auto-fit,_minmax(0,_1fr))] grid-cols-7 gap-4 ">
+                      <ng-container *ngFor="let invoice of day.invoices; let i = index">
+
+                        <!-- Client Name with Tooltip -->
+                        <div
+                          class="text-center rounded-xl truncate border h-10 text-white bg-[#475569] border-gray-300 px-4 py-2"
+                          nz-tooltip [nzTooltipMouseLeaveDelay]="0" [nzTooltipTitle]="invoice.client_name"
+                          nzTooltipPlacement="top">
+                          {{ invoice.client_name }}
+                        </div>
+
+                        <!-- Activity Name with Tooltip -->
+                        <div
+                          [class]="'text-center rounded-xl truncate border h-10 border-gray-300 px-4 py-2 text-white'"
+                          [style.backgroundColor]="getColor(invoice.activity_name)"
+                          [ngClass]="'bg-[' + getColor(invoice.activity_name) + ']'" nz-tooltip
+                          [nzTooltipMouseLeaveDelay]="0" [nzTooltipTitle]="invoice.activity_name"
+                          nzTooltipPlacement="top">
+                          {{ invoice.activity_name }}
+                        </div>
+
+                        <div *ngIf="!editingIndexMap[invoice.id]"
+                          class="text-center bg-[#2C52F5] text-white rounded-xl border h-10 border-gray-300 px-4 py-2"
+                          nz-tooltip [nzTooltipMouseLeaveDelay]="0" [nzTooltipTitle]="invoice.hours + ' heures'"
+                          nzTooltipPlacement="top" (dblclick)="startEditing(invoice.invoice_date , invoice)">
+                          {{ invoice.hours }}h
+                        </div>
+
+                        <!-- Editable input -->
+                        <input *ngIf="editingIndexMap[invoice.id]"
+                          class="text-center bg-white text-black rounded-xl border h-10 border-gray-300 px-4 py-2"
+                          type="number" [(ngModel)]="invoice.hours" (ngModelChange)="handleChangeSetHour($event)"
+                          (blur)="stopEditing(invoice)" (keyup.enter)="stopEditing(invoice)" />
+
+
+
+
+
+                        <!-- Total with Tooltip -->
+                        <div *ngIf="!editingIndexMap1[invoice.id]"
+                          class="text-center truncate font-semibold rounded-xl border h-10 border-gray-300 px-4 py-2"
+                          nz-tooltip [nzTooltipMouseLeaveDelay]="0" (dblclick)="startEditingTotal(invoice)"
+                          [nzTooltipTitle]="invoice.total | currency:'EUR':'symbol':'1.2-2':'fr-FR'"
+                          nzTooltipPlacement="top">
+                          {{ invoice.total | currency:'EUR':'symbol':'1.2-2':'fr-FR' }}
+                        </div>
+
+                        <!-- Editable Total Input -->
+                        <input *ngIf="editingIndexMap1[invoice.id]"
+                          class="text-center bg-white text-black rounded-xl border h-10 border-gray-300 px-4 py-2"
+                          type="number" [(ngModel)]="invoice.total" (ngModelChange)="handleValueChange1($event)"
+                          (blur)="stopEditingTotal(invoice)" (keyup.enter)="stopEditingTotal(invoice)" />
+
+
+                        <!-- Payments with Tooltip -->
+                        <div
+                          class="text-center truncate font-semibold rounded-xl  border h-10 border-gray-300 px-4 py-2"
+                          [ngClass]="{
+                            'bg-[#5DBF96] text-[#ffff]': (invoice.payments ) > 0,
+                            'bg-[#F13759] text-white': (invoice.payments ) < 0,
+                            'bg-white text-black': (invoice.payments) === 0
+                          }" nz-tooltip [nzTooltipMouseLeaveDelay]="0"
+                          [nzTooltipTitle]="invoice.payments | currency:'EUR':'symbol':'1.2-2':'fr-FR' "
+                          nzTooltipPlacement="top">
+                          {{ (invoice.payments ) | currency:'EUR':'symbol':'1.2-2':'fr-FR' }}
+                        </div>
+
+                        <!-- Remaining Amount with Tooltip -->
+                        <div class="flex justify-evenly">
+                          <div class="text-center w-11/12 truncate font-semibold border  rounded-xl h-10 px-4 py-2"
+                            [ngClass]="{
+                              'bg-[#5DBF96] text-white': ((invoice.total - invoice.payments)* (-1)) > 0,
+                              'bg-[#F13759] text-[#ffff]': ((invoice.total - invoice.payments)* (-1)) < 0,
+                              'bg-white text-black': ((invoice.total - invoice.payments)* (-1)) === 0
+                            }" nz-tooltip [nzTooltipMouseLeaveDelay]="0"
+                            [nzTooltipTitle]="(invoice.total - invoice.payments) | currency:'EUR':'symbol':'1.2-2':'fr-FR' "
+                            nzTooltipPlacement="top">
+                            {{ ((invoice.total - invoice.payments)* (-1)) | currency:'EUR':'symbol':'1.2-2':'fr-FR' }}
+
+
+                          </div>
+                          <div class="h-1/12">
+                            <!-- Popover Button with Tooltip -->
+                            <button nz-popover [nzPopoverContent]="PopOverActions" nzPopoverTrigger="click">
+                              <svg width="25" class="rotate-90 mt-1.5" height="25" viewBox="-0.5 0 25 25" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                  d="M12 14.5C13.1046 14.5 14 13.6046 14 12.5C14 11.3954 13.1046 10.5 12 10.5C10.8954 10.5 10 11.3954 10 12.5C10 13.6046 10.8954 14.5 12 14.5Z"
+                                  stroke="#7B8694" stroke-miterlimit="10" />
+                                <path
+                                  d="M19.5 14.5C20.6046 14.5 21.5 13.6046 21.5 12.5C21.5 11.3954 20.6046 10.5 19.5 10.5C18.3954 10.5 17.5 11.3954 17.5 12.5C17.5 13.6046 18.3954 14.5 19.5 14.5Z"
+                                  stroke="#7B8694" stroke-miterlimit="10" />
+                                <path
+                                  d="M4.5 14.5C5.60457 14.5 6.5 13.6046 6.5 12.5C6.5 11.3954 5.60457 10.5 4.5 10.5C3.39543 10.5 2.5 11.3954 2.5 12.5C2.5 13.6046 3.39543 14.5 4.5 14.5Z"
+                                  stroke="#7B8694" stroke-miterlimit="10" />
+                              </svg>
+                            </button>
+                            <ng-template #PopOverActions>
+                              <div class="w-[120px]">
+                                <button
+                                  class="flex text-[11px] hover:bg-gray-50 items-center w-full h-10 px-4 text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-lg"
+                                  (click)="OpenEditModal(invoice)">Modifier</button>
+                                <button
+                                  class="flex text-[11px] hover:bg-gray-50 items-center w-full h-10 px-4 text-red-700 bg-red-100 hover:bg-red-200 rounded-lg"
+                                  (click)="OpenDeleteModal(invoice)">Supprimer</button>
+                              </div>
+                            </ng-template>
+                          </div>
+                        </div>
+                        <div *ngIf="i === 0"
+                          class="rounded-xl font-semibold flex justify-center items-center border  px-4 py-2"
+                          [style.gridRow]="'span ' + (day.invoices.length)" [style.backgroundColor]="getTotalForDate(day.date) <= 100 ? colorsTotalJournee.low :
+                                getTotalForDate(day.date) <= 200 ? colorsTotalJournee.medium :
+                                colorsTotalJournee.high" [class.text-white]="getTotalForDate(day.date) < 200"
+                          [class.text-black]="getTotalForDate(day.date) >= 200">
+                          {{ getTotalForDate(day.date) | currency:'EUR':'symbol':'1.2-2':'fr-FR' }}
+                        </div>
+
+
+
+
+                      </ng-container>
+
+                    </div>
+
+                  </ng-container>
+
+
+                  <!-- Empty Message for No Invoices -->
+                  <ng-template #emptyDay>
+                    <div
+                      class="rounded-xl border flex items-center justify-center border-gray-300 px-4 py-2 col-span-7 text-center text-gray-500">
+                      Aucune donnée disponible pour ce jour
+                    </div>
+                  </ng-template>
+
+
+                </ng-container>
+              </div>
+
+              <div class="col-span-10 grid rounded-xl grid-cols-9 gap-2 p-1 bg-black">
+                <div class=" truncate text-center  text-white border-gray-300 px-4 py-2 col-span-4">
+                  {{ 'calender.TOTAL_SEMAINE' | translate }}</div>
+
+                <div class="rounded-xl  truncate text-center bg-[#2C52F5] text-white border-gray-300 px-4 py-2"
+                  nz-tooltip [nzTooltipMouseLeaveDelay]="0" [nzTooltipTitle]="week.totalHours + 'h'"
+                  nzTooltipPlacement="top">
+                  {{ week.totalHours }}h
+                </div>
+
+
+                <div class="rounded-xl  truncate  bg-white text-center font-semibold border-gray-300 px-4 py-2"
+                  nz-tooltip [nzTooltipMouseLeaveDelay]="0"
+                  [nzTooltipTitle]="week.invoices_sum_total | currency:'EUR':'symbol':'1.2-2':'fr-FR' "
+                  nzTooltipPlacement="top">
+                  {{ week.invoices_sum_total | currency:'EUR':'symbol':'1.2-2':'fr-FR' }}
+                </div>
+
+                <div class="rounded-xl  truncate text-center font-semibold  border-gray-300 px-4 py-2" nz-tooltip
+                  [ngClass]="{
+                        'bg-[#5DBF96] text-white': week.totalPayments > 0,
+                        'bg-[#F13759] text-[#ffff]': week.totalPayments < 0,
+                        'bg-white text-black': week.totalPayments === 0
+                      }" [nzTooltipMouseLeaveDelay]="0"
+                  [nzTooltipTitle]="week.totalPayments | currency:'EUR':'symbol':'1.2-2':'fr-FR' "
+                  nzTooltipPlacement="top">
+                  {{ week.totalPayments | currency:'EUR':'symbol':'1.2-2':'fr-FR' }}
+                </div>
+
+                <div class="rounded-xl w-5/6  truncate text-center font-semibold border-gray-300 px-4 py-2" nz-tooltip
+                  [nzTooltipMouseLeaveDelay]="0" [ngClass]="{
+                      'bg-[#5DBF96] text-white': -(week.invoices_sum_total - week.totalPayments) > 0,
+                      'bg-[#F13759] text-[#ffff]': -(week.invoices_sum_total - week.totalPayments) < 0,
+                      'bg-white text-black': -(week.invoices_sum_total - week.totalPayments) == 0
+                    }"
+                  [nzTooltipTitle]="(week.invoices_sum_total - week.totalPayments) | currency:'EUR':'symbol':'1.2-2':'fr-FR' "
+                  nzTooltipPlacement="top">
+                  {{-( week.invoices_sum_total - week.totalPayments) | currency:'EUR':'symbol':'1.2-2':'fr-FR' }}
+                </div>
+              </div>
+            </div>
+
+
+          </ng-container>
+        </div>
+        <div class="grid rounded-xl grid-cols-9 min-w-[1000px] bg-[#ffe46a] gap-4 p-1">
+
+          <div class="rounded-xl truncate h-10 text-center  text-[#77631c] border-[#A78202] px-4 py-2 col-span-4">
+            {{ 'calender.TOTAL_MOIS' | translate }}</div>
+          <div class="rounded-xl truncate h-10 text-center   text-white bg-[#2C52F5] px-4 py-2" nz-tooltip
+            [nzTooltipMouseLeaveDelay]="0" [nzTooltipTitle]="totalsMonth?.totalHours+'h'" nzTooltipPlacement="top"> {{
+            totalsMonth?.totalHours }}h
+          </div>
+          <div class="rounded-xl truncate h-10 bg-white text-center  font-semibold border-gray-300 px-4 py-2" nz-tooltip
+            [nzTooltipMouseLeaveDelay]="0" [nzTooltipTitle]="totalsMonth?.invoices_sum_total |
+          currency:'EUR':'symbol':'1.2-2':'fr-FR' " nzTooltipPlacement="top"> {{
+            totalsMonth?.invoices_sum_total |
+            currency:'EUR':'symbol':'1.2-2':'fr-FR' }}
+          </div>
+          <div class="rounded-xl truncate h-10 text-center  font-semibold border-gray-300 px-4 py-2" [ngClass]="totalsMonth?.totalPayed > 0 ? 'bg-[#5DBF96] text-white' :
+          totalsMonth?.totalPayed < 0 ? 'bg-[#F13759] text-white' :
+          'bg-white text-black'" nz-tooltip [nzTooltipMouseLeaveDelay]="0" [nzTooltipTitle]="totalsMonth?.totalPayed |
+          currency:'EUR':'symbol':'1.2-2':'fr-FR' " nzTooltipPlacement="top"> {{
+            totalsMonth?.totalPayed |
+            currency:'EUR':'symbol':'1.2-2':'fr-FR' }}
+          </div>
+          <div class="rounded-xl truncate w-5/6 h-10 text-center  font-semibold  border-gray-300 px-4 py-2" [ngClass]="-(totalsMonth?.invoices_sum_total - totalsMonth?.totalPayed) > 0 ? 'bg-[#5DBF96] text-white' :
+          -(totalsMonth?.invoices_sum_total - totalsMonth?.totalPayed) < 0 ? 'bg-[#F13759] text-white' :
+          'bg-white text-black'" nz-tooltip [nzTooltipMouseLeaveDelay]="0" [nzTooltipTitle]="-(totalsMonth?.invoices_sum_total - totalsMonth?.totalPayed) |
+          currency:'EUR':'symbol':'1.2-2':'fr-FR' " nzTooltipPlacement="top"> {{ -(totalsMonth?.invoices_sum_total -
+            totalsMonth?.totalPayed) |
+            currency:'EUR':'symbol':'1.2-2':'fr-FR' }}
+          </div>
+        </div>
+
+
+      </div>
+
+    </nz-spin>
+
+
+
+
+    <!-- Main Content with Data -->
+    <div *ngIf="!isLoading" class="bg-white overflow-x-auto">
+      <!-- Your regular content (same as provided before) -->
+    </div>
+
+
+
+
+  </div>
+
+  <div class="rounded-lg font-Jakarta">
+    <div class="flex flex-col py-2">
+
+      <div class="flex flex-wrap justify-between mb-3 gap-2 md:flex-nowrap">
+        <div *ngIf="isLoadingGetUnpaidInvoicesStats"
+          class="animate__animated animate__fadeIn  w-full mx-auto bg-white rounded-3xl border p-6">
+          <div class="flex items-center border-b pb-2">
+            <div class="h-5 w-32 bg-gray-50 rounded"></div>
+            <div class="ml-2 h-4 w-4 bg-gray-50 rounded-full"></div>
+          </div>
+
+          <div class="mt-4 space-y-4">
+            <!-- Skeleton for List Items -->
+            <div class="flex justify-between items-center">
+              <div class="flex items-center space-x-3">
+                <div class="bg-gray-50 w-10 h-10 rounded-full"></div>
+                <div>
+                  <div class="h-4 w-20 bg-gray-50 rounded"></div>
+                  <div class="h-3 w-16 mt-1 bg-gray-50 rounded"></div>
+                </div>
+              </div>
+              <div class="h-5 w-12 bg-gray-50 rounded"></div>
+            </div>
+
+            <div class="flex justify-between items-center">
+              <div class="flex items-center space-x-3">
+                <div class="bg-gray-50 w-10 h-10 rounded-full"></div>
+                <div>
+                  <div class="h-4 w-20 bg-gray-50 rounded"></div>
+                  <div class="h-3 w-16 mt-1 bg-gray-50 rounded"></div>
+                </div>
+              </div>
+              <div class="h-5 w-12 bg-gray-50 rounded"></div>
+            </div>
+
+            <div class="flex justify-between items-center">
+              <div class="flex items-center space-x-3">
+                <div class="bg-gray-50 w-10 h-10 rounded-full"></div>
+                <div>
+                  <div class="h-4 w-20 bg-gray-50 rounded"></div>
+                  <div class="h-3 w-16 mt-1 bg-gray-50 rounded"></div>
+                </div>
+              </div>
+              <div class="h-5 w-12 bg-gray-50 rounded"></div>
+            </div>
+
+            <div class="flex justify-between items-center">
+              <div class="flex items-center space-x-3">
+                <div class="bg-gray-50 w-10 h-10 rounded-full"></div>
+                <div>
+                  <div class="h-4 w-20 bg-gray-50 rounded"></div>
+                  <div class="h-3 w-16 mt-1 bg-gray-50 rounded"></div>
+                </div>
+              </div>
+              <div class="h-5 w-12 bg-gray-50 rounded"></div>
+            </div>
+          </div>
+
+          <!-- Skeleton for Total -->
+          <div class="flex justify-between items-center mt-6 pt-4 border-t">
+            <div class="h-5 w-16 bg-gray-50 rounded"></div>
+            <div class="h-6 w-24 bg-gray-50 rounded"></div>
+          </div>
+        </div>
+
+        <div *ngIf="!isLoadingGetUnpaidInvoicesStats"
+          class="animate__animated animate__fadeIn  w-full mx-auto bg-white rounded-3xl border p-6 flex flex-col h-full">
+
+          <div class="flex justify-between items-center">
+            <h2 class="font-Jakarta text-[17px] flex items-center font-semibold text-[#475569]">{{
+              'index.HEURES_NON_PAYÉES' | translate }}
+              <span class="text-[#3F9897]">
+                <svg class="ml-2" width="18" height="18" viewBox="0 0 18 18" fill="none"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M16.1355 8.81677C16.1355 12.7403 12.9549 15.9209 9.03137 15.9209C5.10787 15.9209 1.92725 12.7403 1.92725 8.81677C1.92725 4.89327 5.10787 1.71265 9.03137 1.71265C12.9549 1.71265 16.1355 4.89327 16.1355 8.81677ZM9.03137 4.7319C9.32563 4.7319 9.56418 4.97044 9.56418 5.26471V9.52718C9.56418 9.82144 9.32563 10.06 9.03137 10.06C8.7371 10.06 8.49856 9.82144 8.49856 9.52718V5.26471C8.49856 4.97044 8.7371 4.7319 9.03137 4.7319ZM9.03137 12.3688C9.42372 12.3688 9.74178 12.0508 9.74178 11.6584C9.74178 11.2661 9.42372 10.948 9.03137 10.948C8.63902 10.948 8.32095 11.2661 8.32095 11.6584C8.32095 12.0508 8.63902 12.3688 9.03137 12.3688Z"
+                    fill="#FB9E31" />
+                </svg>
+              </span>
+            </h2>
+
+            <td class="px-4 py-2 flex justify-end text-sm">
+              <div class="text-md py-1 text-xs bg-gray-50 px-3 border rounded-xl">
+                Montant
+              </div>
+            </td>
+
+          </div>
+
+          <!-- Content container to push the total to the bottom -->
+          <div class="mt-4 space-y-4 flex-grow">
+            <!-- List Item -->
+            <div *ngIf="UnpaidInvoicesStats?.length > 0; else noData"
+              class="overflow-x-auto max-w-full max-h-[400px] overflow-y-auto">
+              <table class="min-w-full table-auto border-collapse text-sm">
+                <thead class="bg-gray-100">
+                </thead>
+                <tbody class="h-14">
+                  <tr (click)="PayClient(item)" *ngFor="let item of UnpaidInvoicesStats"
+                    class="border-b cursor-pointer hover:bg-gray-50">
+                    <td class="p-3 flex items-center space-x-3">
+                      <div
+                        class="bg-[#C4CFFC] text-[#2C52F5] w-10 h-10 rounded-full flex items-center justify-center font-bold">
+                        {{ item?.client_name?.split(' ')[0][0] + item?.client_name?.split(' ')[1][0] }}
+                      </div>
+                      <div>
+                        <p class="font-medium">{{ item?.client_name }}</p>
+                      </div>
+                    </td>
+                    <td class="p-3 text-gray-500">
+                      {{ item?.date | date }}
+                    </td>
+                    <td class="p-3 text-[#D80027] font-semibold">
+                      <nz-tag [nzColor]="getColor(item.activity)" class="py-1 px-3 rounded-xl">
+                        {{ item.activity }}
+                      </nz-tag>
+                    </td>
+                    <td class="p-3 text-[#2C52F5] font-semibold">
+                      <nz-tag nzColor="#2C52F5" class="py-1 px-3 rounded-xl">
+                        {{ item.hours }}h
+                      </nz-tag>
+                    </td>
+                    <td class="p-3 text-[#D80027] flex justify-end font-semibold">
+                      <nz-tag nzColor="red" class="py-1 px-3 rounded-xl">
+                        {{ (-1 * item?.unpaid_amount) | currency:'EUR':'symbol':'1.2-2':'fr-FR' }}
+                      </nz-tag>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- No Data Template -->
+            <ng-template #noData>
+              <div class="text-center p-4 text-gray-500">
+                {{ 'calender.AUCUNE_FACTURE_IMPAYÉE_DISPONIBLE' | translate }}
+              </div>
+            </ng-template>
+          </div>
+
+
+          <!-- Total (stays at the bottom) -->
+          <div class="flex justify-between items-center mt-6 pt-4 border-t">
+            <p class=" text-[#475569] font-semibold">{{ 'calender.TOTAL' | translate }}</p>
+            <p class=" font-bold border px-3 bg-[#F9F9F9] py-1 rounded-xl text-[#D80027]">-{{
+              getTotalAmountUnpaidInvoices() | currency:'EUR':'symbol':'1.2-2':'fr-FR' }}</p>
+          </div>
+        </div>
+
+
+      </div>
+
+      <div class="bg-white p-3 rounded-3xl">
+        <div class="flex justify-end items-center text-[#0D204E]  rounded-xl py-1 px-4 font-bold text-xl mb-6">
+
+          <!-- <nz-segmented class="rounded-3xl bg-white uppercase " [nzOptions]="options" (nzValueChange)="handleValueChange($event)"></nz-segmented> -->
+
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full table-auto border-collapse">
+            <thead>
+              <tr>
+                <th class="px-2 py-2 sm:px-4">
+                  <p class="bg-[#878E98] text-white border rounded-md text-center px-2 py-3 sm:px-4">{{
+                    'calender.NOMBRES' | translate }}</p>
+                </th>
+                <th class="px-2 py-2 sm:px-4">
+                  <p class=""></p>
+                </th>
+                <th class="px-2 py-2 sm:px-4">
+                  <p class="bg-[#878E98] text-white border rounded-md text-center px-2 py-3 sm:px-4">{{
+                    'calender.TOTAL/HL' | translate }}</p>
+                </th>
+                <th class="px-2 py-2 sm:px-4">
+                  <p class="bg-[#0D204E] text-white border rounded-md text-center px-2 py-3 sm:px-4">{{
+                    'calender.TOTAL_EUROS' | translate }}</p>
+                </th>
+                <th class="px-2 py-2 sm:px-4">
+                  <p class="bg-[#5DBF96] text-white border rounded-md text-center px-2 py-3 sm:px-4">{{
+                    'calender.RATIO_H/E' | translate }}</p>
+                </th>
+              </tr>
+            </thead>
+            <tbody *ngIf="!isLoadingGraph; else loading">
+              <ng-container *ngIf="GraphData.activities_data?.length > 0; else empty">
+                <tr *ngFor="let activity of GraphData.activities_data" class="hover:bg-gray-50">
+                  <td class="px-2 py-1 text-sm sm:text-base">
+                    <p class="border rounded-md text-center px-2 py-1">{{ activity.count_invoices }}</p>
+                  </td>
+                  <td class="px-2 py-1 text-sm sm:text-base">
+                    <nz-tag class="text-md py-1.5 px-3 rounded w-full text-center border border-gray-100  "
+                      [nzColor]="getColor(activity.name)">
+                      {{ activity.name }}
+
+                    </nz-tag>
+
+                  </td>
+                  <td class="px-2 py-1 text-sm sm:text-base">
+                    <p class="border rounded-md text-center px-2 py-1">{{ activity.total_hours_invoices }}</p>
+                  </td>
+                  <td class="px-2 py-1 text-sm sm:text-base">
+                    <p class="border rounded-md text-center px-2 py-1">{{ activity.total_invoices |
+                      currency:'EUR':'symbol':'1.2-2':'fr-FR' }}</p>
+                  </td>
+                  <td class="px-2 py-1 text-sm sm:text-base">
+                    <p class="border rounded-md text-center px-2 py-1">{{ activity.ratio| number:'1.0-2' }}</p>
+                  </td>
+                </tr>
+                <tr class="bg-gray-100 font-semibold">
+                  <td class="px-2 py-1 text-sm sm:text-base">
+
+                    <p class="border rounded-md text-center px-2 py-1">{{totalsTable.totalCountInvoices }}</p>
+                  </td>
+                  <td class="px-2 py-1 text-sm sm:text-base">
+                    <nz-tag class="text-md py-1.5 px-3 rounded w-full text-center border border-gray-100  "
+                      [nzColor]="'gray'">
+                      Total
+
+                    </nz-tag>
+                  </td>
+                  <td class="px-2 py-1 text-sm sm:text-base">
+                    <p class="border rounded-md text-center px-2 py-1">{{totalsTable.totalHoursInvoices }}</p>
+                  </td>
+                  <td class="px-2 py-1 text-sm sm:text-base">
+                    <p class="border rounded-md text-center px-2 py-1">{{totalsTable.totalInvoices |
+                      currency:'EUR':'symbol':'1.2-2':'fr-FR' }}</p>
+                  </td>
+                  <td class="px-2 py-1 text-sm sm:text-base">
+                    <p class="border rounded-md text-center px-2 py-1">{{totalsTable.avgRatio | number:'1.0-2'}}</p>
+                  </td>
+                </tr>
+              </ng-container>
+
+              <ng-template #empty>
+                <tr>
+                  <td colspan="5" class="px-4 py-2 text-center">
+                    <p class="text-gray-500">{{ 'calender.AUCUNE_ACTIVITÉ_TROUVÉE' | translate }}</p>
+                  </td>
+                </tr>
+              </ng-template>
+            </tbody>
+
+            <!-- Loading State -->
+            <ng-template #loading>
+              <tr>
+                <td colspan="5" class="px-4 py-2">
+                  <div class="animate-pulse space-y-2">
+                    <div class="border rounded-md h-6 bg-gray-50"></div>
+                    <div class="border rounded-md h-6 bg-gray-50"></div>
+                    <div class="border rounded-md h-6 bg-gray-50"></div>
+                    <div class="border rounded-md h-6 bg-gray-50"></div>
+                    <div class="border rounded-md h-6 bg-gray-50"></div>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </table>
+        </div>
+      </div>
+
+
+
+    </div>
+  </div>
+</app-page-template>
